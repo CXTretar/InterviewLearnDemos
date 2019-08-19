@@ -13,6 +13,9 @@
       <FileRef
          location = "group:&#x5bf9;&#x8c61;&#x7684;isa&#x548c;superclass/&#x5bf9;&#x8c61;&#x7684;isa&#x548c;superclass.xcodeproj">
       </FileRef>
+      <FileRef
+         location = "group:OC&#x5bf9;&#x8c61;&#x7684;&#x672c;&#x8d28;/OC&#x5bf9;&#x8c61;&#x7684;&#x672c;&#x8d28;.xcodeproj">
+      </FileRef>
    </Group>
    <Group
       location = "container:"
