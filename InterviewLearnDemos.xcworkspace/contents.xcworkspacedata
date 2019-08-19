@@ -3,7 +3,7 @@
    version = "1.0">
    <Group
       location = "container:"
-      name = "OC&#x5bf9;&#x8c61;&#x7684;&#x672c;&#x8d28;">
+      name = "OC&#x5bf9;&#x8c61;&#x77e5;&#x8bc6;&#x70b9;">
       <FileRef
          location = "group:NSObject&#x5bf9;&#x8c61;&#x7684;&#x5185;&#x5b58;/NSObject&#x5bf9;&#x8c61;&#x7684;&#x5185;&#x5b58;.xcodeproj">
       </FileRef>
@@ -13,5 +13,17 @@
       <FileRef
          location = "group:&#x5bf9;&#x8c61;&#x7684;isa&#x548c;superclass/&#x5bf9;&#x8c61;&#x7684;isa&#x548c;superclass.xcodeproj">
       </FileRef>
+   </Group>
+   <Group
+      location = "container:"
+      name = "KVO &#x77e5;&#x8bc6;&#x70b9;">
+   </Group>
+   <Group
+      location = "container:"
+      name = "Category&#x77e5;&#x8bc6;&#x70b9;">
+   </Group>
+   <Group
+      location = "container:"
+      name = "block&#x77e5;&#x8bc6;&#x70b9;">
    </Group>
 </Workspace>

@@ -19,6 +19,9 @@ int main(int argc, const char * argv[]) {
         NSObject *object = [[NSObject alloc]init];
         
         // 获得NSObject实例对象的成员变量所占用的大小 >> 8
+        NSLog(@"sizeof -- %zd", sizeof([NSObject class]));
+        
+        // 获得NSObject实例对象的成员变量所占用的大小 >> 8
         NSLog(@"class_getInstanceSize -- %zd", class_getInstanceSize([NSObject class]));
         
         // 获得obj指针所指向内存的大小 >> 16

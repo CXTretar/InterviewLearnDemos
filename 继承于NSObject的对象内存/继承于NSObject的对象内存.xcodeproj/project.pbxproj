@@ -25,6 +25,7 @@
 /* Begin PBXFileReference section */
 		CA23F60122DB84200036D75F /* 继承于NSObject的对象内存 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "继承于NSObject的对象内存"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CA23F60422DB84200036D75F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		CA23F60B22DC42970036D75F /* main-arm64.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "main-arm64.cpp"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,6 +58,7 @@
 		CA23F60322DB84200036D75F /* 继承于NSObject的对象内存 */ = {
 			isa = PBXGroup;
 			children = (
+				CA23F60B22DC42970036D75F /* main-arm64.cpp */,
 				CA23F60422DB84200036D75F /* main.m */,
 			);
 			path = "继承于NSObject的对象内存";
@@ -102,6 +104,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = CA23F5F822DB84200036D75F;
 			productRefGroup = CA23F60222DB84200036D75F /* Products */;
