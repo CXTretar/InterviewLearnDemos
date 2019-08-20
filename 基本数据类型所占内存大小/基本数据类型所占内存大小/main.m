@@ -23,7 +23,7 @@ int main(int argc, const char * argv[]) {
         NSLog(@"CGFloat -- %zd", sizeof(CGFloat));
         NSLog(@"BOOL -- %zd", sizeof(BOOL));
         
-        NSLog(@"指针 -- %zd -- %zd", sizeof(int *), sizeof(char *));
+        NSLog(@"指针 -- %zd -- %zd -- %zd", sizeof(int *), sizeof(char *), sizeof(void *));
     }
     return 0;
 }
