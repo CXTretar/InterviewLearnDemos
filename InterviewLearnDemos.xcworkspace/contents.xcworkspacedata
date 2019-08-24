@@ -44,6 +44,9 @@
       <FileRef
          location = "group:class &#x5185;&#x90e8;&#x6784;&#x9020;/class &#x5185;&#x90e8;&#x6784;&#x9020;.xcodeproj">
       </FileRef>
+      <FileRef
+         location = "group:objc_msgsend &#x6267;&#x884c;&#x6d41;&#x7a0b;/objc_msgsend &#x6267;&#x884c;&#x6d41;&#x7a0b;.xcodeproj">
+      </FileRef>
    </Group>
    <Group
       location = "container:"

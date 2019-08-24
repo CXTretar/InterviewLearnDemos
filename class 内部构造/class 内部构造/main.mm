@@ -12,6 +12,8 @@
 
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
+        // sel_registerName 等同于 @selector , SEL方法名字
+        NSLog(@"%p -- %p", @selector(personTest), sel_registerName("personTest"));
         
         Person *person = [[Person alloc]init];
         mj_objc_class *personClass = (__bridge mj_objc_class *)[Person class];
