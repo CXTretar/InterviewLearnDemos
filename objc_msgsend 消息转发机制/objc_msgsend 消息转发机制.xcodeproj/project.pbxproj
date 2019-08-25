@@ -10,6 +10,8 @@
 		CA08A4DF2312DCEC00CFE5BE /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = CA08A4DE2312DCEC00CFE5BE /* main.m */; };
 		CA08A4E72312DD2B00CFE5BE /* Person.m in Sources */ = {isa = PBXBuildFile; fileRef = CA08A4E62312DD2B00CFE5BE /* Person.m */; };
 		CA08A4EA2312DD3500CFE5BE /* Cat.m in Sources */ = {isa = PBXBuildFile; fileRef = CA08A4E92312DD3500CFE5BE /* Cat.m */; };
+		CA08A4ED2312E33000CFE5BE /* Person1.m in Sources */ = {isa = PBXBuildFile; fileRef = CA08A4EC2312E33000CFE5BE /* Person1.m */; };
+		CA08A4F02312E33C00CFE5BE /* Cat1.m in Sources */ = {isa = PBXBuildFile; fileRef = CA08A4EF2312E33C00CFE5BE /* Cat1.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -31,6 +33,10 @@
 		CA08A4E62312DD2B00CFE5BE /* Person.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Person.m; sourceTree = "<group>"; };
 		CA08A4E82312DD3500CFE5BE /* Cat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Cat.h; sourceTree = "<group>"; };
 		CA08A4E92312DD3500CFE5BE /* Cat.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Cat.m; sourceTree = "<group>"; };
+		CA08A4EB2312E33000CFE5BE /* Person1.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Person1.h; sourceTree = "<group>"; };
+		CA08A4EC2312E33000CFE5BE /* Person1.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Person1.m; sourceTree = "<group>"; };
+		CA08A4EE2312E33C00CFE5BE /* Cat1.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Cat1.h; sourceTree = "<group>"; };
+		CA08A4EF2312E33C00CFE5BE /* Cat1.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Cat1.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,6 +74,10 @@
 				CA08A4E62312DD2B00CFE5BE /* Person.m */,
 				CA08A4E82312DD3500CFE5BE /* Cat.h */,
 				CA08A4E92312DD3500CFE5BE /* Cat.m */,
+				CA08A4EB2312E33000CFE5BE /* Person1.h */,
+				CA08A4EC2312E33000CFE5BE /* Person1.m */,
+				CA08A4EE2312E33C00CFE5BE /* Cat1.h */,
+				CA08A4EF2312E33C00CFE5BE /* Cat1.m */,
 			);
 			path = "objc_msgsend 消息转发机制";
 			sourceTree = "<group>";
@@ -128,6 +138,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CA08A4F02312E33C00CFE5BE /* Cat1.m in Sources */,
+				CA08A4ED2312E33000CFE5BE /* Person1.m in Sources */,
 				CA08A4EA2312DD3500CFE5BE /* Cat.m in Sources */,
 				CA08A4E72312DD2B00CFE5BE /* Person.m in Sources */,
 				CA08A4DF2312DCEC00CFE5BE /* main.m in Sources */,
