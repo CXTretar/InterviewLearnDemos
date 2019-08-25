@@ -1,23 +1,20 @@
 //
-//  Person.m
-//  objc_msgsend 执行流程
+//  Cat.m
+//  objc_msgsend 消息转发机制
 //
-//  Created by CXTretar on 2019/8/24.
+//  Created by CXTretar on 2019/8/25.
 //  Copyright © 2019 CXTretar. All rights reserved.
 //
 
-#import "Person.h"
+#import "Cat.h"
 
-@implementation Person
+@implementation Cat
 
 - (void)instanceMethod {
-    
     NSLog(@"%s", __func__);
-    
 }
 
 + (void)classMethod {
-
     NSLog(@"%s", __func__);
 }
 

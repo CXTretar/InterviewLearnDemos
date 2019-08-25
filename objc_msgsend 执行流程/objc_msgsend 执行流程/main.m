@@ -16,9 +16,9 @@ int main(int argc, const char * argv[]) {
         {
             Person *person = [[Person alloc] init];
             [Person classMethod];
-            [person objectMethod];
+            [person instanceMethod];
         }
-        NSLog(@" ------------------------------  ");
+        NSLog(@" ----------------  ");
         {
             Person1 *person = [[Person1 alloc] init];
             [Person1 classMethod];

@@ -1,8 +1,8 @@
 //
 //  Person.h
-//  objc_msgsend 执行流程
+//  objc_msgsend 消息转发机制
 //
-//  Created by CXTretar on 2019/8/24.
+//  Created by CXTretar on 2019/8/25.
 //  Copyright © 2019 CXTretar. All rights reserved.
 //
 
@@ -15,3 +15,4 @@
 + (void)classMethod;
 
 @end
+
