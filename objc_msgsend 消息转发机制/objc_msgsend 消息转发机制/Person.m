@@ -14,7 +14,7 @@
 // 对象方法
 - (id)forwardingTargetForSelector:(SEL)aSelector {
     if (aSelector == @selector(instanceMethod)) {
-        // objc_msgSend([[MJCat alloc] init], aSelector)
+        // objc_msgSend([[Cat alloc] init], aSelector)
         return [[Cat alloc] init];
     }
     return [super forwardingTargetForSelector:aSelector];
@@ -23,7 +23,7 @@
 // 类方法
 + (id)forwardingTargetForSelector:(SEL)aSelector {
     if (aSelector == @selector(classMethod)) {
-        // objc_msgSend([[MJCat alloc] init], aSelector)
+        // objc_msgSend([[Cat alloc] init], aSelector)
         return [Cat class];
     }
     return [super forwardingTargetForSelector:aSelector];

@@ -24,7 +24,7 @@
 //    anInvocation.selector 方法名
 //    [anInvocation getArgument:NULL atIndex:0]
 - (void)forwardInvocation:(NSInvocation *)anInvocation {
-//    anInvocation.target = [[MJCat alloc] init];
+//    anInvocation.target = [[Cat alloc] init];
 //    [anInvocation invoke];
 
     [anInvocation invokeWithTarget:[[Cat1 alloc] init]];
@@ -38,7 +38,7 @@
 }
 
 + (void)forwardInvocation:(NSInvocation *)anInvocation {
-    //    anInvocation.target = [[MJCat alloc] init];
+    //    anInvocation.target = [[Cat alloc] init];
     //    [anInvocation invoke];
     
     [anInvocation invokeWithTarget:[Cat1 class]];

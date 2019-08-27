@@ -56,6 +56,9 @@
       <FileRef
          location = "group:super &#x7684;&#x4f7f;&#x7528;/super &#x7684;&#x4f7f;&#x7528;.xcodeproj">
       </FileRef>
+      <FileRef
+         location = "group:isKindOfClass &amp; isMemberOfClass &#x533a;&#x522b;/isKindOfClass &amp; isMemberOfClass &#x533a;&#x522b;.xcodeproj">
+      </FileRef>
    </Group>
    <Group
       location = "container:"
