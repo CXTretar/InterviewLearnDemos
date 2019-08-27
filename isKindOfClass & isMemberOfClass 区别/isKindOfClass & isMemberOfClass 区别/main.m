@@ -31,8 +31,10 @@ int main(int argc, const char * argv[]) {
         
         NSLog(@"---------- 方法接收者为类对象,比较对象为元类 ----------");
         
-        NSLog(@"isMemberOfClass - Person元类 - %d", [Person isMemberOfClass:object_getClass([Person class])]);
-        NSLog(@"isKindOfClass   - Person元类 - %d", [Person isKindOfClass:object_getClass([NSObject class])]);
+        NSLog(@"isMemberOfClass - Person元类   - %d", [Person isMemberOfClass:object_getClass([Person class])]);   // 1
+        NSLog(@"isMemberOfClass - NSObject元类 - %d", [Person isMemberOfClass:object_getClass([NSObject class])]); // 0
+        NSLog(@"isKindOfClass   - Person元类   - %d", [Person isKindOfClass:object_getClass([Person class])]);     // 1
+        NSLog(@"isKindOfClass   - NSObject元类 - %d", [Person isKindOfClass:object_getClass([NSObject class])]);   // 1
         
     }
     return 0;
