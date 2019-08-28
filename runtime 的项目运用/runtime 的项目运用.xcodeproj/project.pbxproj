@@ -15,6 +15,7 @@
 		CA08A5772315572700CFE5BE /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = CA08A5762315572700CFE5BE /* main.m */; };
 		CA08A57F2316351800CFE5BE /* Person.m in Sources */ = {isa = PBXBuildFile; fileRef = CA08A57E2316351700CFE5BE /* Person.m */; };
 		CA08A5822316358700CFE5BE /* Cat.m in Sources */ = {isa = PBXBuildFile; fileRef = CA08A5812316358700CFE5BE /* Cat.m */; };
+		CA08A5852316619200CFE5BE /* NSObject+JSON.m in Sources */ = {isa = PBXBuildFile; fileRef = CA08A5842316619200CFE5BE /* NSObject+JSON.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +33,8 @@
 		CA08A57E2316351700CFE5BE /* Person.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Person.m; sourceTree = "<group>"; };
 		CA08A5802316358700CFE5BE /* Cat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Cat.h; sourceTree = "<group>"; };
 		CA08A5812316358700CFE5BE /* Cat.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Cat.m; sourceTree = "<group>"; };
+		CA08A5832316619200CFE5BE /* NSObject+JSON.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSObject+JSON.h"; sourceTree = "<group>"; };
+		CA08A5842316619200CFE5BE /* NSObject+JSON.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSObject+JSON.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -72,6 +75,8 @@
 				CA08A57E2316351700CFE5BE /* Person.m */,
 				CA08A5802316358700CFE5BE /* Cat.h */,
 				CA08A5812316358700CFE5BE /* Cat.m */,
+				CA08A5832316619200CFE5BE /* NSObject+JSON.h */,
+				CA08A5842316619200CFE5BE /* NSObject+JSON.m */,
 				CA08A56D2315572600CFE5BE /* Main.storyboard */,
 				CA08A5702315572700CFE5BE /* Assets.xcassets */,
 				CA08A5722315572700CFE5BE /* LaunchScreen.storyboard */,
@@ -152,6 +157,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CA08A56C2315572600CFE5BE /* ViewController.m in Sources */,
+				CA08A5852316619200CFE5BE /* NSObject+JSON.m in Sources */,
 				CA08A5772315572700CFE5BE /* main.m in Sources */,
 				CA08A57F2316351800CFE5BE /* Person.m in Sources */,
 				CA08A5692315572600CFE5BE /* AppDelegate.m in Sources */,

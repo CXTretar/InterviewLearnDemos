@@ -10,6 +10,7 @@
 #import <objc/runtime.h>
 #import "Person.h"
 #import "Cat.h"
+#import "NSObject+JSON.h"
 
 @interface ViewController ()
 
@@ -28,6 +29,7 @@ void eat(id self, SEL _cmd) {
     [self testClass];
     [self testIvars];
     [self testPlaceholder];
+    [self testJSON];
     // Do any additional setup after loading the view.
 }
 
@@ -105,14 +107,14 @@ void eat(id self, SEL _cmd) {
 // 利用 textField 的 ivars 属性列表对placeholder定制
 - (void)testPlaceholder {
     
-//    unsigned int count;
-//    Ivar *ivars = class_copyIvarList([UITextField class], &count);
-//    for (int i = 0; i < count; i++) {
-//        // 取出i位置的成员变量
-//        Ivar ivar = ivars[i];
-//        NSLog(@"%s - %s", ivar_getName(ivar), ivar_getTypeEncoding(ivar));
-//    }
-//    free(ivars); // copy create 创建的需要free
+    //    unsigned int count;
+    //    Ivar *ivars = class_copyIvarList([UITextField class], &count);
+    //    for (int i = 0; i < count; i++) {
+    //        // 取出i位置的成员变量
+    //        Ivar ivar = ivars[i];
+    //        NSLog(@"%s - %s", ivar_getName(ivar), ivar_getTypeEncoding(ivar));
+    //    }
+    //    free(ivars); // copy create 创建的需要free
     // 找到   _placeholderLabel - @"UITextFieldLabel" 这个ivar, 猜测 UITextFieldLabel 是 UILabel 的子类
     
     self.textField.placeholder = @"请输入用户名";
@@ -129,5 +131,14 @@ void eat(id self, SEL _cmd) {
     self.textField.attributedPlaceholder = [[NSMutableAttributedString alloc] initWithString:@"请输入用户名" attributes:attrs];
 }
 
+- (void)testJSON {
+    NSDictionary *json = @{
+                           @"name" : @"张三",
+                           @"age" : @10,
+                           @"weight" : @175.5,
+                           };
+    Person *person = [Person cx_objectWithJson:json];
+    NSLog(@"%@ --- %d --- %f" , person.name, person.age, person.weight);
+}
 
 @end
