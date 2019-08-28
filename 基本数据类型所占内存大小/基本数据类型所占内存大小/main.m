@@ -13,17 +13,17 @@ int main(int argc, const char * argv[]) {
         // 常见基本数据类型
         // int、float、double、long、char、NSInteger、NSUInteger、CGFloat、BOOL
         
-        NSLog(@"int -- %zd", sizeof(int));
-        NSLog(@"float -- %zd", sizeof(float));
-        NSLog(@"double -- %zd", sizeof(double));
-        NSLog(@"long -- %zd", sizeof(long));
-        NSLog(@"char -- %zd", sizeof(char));
-        NSLog(@"NSInteger -- %zd", sizeof(NSInteger));
-        NSLog(@"NSUInteger -- %zd", sizeof(NSUInteger));
-        NSLog(@"CGFloat -- %zd", sizeof(CGFloat));
-        NSLog(@"BOOL -- %zd", sizeof(BOOL));
+        NSLog(@"int -- %zd", sizeof(int));                     // 4
+        NSLog(@"float -- %zd", sizeof(float));                 // 4
+        NSLog(@"double -- %zd", sizeof(double));               // 8
+        NSLog(@"long -- %zd", sizeof(long));                   // 8
+        NSLog(@"char -- %zd", sizeof(char));                   // 1
+        NSLog(@"NSInteger -- %zd", sizeof(NSInteger));         // 8
+        NSLog(@"NSUInteger -- %zd", sizeof(NSUInteger));       // 8
+        NSLog(@"CGFloat -- %zd", sizeof(CGFloat));             // 8
+        NSLog(@"BOOL -- %zd", sizeof(BOOL));                   // 1
         
-        NSLog(@"指针 -- %zd -- %zd -- %zd", sizeof(int *), sizeof(char *), sizeof(void *));
+        NSLog(@"指针 -- %zd -- %zd -- %zd", sizeof(int *), sizeof(char *), sizeof(void *)); // 8
     }
     return 0;
 }

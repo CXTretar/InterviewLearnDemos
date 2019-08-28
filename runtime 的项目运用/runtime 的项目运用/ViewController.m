@@ -24,6 +24,7 @@ void eat(id self, SEL _cmd) {
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self testClass];
+    [self testIvars];
     // Do any additional setup after loading the view.
 }
 
@@ -63,12 +64,42 @@ void eat(id self, SEL _cmd) {
     [dog setValue:@10 forKey:@"_weight"];
     [dog setValue:@20 forKey:@"_height"];
     [dog eat];
-
+    
     // 在不需要这个类时释放, 释放前一定要保证基于这个类创建的对象被销毁!!!.
     dog = nil;
     objc_disposeClassPair(Dog);
 }
 
+
+// 在成员变量 Ivar 方面的运用
+- (void)testIvars {
+    
+    
+    // 获取成员变量信息
+    Ivar nameIvar = class_getInstanceVariable([Person class], "_name");
+    Ivar ageIvar = class_getInstanceVariable([Person class], "_age");
+    Ivar weightIvar = class_getInstanceVariable([Person class], "_weight");
+    
+    NSLog(@"weightIvar - %s - %s", ivar_getName(weightIvar), ivar_getTypeEncoding(weightIvar));
+    NSLog(@"nameIvar - %s - %s", ivar_getName(nameIvar), ivar_getTypeEncoding(nameIvar));
+    
+    // 设置成员变量的值
+    Person *person = [[Person alloc]init];
+    object_setIvar(person, nameIvar, @"张三");
+    object_setIvar(person, ageIvar, (__bridge id)(void *)12);
+    [person setValue:@175.0 forKey:@"_weight"];
+    NSLog(@"name - %@  age - %d  weight - %f", person.name, person.age, person.weight);
+    
+    // 成员变量的数量
+    unsigned int count;
+    Ivar *ivars = class_copyIvarList([Person class], &count);
+    for (int i = 0; i < count; i++) {
+        // 取出i位置的成员变量
+        Ivar ivar = ivars[i];
+        NSLog(@"%s - %s", ivar_getName(ivar), ivar_getTypeEncoding(ivar));
+    }
+    free(ivars); // copy create 创建的需要free
+}
 
 
 @end
