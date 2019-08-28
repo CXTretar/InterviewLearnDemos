@@ -88,7 +88,7 @@ void eat(id self, SEL _cmd) {
     
     // 设置成员变量的值
     Person *person = [[Person alloc]init];
-    object_setIvar(person, nameIvar, @"张三");
+    object_setIvar(person, nameIvar, @"felix");
     object_setIvar(person, ageIvar, (__bridge id)(void *)12);
     [person setValue:@175.0 forKey:@"_weight"];
     NSLog(@"name - %@  age - %d  weight - %f", person.name, person.age, person.weight);
@@ -133,7 +133,7 @@ void eat(id self, SEL _cmd) {
 
 - (void)testJSON {
     NSDictionary *json = @{
-                           @"name" : @"张三",
+                           @"name" : @"felix",
                            @"age" : @10,
                            @"weight" : @175.5,
                            };

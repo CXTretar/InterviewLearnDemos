@@ -14,6 +14,8 @@
 		CA08A59F2316658D00CFE5BE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CA08A59D2316658D00CFE5BE /* LaunchScreen.storyboard */; };
 		CA08A5A22316658D00CFE5BE /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = CA08A5A12316658D00CFE5BE /* main.m */; };
 		CA08A5AA231666FA00CFE5BE /* UIControl+Extension.m in Sources */ = {isa = PBXBuildFile; fileRef = CA08A5A9231666FA00CFE5BE /* UIControl+Extension.m */; };
+		CA08A5AD231668A500CFE5BE /* NSMutableArray+EXtension.m in Sources */ = {isa = PBXBuildFile; fileRef = CA08A5AC231668A500CFE5BE /* NSMutableArray+EXtension.m */; };
+		CA08A5B0231668BB00CFE5BE /* NSMutableDictionary+EXtension.m in Sources */ = {isa = PBXBuildFile; fileRef = CA08A5AF231668BB00CFE5BE /* NSMutableDictionary+EXtension.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +31,10 @@
 		CA08A5A12316658D00CFE5BE /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		CA08A5A8231666FA00CFE5BE /* UIControl+Extension.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIControl+Extension.h"; sourceTree = "<group>"; };
 		CA08A5A9231666FA00CFE5BE /* UIControl+Extension.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIControl+Extension.m"; sourceTree = "<group>"; };
+		CA08A5AB231668A500CFE5BE /* NSMutableArray+EXtension.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSMutableArray+EXtension.h"; sourceTree = "<group>"; };
+		CA08A5AC231668A500CFE5BE /* NSMutableArray+EXtension.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSMutableArray+EXtension.m"; sourceTree = "<group>"; };
+		CA08A5AE231668BB00CFE5BE /* NSMutableDictionary+EXtension.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSMutableDictionary+EXtension.h"; sourceTree = "<group>"; };
+		CA08A5AF231668BB00CFE5BE /* NSMutableDictionary+EXtension.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSMutableDictionary+EXtension.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,6 +73,10 @@
 				CA08A5962316658C00CFE5BE /* ViewController.m */,
 				CA08A5A8231666FA00CFE5BE /* UIControl+Extension.h */,
 				CA08A5A9231666FA00CFE5BE /* UIControl+Extension.m */,
+				CA08A5AB231668A500CFE5BE /* NSMutableArray+EXtension.h */,
+				CA08A5AC231668A500CFE5BE /* NSMutableArray+EXtension.m */,
+				CA08A5AE231668BB00CFE5BE /* NSMutableDictionary+EXtension.h */,
+				CA08A5AF231668BB00CFE5BE /* NSMutableDictionary+EXtension.m */,
 				CA08A5982316658C00CFE5BE /* Main.storyboard */,
 				CA08A59B2316658D00CFE5BE /* Assets.xcassets */,
 				CA08A59D2316658D00CFE5BE /* LaunchScreen.storyboard */,
@@ -149,6 +159,8 @@
 				CA08A5972316658C00CFE5BE /* ViewController.m in Sources */,
 				CA08A5A22316658D00CFE5BE /* main.m in Sources */,
 				CA08A5942316658C00CFE5BE /* AppDelegate.m in Sources */,
+				CA08A5B0231668BB00CFE5BE /* NSMutableDictionary+EXtension.m in Sources */,
+				CA08A5AD231668A500CFE5BE /* NSMutableArray+EXtension.m in Sources */,
 				CA08A5AA231666FA00CFE5BE /* UIControl+Extension.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
