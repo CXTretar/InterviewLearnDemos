@@ -62,6 +62,9 @@
       <FileRef
          location = "group:super &#x7684;&#x6ce8;&#x610f;&#x70b9;/super &#x7684;&#x6ce8;&#x610f;&#x70b9;.xcodeproj">
       </FileRef>
+      <FileRef
+         location = "group:runtime &#x7684;&#x9879;&#x76ee;&#x8fd0;&#x7528;/runtime &#x7684;&#x9879;&#x76ee;&#x8fd0;&#x7528;.xcodeproj">
+      </FileRef>
    </Group>
    <Group
       location = "container:"
