@@ -65,6 +65,9 @@
       <FileRef
          location = "group:runtime &#x7684;&#x9879;&#x76ee;&#x8fd0;&#x7528;/runtime &#x7684;&#x9879;&#x76ee;&#x8fd0;&#x7528;.xcodeproj">
       </FileRef>
+      <FileRef
+         location = "group:runtime &#x65b9;&#x6cd5;&#x4ea4;&#x6362;&#x7684;&#x8fd0;&#x7528;/runtime &#x65b9;&#x6cd5;&#x4ea4;&#x6362;&#x7684;&#x8fd0;&#x7528;.xcodeproj">
+      </FileRef>
    </Group>
    <Group
       location = "container:"
