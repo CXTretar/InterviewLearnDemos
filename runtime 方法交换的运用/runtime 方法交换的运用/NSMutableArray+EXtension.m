@@ -12,12 +12,14 @@
 @implementation NSMutableArray (EXtension)
 
 + (void)load {
-    // 类簇：NSString、NSArray、NSDictionary，真实类型是其他类型
-    Class cls = NSClassFromString(@"__NSArrayM");
-    Method originMethod = class_getInstanceMethod(cls, @selector(insertObject:atIndex:));
-    Method overrideMehtod = class_getInstanceMethod(cls, @selector(cx_insertObject:atIndex:));
-    method_exchangeImplementations(originMethod, overrideMehtod);
-    
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        // 类簇：NSString、NSArray、NSDictionary，真实类型是其他类型
+        Class cls = NSClassFromString(@"__NSArrayM");
+        Method originMethod = class_getInstanceMethod(cls, @selector(insertObject:atIndex:));
+        Method overrideMehtod = class_getInstanceMethod(cls, @selector(cx_insertObject:atIndex:));
+        method_exchangeImplementations(originMethod, overrideMehtod);
+    });
 }
 
 - (void)cx_insertObject:(id)anObject atIndex:(NSUInteger)index {

@@ -12,9 +12,13 @@
 @implementation UIControl (Extension)
 
 + (void)load {
-    Method originMethod = class_getInstanceMethod(self, @selector(sendAction:to:forEvent:));
-    Method overrideMethod = class_getInstanceMethod(self, @selector(cx_sendAction:to:forEvent:));
-    method_exchangeImplementations(originMethod, overrideMethod);
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        Method originMethod = class_getInstanceMethod(self, @selector(sendAction:to:forEvent:));
+        Method overrideMethod = class_getInstanceMethod(self, @selector(cx_sendAction:to:forEvent:));
+        method_exchangeImplementations(originMethod, overrideMethod);
+    });
+   
 }
 
 - (void)cx_sendAction:(SEL)action to:(id)target forEvent:(UIEvent *)event {

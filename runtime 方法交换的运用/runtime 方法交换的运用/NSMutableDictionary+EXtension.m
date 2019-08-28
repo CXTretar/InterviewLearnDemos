@@ -6,22 +6,26 @@
 //  Copyright © 2019 CXTretar. All rights reserved.
 //
 
-#import " +EXtension.h"
+#import "NSMutableDictionary+EXtension.h"
 #import <objc/runtime.h>
 
 @implementation NSMutableDictionary (EXtension)
 
 + (void)load {
-    // 类簇：NSString、NSArray、NSDictionary，真实类型是其他类型
-    Class cls = NSClassFromString(@"__NSDictionaryM");
-    Method originMethod = class_getInstanceMethod(cls, @selector(setObject:forKeyedSubscript:));
-    Method overrideMehtod = class_getInstanceMethod(cls, @selector(cx_setObject:forKeyedSubscript:));
-    method_exchangeImplementations(originMethod, overrideMehtod);
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        // 类簇：NSString、NSArray、NSDictionary，真实类型是其他类型
+        Class cls = NSClassFromString(@"__NSDictionaryM");
+        Method originMethod = class_getInstanceMethod(cls, @selector(setObject:forKeyedSubscript:));
+        Method overrideMehtod = class_getInstanceMethod(cls, @selector(cx_setObject:forKeyedSubscript:));
+        method_exchangeImplementations(originMethod, overrideMehtod);
+        
+        Class cls2 = NSClassFromString(@"__NSDictionaryI");
+        Method originMethod2 = class_getInstanceMethod(cls2, @selector(objectForKeyedSubscript:));
+        Method overrideMehtod2 = class_getInstanceMethod(cls2, @selector(cx_objectForKeyedSubscript:));
+        method_exchangeImplementations(originMethod2, overrideMehtod2);
+    });
     
-    Class cls2 = NSClassFromString(@"__NSDictionaryI");
-    Method originMethod2 = class_getInstanceMethod(cls2, @selector(objectForKeyedSubscript:));
-    Method overrideMehtod2 = class_getInstanceMethod(cls2, @selector(cx_objectForKeyedSubscript:));
-    method_exchangeImplementations(originMethod2, overrideMehtod2);
 }
 
 // 设值
