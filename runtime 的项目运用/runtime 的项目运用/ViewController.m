@@ -13,6 +13,8 @@
 
 @interface ViewController ()
 
+@property (weak, nonatomic) IBOutlet UITextField *textField;
+
 @end
 
 @implementation ViewController
@@ -25,6 +27,7 @@ void eat(id self, SEL _cmd) {
     [super viewDidLoad];
     [self testClass];
     [self testIvars];
+    [self testPlaceholder];
     // Do any additional setup after loading the view.
 }
 
@@ -73,8 +76,6 @@ void eat(id self, SEL _cmd) {
 
 // 在成员变量 Ivar 方面的运用
 - (void)testIvars {
-    
-    
     // 获取成员变量信息
     Ivar nameIvar = class_getInstanceVariable([Person class], "_name");
     Ivar ageIvar = class_getInstanceVariable([Person class], "_age");
@@ -99,6 +100,33 @@ void eat(id self, SEL _cmd) {
         NSLog(@"%s - %s", ivar_getName(ivar), ivar_getTypeEncoding(ivar));
     }
     free(ivars); // copy create 创建的需要free
+}
+
+// 利用 textField 的 ivars 属性列表对placeholder定制
+- (void)testPlaceholder {
+    
+//    unsigned int count;
+//    Ivar *ivars = class_copyIvarList([UITextField class], &count);
+//    for (int i = 0; i < count; i++) {
+//        // 取出i位置的成员变量
+//        Ivar ivar = ivars[i];
+//        NSLog(@"%s - %s", ivar_getName(ivar), ivar_getTypeEncoding(ivar));
+//    }
+//    free(ivars); // copy create 创建的需要free
+    // 找到   _placeholderLabel - @"UITextFieldLabel" 这个ivar, 猜测 UITextFieldLabel 是 UILabel 的子类
+    
+    self.textField.placeholder = @"请输入用户名";
+    // 1. 通过kvc修改
+    [self.textField setValue:[UIColor redColor] forKeyPath:@"_placeholderLabel.textColor"];
+    
+    // 2. 通过UILabel修改
+    UILabel *placeholderLabel = [self.textField valueForKeyPath:@"_placeholderLabel"];
+    placeholderLabel.textColor = [UIColor redColor];
+    
+    // 3. 通过富文本修改
+    NSMutableDictionary *attrs = [NSMutableDictionary dictionary];
+    attrs[NSForegroundColorAttributeName] = [UIColor redColor];
+    self.textField.attributedPlaceholder = [[NSMutableAttributedString alloc] initWithString:@"请输入用户名" attributes:attrs];
 }
 
 
