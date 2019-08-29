@@ -7,8 +7,11 @@
 //
 
 #import "ViewController.h"
+#import "CXThreadManager.h"
 
 @interface ViewController ()
+
+@property(nonatomic, strong) CXThreadManager *threadManager;
 
 @end
 
@@ -16,8 +19,27 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    self.threadManager = [[CXThreadManager alloc] init];
     // Do any additional setup after loading the view.
 }
 
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    [self.threadManager executeThreadTask:^{
+        NSLog(@"测试任务 %s %@", __func__, [NSThread currentThread]);
+    }];
+}
+
+- (IBAction)stop:(id)sender {
+    
+    [self.threadManager stopThread];
+    
+}
+
+- (void)dealloc {
+    NSLog(@"%s", __func__);
+    
+    [self stop:nil];
+}
 
 @end

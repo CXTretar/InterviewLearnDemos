@@ -13,6 +13,7 @@
 		CA08A6582318319700CFE5BE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CA08A6572318319700CFE5BE /* Assets.xcassets */; };
 		CA08A65B2318319700CFE5BE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CA08A6592318319700CFE5BE /* LaunchScreen.storyboard */; };
 		CA08A65E2318319700CFE5BE /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = CA08A65D2318319700CFE5BE /* main.m */; };
+		CA08A6662318323400CFE5BE /* CXThreadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = CA08A6652318323400CFE5BE /* CXThreadManager.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +27,8 @@
 		CA08A65A2318319700CFE5BE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		CA08A65C2318319700CFE5BE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CA08A65D2318319700CFE5BE /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		CA08A6642318323400CFE5BE /* CXThreadManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CXThreadManager.h; sourceTree = "<group>"; };
+		CA08A6652318323400CFE5BE /* CXThreadManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CXThreadManager.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,6 +65,8 @@
 				CA08A64F2318319600CFE5BE /* AppDelegate.m */,
 				CA08A6512318319600CFE5BE /* ViewController.h */,
 				CA08A6522318319600CFE5BE /* ViewController.m */,
+				CA08A6642318323400CFE5BE /* CXThreadManager.h */,
+				CA08A6652318323400CFE5BE /* CXThreadManager.m */,
 				CA08A6542318319600CFE5BE /* Main.storyboard */,
 				CA08A6572318319700CFE5BE /* Assets.xcassets */,
 				CA08A6592318319700CFE5BE /* LaunchScreen.storyboard */,
@@ -143,6 +148,7 @@
 			files = (
 				CA08A6532318319600CFE5BE /* ViewController.m in Sources */,
 				CA08A65E2318319700CFE5BE /* main.m in Sources */,
+				CA08A6662318323400CFE5BE /* CXThreadManager.m in Sources */,
 				CA08A6502318319600CFE5BE /* AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
