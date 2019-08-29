@@ -31,6 +31,8 @@
     [self addRunloopObserver1];
 //    [self addRunloopObserver2];
 }
+- (IBAction)stop:(id)sender {
+}
 
 // 添加Runloop的观察者,监听mode切换, 方式一
 - (void)addRunloopObserver1 {
