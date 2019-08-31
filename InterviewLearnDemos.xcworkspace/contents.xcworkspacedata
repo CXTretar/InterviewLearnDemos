@@ -91,5 +91,8 @@
    <Group
       location = "container:"
       name = "&#x591a;&#x7ebf;&#x7a0b;">
+      <FileRef
+         location = "group:GCD &#x6253;&#x5370;&#x9762;&#x8bd5;&#x9898;/GCD &#x6253;&#x5370;&#x9762;&#x8bd5;&#x9898;.xcodeproj">
+      </FileRef>
    </Group>
 </Workspace>
