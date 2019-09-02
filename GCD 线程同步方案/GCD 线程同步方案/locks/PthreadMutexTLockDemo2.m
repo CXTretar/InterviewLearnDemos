@@ -17,6 +17,9 @@
 
 @implementation PthreadMutexTLockDemo2
 
+- (void)moneyTest {}
+- (void)ticketTest {}
+
 - (instancetype)init {
     if (self = [super init]) {
         [self __initMutex:&_recursiveLock];
@@ -50,7 +53,7 @@
     pthread_mutex_unlock(&_recursiveLock);
 }
 
-
+// 记得销毁
 - (void)dealloc {
     
     pthread_mutex_destroy(&_recursiveLock);

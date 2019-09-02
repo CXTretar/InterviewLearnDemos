@@ -72,6 +72,7 @@
     pthread_mutex_unlock(&_ticketLock);
 }
 
+// 记得销毁
 - (void)dealloc {
     
     pthread_mutex_destroy(&_moneyLock);

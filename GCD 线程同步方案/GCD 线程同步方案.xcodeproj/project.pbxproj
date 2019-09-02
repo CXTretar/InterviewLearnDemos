@@ -21,6 +21,7 @@
 		CADA2E62231D798300D4F674 /* PthreadMutexTLockDemo2.m in Sources */ = {isa = PBXBuildFile; fileRef = CADA2E61231D798300D4F674 /* PthreadMutexTLockDemo2.m */; };
 		CADA2E65231D7C7D00D4F674 /* PthreadMutexTLockDemo3.m in Sources */ = {isa = PBXBuildFile; fileRef = CADA2E64231D7C7D00D4F674 /* PthreadMutexTLockDemo3.m */; };
 		CADA2E68231D7EE400D4F674 /* NSLockDemo.m in Sources */ = {isa = PBXBuildFile; fileRef = CADA2E67231D7EE400D4F674 /* NSLockDemo.m */; };
+		CADA2E6B231D7FD300D4F674 /* NSConditionDemo.m in Sources */ = {isa = PBXBuildFile; fileRef = CADA2E6A231D7FD300D4F674 /* NSConditionDemo.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -50,6 +51,8 @@
 		CADA2E64231D7C7D00D4F674 /* PthreadMutexTLockDemo3.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PthreadMutexTLockDemo3.m; sourceTree = "<group>"; };
 		CADA2E66231D7EE400D4F674 /* NSLockDemo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSLockDemo.h; sourceTree = "<group>"; };
 		CADA2E67231D7EE400D4F674 /* NSLockDemo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSLockDemo.m; sourceTree = "<group>"; };
+		CADA2E69231D7FD300D4F674 /* NSConditionDemo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSConditionDemo.h; sourceTree = "<group>"; };
+		CADA2E6A231D7FD300D4F674 /* NSConditionDemo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSConditionDemo.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -115,6 +118,8 @@
 				CADA2E64231D7C7D00D4F674 /* PthreadMutexTLockDemo3.m */,
 				CADA2E66231D7EE400D4F674 /* NSLockDemo.h */,
 				CADA2E67231D7EE400D4F674 /* NSLockDemo.m */,
+				CADA2E69231D7FD300D4F674 /* NSConditionDemo.h */,
+				CADA2E6A231D7FD300D4F674 /* NSConditionDemo.m */,
 			);
 			path = locks;
 			sourceTree = "<group>";
@@ -194,6 +199,7 @@
 				CADA2E3F231D6D7F00D4F674 /* ViewController.m in Sources */,
 				CADA2E56231D6F7000D4F674 /* OSSpinLockDemo.m in Sources */,
 				CADA2E59231D71F500D4F674 /* OSSpinLockDemo2.m in Sources */,
+				CADA2E6B231D7FD300D4F674 /* NSConditionDemo.m in Sources */,
 				CADA2E52231D6DF900D4F674 /* BaseDemo.m in Sources */,
 				CADA2E4A231D6D8000D4F674 /* main.m in Sources */,
 				CADA2E62231D798300D4F674 /* PthreadMutexTLockDemo2.m in Sources */,
