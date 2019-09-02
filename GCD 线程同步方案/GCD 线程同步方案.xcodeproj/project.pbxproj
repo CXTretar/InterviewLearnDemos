@@ -16,6 +16,7 @@
 		CADA2E52231D6DF900D4F674 /* BaseDemo.m in Sources */ = {isa = PBXBuildFile; fileRef = CADA2E51231D6DF900D4F674 /* BaseDemo.m */; };
 		CADA2E56231D6F7000D4F674 /* OSSpinLockDemo.m in Sources */ = {isa = PBXBuildFile; fileRef = CADA2E55231D6F7000D4F674 /* OSSpinLockDemo.m */; };
 		CADA2E59231D71F500D4F674 /* OSSpinLockDemo2.m in Sources */ = {isa = PBXBuildFile; fileRef = CADA2E58231D71F500D4F674 /* OSSpinLockDemo2.m */; };
+		CADA2E5C231D72CA00D4F674 /* OSUnfairLockDemo.m in Sources */ = {isa = PBXBuildFile; fileRef = CADA2E5B231D72CA00D4F674 /* OSUnfairLockDemo.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,6 +36,8 @@
 		CADA2E55231D6F7000D4F674 /* OSSpinLockDemo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSSpinLockDemo.m; sourceTree = "<group>"; };
 		CADA2E57231D71F500D4F674 /* OSSpinLockDemo2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSSpinLockDemo2.h; sourceTree = "<group>"; };
 		CADA2E58231D71F500D4F674 /* OSSpinLockDemo2.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSSpinLockDemo2.m; sourceTree = "<group>"; };
+		CADA2E5A231D72CA00D4F674 /* OSUnfairLockDemo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSUnfairLockDemo.h; sourceTree = "<group>"; };
+		CADA2E5B231D72CA00D4F674 /* OSUnfairLockDemo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSUnfairLockDemo.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -90,6 +93,8 @@
 				CADA2E55231D6F7000D4F674 /* OSSpinLockDemo.m */,
 				CADA2E57231D71F500D4F674 /* OSSpinLockDemo2.h */,
 				CADA2E58231D71F500D4F674 /* OSSpinLockDemo2.m */,
+				CADA2E5A231D72CA00D4F674 /* OSUnfairLockDemo.h */,
+				CADA2E5B231D72CA00D4F674 /* OSUnfairLockDemo.m */,
 			);
 			path = locks;
 			sourceTree = "<group>";
@@ -164,6 +169,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CADA2E5C231D72CA00D4F674 /* OSUnfairLockDemo.m in Sources */,
 				CADA2E3F231D6D7F00D4F674 /* ViewController.m in Sources */,
 				CADA2E56231D6F7000D4F674 /* OSSpinLockDemo.m in Sources */,
 				CADA2E59231D71F500D4F674 /* OSSpinLockDemo2.m in Sources */,

@@ -19,7 +19,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     BaseDemo *demo = [[OSSpinLockDemo2 alloc] init];
-//    [demo ticketTest];
+    [demo ticketTest];
     [demo moneyTest];
 //    [demo otherTest];
     // Do any additional setup after loading the view.
