@@ -20,6 +20,7 @@
 		CADA2E5F231D73BA00D4F674 /* PthreadMutexTLockDemo.m in Sources */ = {isa = PBXBuildFile; fileRef = CADA2E5E231D73BA00D4F674 /* PthreadMutexTLockDemo.m */; };
 		CADA2E62231D798300D4F674 /* PthreadMutexTLockDemo2.m in Sources */ = {isa = PBXBuildFile; fileRef = CADA2E61231D798300D4F674 /* PthreadMutexTLockDemo2.m */; };
 		CADA2E65231D7C7D00D4F674 /* PthreadMutexTLockDemo3.m in Sources */ = {isa = PBXBuildFile; fileRef = CADA2E64231D7C7D00D4F674 /* PthreadMutexTLockDemo3.m */; };
+		CADA2E68231D7EE400D4F674 /* NSLockDemo.m in Sources */ = {isa = PBXBuildFile; fileRef = CADA2E67231D7EE400D4F674 /* NSLockDemo.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -47,6 +48,8 @@
 		CADA2E61231D798300D4F674 /* PthreadMutexTLockDemo2.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PthreadMutexTLockDemo2.m; sourceTree = "<group>"; };
 		CADA2E63231D7C7D00D4F674 /* PthreadMutexTLockDemo3.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PthreadMutexTLockDemo3.h; sourceTree = "<group>"; };
 		CADA2E64231D7C7D00D4F674 /* PthreadMutexTLockDemo3.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PthreadMutexTLockDemo3.m; sourceTree = "<group>"; };
+		CADA2E66231D7EE400D4F674 /* NSLockDemo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSLockDemo.h; sourceTree = "<group>"; };
+		CADA2E67231D7EE400D4F674 /* NSLockDemo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSLockDemo.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,6 +113,8 @@
 				CADA2E61231D798300D4F674 /* PthreadMutexTLockDemo2.m */,
 				CADA2E63231D7C7D00D4F674 /* PthreadMutexTLockDemo3.h */,
 				CADA2E64231D7C7D00D4F674 /* PthreadMutexTLockDemo3.m */,
+				CADA2E66231D7EE400D4F674 /* NSLockDemo.h */,
+				CADA2E67231D7EE400D4F674 /* NSLockDemo.m */,
 			);
 			path = locks;
 			sourceTree = "<group>";
@@ -194,6 +199,7 @@
 				CADA2E62231D798300D4F674 /* PthreadMutexTLockDemo2.m in Sources */,
 				CADA2E3C231D6D7F00D4F674 /* AppDelegate.m in Sources */,
 				CADA2E5F231D73BA00D4F674 /* PthreadMutexTLockDemo.m in Sources */,
+				CADA2E68231D7EE400D4F674 /* NSLockDemo.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
