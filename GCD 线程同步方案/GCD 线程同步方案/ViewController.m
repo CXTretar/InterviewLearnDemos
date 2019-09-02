@@ -14,6 +14,8 @@
 #import "PthreadMutexTLockDemo3.h"
 #import "NSLockDemo.h"
 #import "NSConditionDemo.h"
+#import "NSConditionLockDemo.h"
+#import "SerialQueueDemo.h"
 
 @interface ViewController ()
 
@@ -23,7 +25,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    BaseDemo *demo = [[NSConditionDemo alloc] init];
+    BaseDemo *demo = [[SerialQueueDemo alloc] init];
     [demo ticketTest];
     [demo moneyTest];
     [demo otherTest];

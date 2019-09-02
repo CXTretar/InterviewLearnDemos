@@ -17,6 +17,9 @@
 
 @implementation NSConditionDemo
 
+- (void)moneyTest {}
+- (void)ticketTest {}
+
 - (instancetype)init {
     if (self = [super init]) {
         self.condition = [[NSCondition alloc] init];
@@ -24,9 +27,6 @@
     }
     return self;
 }
-
-- (void)moneyTest {}
-- (void)ticketTest {}
 
 - (void)otherTest {
     dispatch_async(dispatch_get_global_queue(0, 0), ^{

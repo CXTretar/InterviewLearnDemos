@@ -22,6 +22,8 @@
 		CADA2E65231D7C7D00D4F674 /* PthreadMutexTLockDemo3.m in Sources */ = {isa = PBXBuildFile; fileRef = CADA2E64231D7C7D00D4F674 /* PthreadMutexTLockDemo3.m */; };
 		CADA2E68231D7EE400D4F674 /* NSLockDemo.m in Sources */ = {isa = PBXBuildFile; fileRef = CADA2E67231D7EE400D4F674 /* NSLockDemo.m */; };
 		CADA2E6B231D7FD300D4F674 /* NSConditionDemo.m in Sources */ = {isa = PBXBuildFile; fileRef = CADA2E6A231D7FD300D4F674 /* NSConditionDemo.m */; };
+		CADA2E6E231D81BA00D4F674 /* NSConditionLockDemo.m in Sources */ = {isa = PBXBuildFile; fileRef = CADA2E6D231D81BA00D4F674 /* NSConditionLockDemo.m */; };
+		CADA2E71231D833300D4F674 /* SerialQueueDemo.m in Sources */ = {isa = PBXBuildFile; fileRef = CADA2E70231D833300D4F674 /* SerialQueueDemo.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -53,6 +55,10 @@
 		CADA2E67231D7EE400D4F674 /* NSLockDemo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSLockDemo.m; sourceTree = "<group>"; };
 		CADA2E69231D7FD300D4F674 /* NSConditionDemo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSConditionDemo.h; sourceTree = "<group>"; };
 		CADA2E6A231D7FD300D4F674 /* NSConditionDemo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSConditionDemo.m; sourceTree = "<group>"; };
+		CADA2E6C231D81BA00D4F674 /* NSConditionLockDemo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSConditionLockDemo.h; sourceTree = "<group>"; };
+		CADA2E6D231D81BA00D4F674 /* NSConditionLockDemo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSConditionLockDemo.m; sourceTree = "<group>"; };
+		CADA2E6F231D833300D4F674 /* SerialQueueDemo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SerialQueueDemo.h; sourceTree = "<group>"; };
+		CADA2E70231D833300D4F674 /* SerialQueueDemo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SerialQueueDemo.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -120,6 +126,10 @@
 				CADA2E67231D7EE400D4F674 /* NSLockDemo.m */,
 				CADA2E69231D7FD300D4F674 /* NSConditionDemo.h */,
 				CADA2E6A231D7FD300D4F674 /* NSConditionDemo.m */,
+				CADA2E6C231D81BA00D4F674 /* NSConditionLockDemo.h */,
+				CADA2E6D231D81BA00D4F674 /* NSConditionLockDemo.m */,
+				CADA2E6F231D833300D4F674 /* SerialQueueDemo.h */,
+				CADA2E70231D833300D4F674 /* SerialQueueDemo.m */,
 			);
 			path = locks;
 			sourceTree = "<group>";
@@ -194,7 +204,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CADA2E71231D833300D4F674 /* SerialQueueDemo.m in Sources */,
 				CADA2E5C231D72CA00D4F674 /* OSUnfairLockDemo.m in Sources */,
+				CADA2E6E231D81BA00D4F674 /* NSConditionLockDemo.m in Sources */,
 				CADA2E65231D7C7D00D4F674 /* PthreadMutexTLockDemo3.m in Sources */,
 				CADA2E3F231D6D7F00D4F674 /* ViewController.m in Sources */,
 				CADA2E56231D6F7000D4F674 /* OSSpinLockDemo.m in Sources */,
