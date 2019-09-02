@@ -25,6 +25,7 @@
 		CADA2E6E231D81BA00D4F674 /* NSConditionLockDemo.m in Sources */ = {isa = PBXBuildFile; fileRef = CADA2E6D231D81BA00D4F674 /* NSConditionLockDemo.m */; };
 		CADA2E71231D833300D4F674 /* SerialQueueDemo.m in Sources */ = {isa = PBXBuildFile; fileRef = CADA2E70231D833300D4F674 /* SerialQueueDemo.m */; };
 		CADA2E74231D844E00D4F674 /* SemaphoreDemo.m in Sources */ = {isa = PBXBuildFile; fileRef = CADA2E73231D844E00D4F674 /* SemaphoreDemo.m */; };
+		CADA2E77231D88F400D4F674 /* SynchronizedDemo.m in Sources */ = {isa = PBXBuildFile; fileRef = CADA2E76231D88F400D4F674 /* SynchronizedDemo.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -62,6 +63,8 @@
 		CADA2E70231D833300D4F674 /* SerialQueueDemo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SerialQueueDemo.m; sourceTree = "<group>"; };
 		CADA2E72231D844E00D4F674 /* SemaphoreDemo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SemaphoreDemo.h; sourceTree = "<group>"; };
 		CADA2E73231D844E00D4F674 /* SemaphoreDemo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SemaphoreDemo.m; sourceTree = "<group>"; };
+		CADA2E75231D88F400D4F674 /* SynchronizedDemo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SynchronizedDemo.h; sourceTree = "<group>"; };
+		CADA2E76231D88F400D4F674 /* SynchronizedDemo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SynchronizedDemo.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -135,6 +138,8 @@
 				CADA2E70231D833300D4F674 /* SerialQueueDemo.m */,
 				CADA2E72231D844E00D4F674 /* SemaphoreDemo.h */,
 				CADA2E73231D844E00D4F674 /* SemaphoreDemo.m */,
+				CADA2E75231D88F400D4F674 /* SynchronizedDemo.h */,
+				CADA2E76231D88F400D4F674 /* SynchronizedDemo.m */,
 			);
 			path = locks;
 			sourceTree = "<group>";
@@ -211,6 +216,7 @@
 			files = (
 				CADA2E71231D833300D4F674 /* SerialQueueDemo.m in Sources */,
 				CADA2E5C231D72CA00D4F674 /* OSUnfairLockDemo.m in Sources */,
+				CADA2E77231D88F400D4F674 /* SynchronizedDemo.m in Sources */,
 				CADA2E6E231D81BA00D4F674 /* NSConditionLockDemo.m in Sources */,
 				CADA2E65231D7C7D00D4F674 /* PthreadMutexTLockDemo3.m in Sources */,
 				CADA2E3F231D6D7F00D4F674 /* ViewController.m in Sources */,
