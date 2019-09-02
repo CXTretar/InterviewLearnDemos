@@ -18,6 +18,7 @@
 		CADA2E59231D71F500D4F674 /* OSSpinLockDemo2.m in Sources */ = {isa = PBXBuildFile; fileRef = CADA2E58231D71F500D4F674 /* OSSpinLockDemo2.m */; };
 		CADA2E5C231D72CA00D4F674 /* OSUnfairLockDemo.m in Sources */ = {isa = PBXBuildFile; fileRef = CADA2E5B231D72CA00D4F674 /* OSUnfairLockDemo.m */; };
 		CADA2E5F231D73BA00D4F674 /* PthreadMutexTLockDemo.m in Sources */ = {isa = PBXBuildFile; fileRef = CADA2E5E231D73BA00D4F674 /* PthreadMutexTLockDemo.m */; };
+		CADA2E62231D798300D4F674 /* PthreadMutexTLockDemo2.m in Sources */ = {isa = PBXBuildFile; fileRef = CADA2E61231D798300D4F674 /* PthreadMutexTLockDemo2.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,6 +42,8 @@
 		CADA2E5B231D72CA00D4F674 /* OSUnfairLockDemo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSUnfairLockDemo.m; sourceTree = "<group>"; };
 		CADA2E5D231D73BA00D4F674 /* PthreadMutexTLockDemo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PthreadMutexTLockDemo.h; sourceTree = "<group>"; };
 		CADA2E5E231D73BA00D4F674 /* PthreadMutexTLockDemo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PthreadMutexTLockDemo.m; sourceTree = "<group>"; };
+		CADA2E60231D798300D4F674 /* PthreadMutexTLockDemo2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PthreadMutexTLockDemo2.h; sourceTree = "<group>"; };
+		CADA2E61231D798300D4F674 /* PthreadMutexTLockDemo2.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PthreadMutexTLockDemo2.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -100,6 +103,8 @@
 				CADA2E5B231D72CA00D4F674 /* OSUnfairLockDemo.m */,
 				CADA2E5D231D73BA00D4F674 /* PthreadMutexTLockDemo.h */,
 				CADA2E5E231D73BA00D4F674 /* PthreadMutexTLockDemo.m */,
+				CADA2E60231D798300D4F674 /* PthreadMutexTLockDemo2.h */,
+				CADA2E61231D798300D4F674 /* PthreadMutexTLockDemo2.m */,
 			);
 			path = locks;
 			sourceTree = "<group>";
@@ -180,6 +185,7 @@
 				CADA2E59231D71F500D4F674 /* OSSpinLockDemo2.m in Sources */,
 				CADA2E52231D6DF900D4F674 /* BaseDemo.m in Sources */,
 				CADA2E4A231D6D8000D4F674 /* main.m in Sources */,
+				CADA2E62231D798300D4F674 /* PthreadMutexTLockDemo2.m in Sources */,
 				CADA2E3C231D6D7F00D4F674 /* AppDelegate.m in Sources */,
 				CADA2E5F231D73BA00D4F674 /* PthreadMutexTLockDemo.m in Sources */,
 			);
