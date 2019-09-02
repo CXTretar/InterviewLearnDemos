@@ -8,6 +8,7 @@
 
 #import "ViewController.h"
 #import "OSSpinLockDemo.h"
+#import "OSSpinLockDemo2.h"
 
 @interface ViewController ()
 
@@ -17,7 +18,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    BaseDemo *demo = [[OSSpinLockDemo alloc] init];
+    BaseDemo *demo = [[OSSpinLockDemo2 alloc] init];
 //    [demo ticketTest];
     [demo moneyTest];
 //    [demo otherTest];

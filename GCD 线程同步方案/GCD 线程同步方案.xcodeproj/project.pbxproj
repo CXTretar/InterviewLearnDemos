@@ -15,6 +15,7 @@
 		CADA2E4A231D6D8000D4F674 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = CADA2E49231D6D8000D4F674 /* main.m */; };
 		CADA2E52231D6DF900D4F674 /* BaseDemo.m in Sources */ = {isa = PBXBuildFile; fileRef = CADA2E51231D6DF900D4F674 /* BaseDemo.m */; };
 		CADA2E56231D6F7000D4F674 /* OSSpinLockDemo.m in Sources */ = {isa = PBXBuildFile; fileRef = CADA2E55231D6F7000D4F674 /* OSSpinLockDemo.m */; };
+		CADA2E59231D71F500D4F674 /* OSSpinLockDemo2.m in Sources */ = {isa = PBXBuildFile; fileRef = CADA2E58231D71F500D4F674 /* OSSpinLockDemo2.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +33,8 @@
 		CADA2E51231D6DF900D4F674 /* BaseDemo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BaseDemo.m; sourceTree = "<group>"; };
 		CADA2E54231D6F7000D4F674 /* OSSpinLockDemo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSSpinLockDemo.h; sourceTree = "<group>"; };
 		CADA2E55231D6F7000D4F674 /* OSSpinLockDemo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSSpinLockDemo.m; sourceTree = "<group>"; };
+		CADA2E57231D71F500D4F674 /* OSSpinLockDemo2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSSpinLockDemo2.h; sourceTree = "<group>"; };
+		CADA2E58231D71F500D4F674 /* OSSpinLockDemo2.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSSpinLockDemo2.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,6 +88,8 @@
 			children = (
 				CADA2E54231D6F7000D4F674 /* OSSpinLockDemo.h */,
 				CADA2E55231D6F7000D4F674 /* OSSpinLockDemo.m */,
+				CADA2E57231D71F500D4F674 /* OSSpinLockDemo2.h */,
+				CADA2E58231D71F500D4F674 /* OSSpinLockDemo2.m */,
 			);
 			path = locks;
 			sourceTree = "<group>";
@@ -161,6 +166,7 @@
 			files = (
 				CADA2E3F231D6D7F00D4F674 /* ViewController.m in Sources */,
 				CADA2E56231D6F7000D4F674 /* OSSpinLockDemo.m in Sources */,
+				CADA2E59231D71F500D4F674 /* OSSpinLockDemo2.m in Sources */,
 				CADA2E52231D6DF900D4F674 /* BaseDemo.m in Sources */,
 				CADA2E4A231D6D8000D4F674 /* main.m in Sources */,
 				CADA2E3C231D6D7F00D4F674 /* AppDelegate.m in Sources */,
