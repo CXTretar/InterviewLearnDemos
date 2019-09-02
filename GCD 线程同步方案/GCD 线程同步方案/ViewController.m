@@ -16,6 +16,7 @@
 #import "NSConditionDemo.h"
 #import "NSConditionLockDemo.h"
 #import "SerialQueueDemo.h"
+#import "SemaphoreDemo.h"
 
 @interface ViewController ()
 
@@ -25,7 +26,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    BaseDemo *demo = [[SerialQueueDemo alloc] init];
+    BaseDemo *demo = [[SemaphoreDemo alloc] init];
     [demo ticketTest];
     [demo moneyTest];
     [demo otherTest];

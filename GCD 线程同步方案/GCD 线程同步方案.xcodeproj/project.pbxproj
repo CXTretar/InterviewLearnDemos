@@ -24,6 +24,7 @@
 		CADA2E6B231D7FD300D4F674 /* NSConditionDemo.m in Sources */ = {isa = PBXBuildFile; fileRef = CADA2E6A231D7FD300D4F674 /* NSConditionDemo.m */; };
 		CADA2E6E231D81BA00D4F674 /* NSConditionLockDemo.m in Sources */ = {isa = PBXBuildFile; fileRef = CADA2E6D231D81BA00D4F674 /* NSConditionLockDemo.m */; };
 		CADA2E71231D833300D4F674 /* SerialQueueDemo.m in Sources */ = {isa = PBXBuildFile; fileRef = CADA2E70231D833300D4F674 /* SerialQueueDemo.m */; };
+		CADA2E74231D844E00D4F674 /* SemaphoreDemo.m in Sources */ = {isa = PBXBuildFile; fileRef = CADA2E73231D844E00D4F674 /* SemaphoreDemo.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -59,6 +60,8 @@
 		CADA2E6D231D81BA00D4F674 /* NSConditionLockDemo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSConditionLockDemo.m; sourceTree = "<group>"; };
 		CADA2E6F231D833300D4F674 /* SerialQueueDemo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SerialQueueDemo.h; sourceTree = "<group>"; };
 		CADA2E70231D833300D4F674 /* SerialQueueDemo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SerialQueueDemo.m; sourceTree = "<group>"; };
+		CADA2E72231D844E00D4F674 /* SemaphoreDemo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SemaphoreDemo.h; sourceTree = "<group>"; };
+		CADA2E73231D844E00D4F674 /* SemaphoreDemo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SemaphoreDemo.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -130,6 +133,8 @@
 				CADA2E6D231D81BA00D4F674 /* NSConditionLockDemo.m */,
 				CADA2E6F231D833300D4F674 /* SerialQueueDemo.h */,
 				CADA2E70231D833300D4F674 /* SerialQueueDemo.m */,
+				CADA2E72231D844E00D4F674 /* SemaphoreDemo.h */,
+				CADA2E73231D844E00D4F674 /* SemaphoreDemo.m */,
 			);
 			path = locks;
 			sourceTree = "<group>";
@@ -211,6 +216,7 @@
 				CADA2E3F231D6D7F00D4F674 /* ViewController.m in Sources */,
 				CADA2E56231D6F7000D4F674 /* OSSpinLockDemo.m in Sources */,
 				CADA2E59231D71F500D4F674 /* OSSpinLockDemo2.m in Sources */,
+				CADA2E74231D844E00D4F674 /* SemaphoreDemo.m in Sources */,
 				CADA2E6B231D7FD300D4F674 /* NSConditionDemo.m in Sources */,
 				CADA2E52231D6DF900D4F674 /* BaseDemo.m in Sources */,
 				CADA2E4A231D6D8000D4F674 /* main.m in Sources */,
