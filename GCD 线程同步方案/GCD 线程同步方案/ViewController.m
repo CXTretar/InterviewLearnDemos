@@ -9,6 +9,7 @@
 #import "ViewController.h"
 #import "OSSpinLockDemo.h"
 #import "OSSpinLockDemo2.h"
+#import "PthreadMutexTLockDemo.h"
 
 @interface ViewController ()
 
@@ -18,7 +19,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    BaseDemo *demo = [[OSSpinLockDemo2 alloc] init];
+    BaseDemo *demo = [[PthreadMutexTLockDemo alloc] init];
     [demo ticketTest];
     [demo moneyTest];
 //    [demo otherTest];
