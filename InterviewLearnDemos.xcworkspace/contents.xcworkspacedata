@@ -100,5 +100,8 @@
       <FileRef
          location = "group:GCD &#x7ebf;&#x7a0b;&#x540c;&#x6b65;&#x65b9;&#x6848;/GCD &#x7ebf;&#x7a0b;&#x540c;&#x6b65;&#x65b9;&#x6848;.xcodeproj">
       </FileRef>
+      <FileRef
+         location = "group:GCD &#x8bfb;&#x5199;&#x9501;/GCD &#x8bfb;&#x5199;&#x9501;.xcodeproj">
+      </FileRef>
    </Group>
 </Workspace>
