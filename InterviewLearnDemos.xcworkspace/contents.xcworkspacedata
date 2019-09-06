@@ -106,5 +106,8 @@
       <FileRef
          location = "group:NSTimer &#x5b9a;&#x65f6;&#x5668;/NSTimer &#x5b9a;&#x65f6;&#x5668;.xcodeproj">
       </FileRef>
+      <FileRef
+         location = "group:GCD &#x5b9a;&#x65f6;&#x5668;/GCD &#x5b9a;&#x65f6;&#x5668;.xcodeproj">
+      </FileRef>
    </Group>
 </Workspace>
