@@ -23,6 +23,9 @@
    <Group
       location = "container:"
       name = "KVO&amp;KVC">
+      <FileRef
+         location = "group:KVO Demo/KVO Demo.xcodeproj">
+      </FileRef>
    </Group>
    <Group
       location = "container:"
