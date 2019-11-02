@@ -95,7 +95,7 @@
 		CA7B1235230AFB2C0071F790 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1030;
+				LastUpgradeCheck = 1100;
 				ORGANIZATIONNAME = CXTretar;
 				TargetAttributes = {
 					CA7B123C230AFB2C0071F790 = {
@@ -109,6 +109,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = CA7B1234230AFB2C0071F790;
 			productRefGroup = CA7B123E230AFB2C0071F790 /* Products */;
@@ -247,6 +248,7 @@
 		CA7B1245230AFB2C0071F790 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -255,6 +257,7 @@
 		CA7B1246230AFB2C0071F790 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

@@ -108,7 +108,7 @@
 		CAEE8A10230BD9300049D6C2 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1030;
+				LastUpgradeCheck = 1100;
 				ORGANIZATIONNAME = CXTretar;
 				TargetAttributes = {
 					CAEE8A17230BD9300049D6C2 = {
@@ -122,6 +122,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = CAEE8A0F230BD9300049D6C2;
 			productRefGroup = CAEE8A19230BD9300049D6C2 /* Products */;
@@ -263,6 +264,7 @@
 		CAEE8A20230BD9300049D6C2 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -271,6 +273,7 @@
 		CAEE8A21230BD9300049D6C2 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

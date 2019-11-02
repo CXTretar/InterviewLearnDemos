@@ -98,7 +98,7 @@
 		CA08A4F22313EAB800CFE5BE /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1030;
+				LastUpgradeCheck = 1100;
 				ORGANIZATIONNAME = CXTretar;
 				TargetAttributes = {
 					CA08A4F92313EAB800CFE5BE = {
@@ -112,6 +112,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = CA08A4F12313EAB800CFE5BE;
 			productRefGroup = CA08A4FB2313EAB800CFE5BE /* Products */;
@@ -251,6 +252,7 @@
 		CA08A5022313EAB800CFE5BE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -259,6 +261,7 @@
 		CA08A5032313EAB800CFE5BE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

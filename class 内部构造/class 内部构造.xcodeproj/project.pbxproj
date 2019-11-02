@@ -105,7 +105,7 @@
 		CA2D55C8230E2F69004246C3 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1030;
+				LastUpgradeCheck = 1100;
 				ORGANIZATIONNAME = CXTretar;
 				TargetAttributes = {
 					CA2D55CF230E2F69004246C3 = {
@@ -119,6 +119,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = CA2D55C7230E2F69004246C3;
 			productRefGroup = CA2D55D1230E2F69004246C3 /* Products */;
@@ -259,6 +260,7 @@
 		CA2D55D8230E2F6A004246C3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -267,6 +269,7 @@
 		CA2D55D9230E2F6A004246C3 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
