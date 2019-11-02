@@ -31,8 +31,42 @@
       </FileRef>
    </Group>
    <Group
-      location = "container:"
+      location = "group:/Users/cxtretar/Desktop/GitHub/InterviewLearnDemos/Category"
       name = "Category">
+      <Group
+         location = "group:Category"
+         name = "Category">
+         <FileRef
+            location = "group:main.m">
+         </FileRef>
+         <FileRef
+            location = "group:Person.h">
+         </FileRef>
+         <FileRef
+            location = "group:Person.m">
+         </FileRef>
+         <FileRef
+            location = "group:Person+Jump.h">
+         </FileRef>
+         <FileRef
+            location = "group:Person+Jump.m">
+         </FileRef>
+         <FileRef
+            location = "group:Person+Jump.cpp">
+         </FileRef>
+         <FileRef
+            location = "group:Person+Eat.h">
+         </FileRef>
+         <FileRef
+            location = "group:Person+Eat.m">
+         </FileRef>
+         <FileRef
+            location = "group:Person+Eat.cpp">
+         </FileRef>
+      </Group>
+      <FileRef
+         location = "group:Category.xcodeproj">
+      </FileRef>
    </Group>
    <Group
       location = "container:"

@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		CA63934122F9D4F500C2237E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = CA63934022F9D4F500C2237E /* main.m */; };
 		CA63934922F9D59600C2237E /* Person.m in Sources */ = {isa = PBXBuildFile; fileRef = CA63934822F9D59600C2237E /* Person.m */; };
+		CA69487023689E440088197C /* NSObject+Test.m in Sources */ = {isa = PBXBuildFile; fileRef = CA69486F23689E440088197C /* NSObject+Test.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -28,6 +29,8 @@
 		CA63934022F9D4F500C2237E /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		CA63934722F9D59600C2237E /* Person.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Person.h; sourceTree = "<group>"; };
 		CA63934822F9D59600C2237E /* Person.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Person.m; sourceTree = "<group>"; };
+		CA69486E23689E440088197C /* NSObject+Test.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSObject+Test.h"; sourceTree = "<group>"; };
+		CA69486F23689E440088197C /* NSObject+Test.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSObject+Test.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +66,8 @@
 				CA63934022F9D4F500C2237E /* main.m */,
 				CA63934722F9D59600C2237E /* Person.h */,
 				CA63934822F9D59600C2237E /* Person.m */,
+				CA69486E23689E440088197C /* NSObject+Test.h */,
+				CA69486F23689E440088197C /* NSObject+Test.m */,
 			);
 			path = "对象的isa和superclass";
 			sourceTree = "<group>";
@@ -124,6 +129,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CA63934122F9D4F500C2237E /* main.m in Sources */,
+				CA69487023689E440088197C /* NSObject+Test.m in Sources */,
 				CA63934922F9D59600C2237E /* Person.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
