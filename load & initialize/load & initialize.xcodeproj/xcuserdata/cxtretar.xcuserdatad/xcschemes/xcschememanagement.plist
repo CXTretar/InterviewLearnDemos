@@ -4,10 +4,10 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
-		<key>Runloop 处理子线程保活Demo.xcscheme_^#shared#^_</key>
+		<key>load &amp; initialize.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>22</integer>
+			<integer>10</integer>
 		</dict>
 	</dict>
 </dict>

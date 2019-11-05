@@ -34,10 +34,13 @@
       location = "group:/Users/cxtretar/Desktop/GitHub/InterviewLearnDemos/Category"
       name = "Category">
       <FileRef
+         location = "group:Category.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:../load &amp; initialize/load &amp; initialize.xcodeproj">
       </FileRef>
       <FileRef
-         location = "group:Category.xcodeproj">
+         location = "group:../&#x5173;&#x8054;&#x5bf9;&#x8c61;/&#x5173;&#x8054;&#x5bf9;&#x8c61;.xcodeproj">
       </FileRef>
    </Group>
    <Group
