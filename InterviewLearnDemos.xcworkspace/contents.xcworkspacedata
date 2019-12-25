@@ -47,6 +47,9 @@
       location = "container:"
       name = "block">
       <FileRef
+         location = "group:block&#x5faa;&#x73af;&#x5f15;&#x7528;&#x7684;&#x5904;&#x7406;&#x65b9;&#x6cd5;/block&#x5faa;&#x73af;&#x5f15;&#x7528;&#x7684;&#x5904;&#x7406;&#x65b9;&#x6cd5;.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:__block&#x4fee;&#x9970;&#x7b26;&#x7684;&#x4f7f;&#x7528;/__block&#x4fee;&#x9970;&#x7b26;&#x7684;&#x4f7f;&#x7528;.xcodeproj">
       </FileRef>
       <FileRef
