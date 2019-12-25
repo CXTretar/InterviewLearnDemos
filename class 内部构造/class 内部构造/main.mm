@@ -15,11 +15,11 @@ int main(int argc, const char * argv[]) {
         // sel_registerName 等同于 @selector , SEL方法名字
         NSLog(@"%p -- %p", @selector(personTest), sel_registerName("personTest"));
         
-        Person *person = [[Person alloc]init];
+        Person *person = [[Person alloc] init];
         mj_objc_class *personClass = (__bridge mj_objc_class *)[Person class];
         [person personTest];
         
-        MaleStudent *maleStudent = [[MaleStudent alloc]init];
+        MaleStudent *maleStudent = [[MaleStudent alloc] init];
         mj_objc_class *maleStudentClass = (__bridge mj_objc_class *)[MaleStudent class];
         [maleStudent maleStudentTest];
         
@@ -27,11 +27,14 @@ int main(int argc, const char * argv[]) {
         bucket_t *buckets = cache._buckets;
         
         bucket_t bucket = buckets[(long long)@selector(studentTest) & cache._mask];
-        NSLog(@"%s %p", (char *)bucket._key, bucket._imp);
-        
+//        NSLog(@"%s %p", (char *)bucket._key, bucket._imp);
+        NSLog(@"%s", (char *)bucket._key);
+        NSLog(@"%p", bucket._imp);
         for (int i = 0; i <= cache._mask; i++) {
             bucket_t bucket = buckets[i];
-            NSLog(@"%s %p", (char *)bucket._key, bucket._imp);
+//            NSLog(@"%s %p", (char *)bucket._key, bucket._imp);
+//            NSLog(@"%s", (char *)bucket._key);
+            NSLog(@"%p", bucket._imp);
         }
         
     }
