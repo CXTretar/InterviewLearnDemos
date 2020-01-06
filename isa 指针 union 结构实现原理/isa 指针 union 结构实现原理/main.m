@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <objc/runtime.h>
 #import "User.h"
 #import "User1.h"
 #import "User2.h"
@@ -14,27 +15,27 @@
 
 // isa 指针arm64数据结构
 /*
-union isa_t
-{
-    Class cls;
-    uintptr_t bits;
-# if __arm64__
-#   define ISA_MASK        0x0000000ffffffff8ULL
-#   define ISA_MAGIC_MASK  0x000003f000000001ULL
-#   define ISA_MAGIC_VALUE 0x000001a000000001ULL
-    struct {
-        uintptr_t nonpointer        : 1;
-        uintptr_t has_assoc         : 1;
-        uintptr_t has_cxx_dtor      : 1;
-        uintptr_t shiftcls          : 33; // MACH_VM_MAX_ADDRESS 0x1000000000
-        uintptr_t magic             : 6;
-        uintptr_t weakly_referenced : 1;
-        uintptr_t deallocating      : 1;
-        uintptr_t has_sidetable_rc  : 1;
-        uintptr_t extra_rc          : 19;
-    };
-};
-*/
+ union isa_t
+ {
+ Class cls;
+ uintptr_t bits;
+ # if __arm64__
+ #   define ISA_MASK        0x0000000ffffffff8ULL
+ #   define ISA_MAGIC_MASK  0x000003f000000001ULL
+ #   define ISA_MAGIC_VALUE 0x000001a000000001ULL
+ struct {
+ uintptr_t nonpointer        : 1;
+ uintptr_t has_assoc         : 1;
+ uintptr_t has_cxx_dtor      : 1;
+ uintptr_t shiftcls          : 33; // MACH_VM_MAX_ADDRESS 0x1000000000
+ uintptr_t magic             : 6;
+ uintptr_t weakly_referenced : 1;
+ uintptr_t deallocating      : 1;
+ uintptr_t has_sidetable_rc  : 1;
+ uintptr_t extra_rc          : 19;
+ };
+ };
+ */
 
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
@@ -47,6 +48,7 @@ int main(int argc, const char * argv[]) {
             user.redName = YES;
             
             NSLog(@"user -- vip:%d superVip:%d redName:%d",  user.isVip, user.isSuperVip, user.isRedName);
+            NSLog(@"user -- %zu", class_getInstanceSize([User class]));
         }
         // char形式
         {
@@ -57,6 +59,7 @@ int main(int argc, const char * argv[]) {
             user.redName = YES;
             
             NSLog(@"user1 -- vip:%d superVip:%d redName:%d",  user.isVip, user.isSuperVip, user.isRedName);
+            NSLog(@"user1 -- %zu", class_getInstanceSize([User1 class]));
         }
         // struct形式
         {
@@ -67,6 +70,7 @@ int main(int argc, const char * argv[]) {
             user.redName = YES;
             
             NSLog(@"user2 -- vip:%d superVip:%d redName:%d",  user.isVip, user.isSuperVip, user.isRedName);
+            NSLog(@"user2 -- %zu", class_getInstanceSize([User2 class]));
         }
         // union形式
         {
@@ -77,6 +81,7 @@ int main(int argc, const char * argv[]) {
             user.redName = YES;
             
             NSLog(@"user3 -- vip:%d superVip:%d redName:%d",  user.isVip, user.isSuperVip, user.isRedName);
+            NSLog(@"user3 -- %zu", class_getInstanceSize([User3 class]));
         }
         
     }
