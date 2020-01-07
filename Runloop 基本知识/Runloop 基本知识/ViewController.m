@@ -113,6 +113,10 @@ void observeRunLoopActicities(CFRunLoopObserverRef observer, CFRunLoopActivity a
     CFRelease(observer);
 }
 
-
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    [NSTimer scheduledTimerWithTimeInterval:5.0 repeats:NO block:^(NSTimer * _Nonnull timer) {
+        NSLog(@"---定时器---");
+    }];
+}
 
 @end

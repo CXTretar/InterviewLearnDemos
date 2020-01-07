@@ -10,6 +10,33 @@
 #import <objc/runtime.h>
 #import "Person.h"
 
+//@implementation NSObject
+//
+//- (BOOL)isMemberOfClass:(Class)cls {
+//    return [self class] == cls;
+//}
+//
+//- (BOOL)isKindOfClass:(Class)cls {
+//    for (Class tcls = [self class]; tcls; tcls = tcls->superclass) {
+//        if (tcls == cls) return YES;
+//    }
+//    return NO;
+//}
+//
+//
+//+ (BOOL)isMemberOfClass:(Class)cls {
+//    return object_getClass((id)self) == cls;
+//}
+//
+//
+//+ (BOOL)isKindOfClass:(Class)cls {
+//    for (Class tcls = object_getClass((id)self); tcls; tcls = tcls->superclass) {
+//        if (tcls == cls) return YES;
+//    }
+//    return NO;
+//}
+//@end
+
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
         
