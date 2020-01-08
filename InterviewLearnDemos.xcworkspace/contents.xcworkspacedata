@@ -147,6 +147,9 @@
       location = "container:"
       name = "&#x5185;&#x5b58;&#x7ba1;&#x7406;">
       <FileRef
+         location = "group:copy&#x7684;&#x76f8;&#x5173;&#x77e5;&#x8bc6;/copy&#x7684;&#x76f8;&#x5173;&#x77e5;&#x8bc6;.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:&#x5185;&#x5b58;&#x5e03;&#x5c40;/&#x5185;&#x5b58;&#x5e03;&#x5c40;.xcodeproj">
       </FileRef>
       <FileRef
