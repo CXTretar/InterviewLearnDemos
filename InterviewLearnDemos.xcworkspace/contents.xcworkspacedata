@@ -134,6 +134,9 @@
          location = "group:GCD &#x8bfb;&#x5199;&#x9501;/GCD &#x8bfb;&#x5199;&#x9501;.xcodeproj">
       </FileRef>
       <FileRef
+         location = "group:CADisplayLink &#x5b9a;&#x65f6;&#x5668;/CADisplayLink &#x5b9a;&#x65f6;&#x5668;.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:NSTimer &#x5b9a;&#x65f6;&#x5668;/NSTimer &#x5b9a;&#x65f6;&#x5668;.xcodeproj">
       </FileRef>
       <FileRef

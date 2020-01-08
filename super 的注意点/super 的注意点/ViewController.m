@@ -38,7 +38,6 @@
      obj == person 对象地址,指向 isa 地址
      test 或者 obj2 或者 ViewController == _name 所在地址内容
       */
-    
 }
 
 - (void)test {

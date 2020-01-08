@@ -20,8 +20,6 @@
 
 @implementation ViewController
 
-- (IBAction)stop:(id)sender {
-}
 void eat(id self, SEL _cmd) {
     NSLog(@"_____ %@ - %@", self, NSStringFromSelector(_cmd));
 }
