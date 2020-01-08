@@ -20,10 +20,14 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    // 使用 NSProxy 防止循环引用
-    self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:[CXProxy proxyWithTarget:self] selector:@selector(timerTest) userInfo:nil repeats:YES];
 }
 
+- (IBAction)startTimer:(id)sender {
+    
+    // 使用 NSProxy 防止循环引用
+    self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:[CXProxy proxyWithTarget:self] selector:@selector(timerTest) userInfo:nil repeats:YES];
+    
+}
 
 
 - (void)timerTest {
