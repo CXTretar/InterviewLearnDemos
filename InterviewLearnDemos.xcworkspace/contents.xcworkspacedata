@@ -147,6 +147,12 @@
       location = "container:"
       name = "&#x5185;&#x5b58;&#x7ba1;&#x7406;">
       <FileRef
+         location = "group:autorelease &#x91ca;&#x653e;&#x65f6;&#x673a;/autorelease &#x91ca;&#x653e;&#x65f6;&#x673a;.xcodeproj">
+      </FileRef>
+      <FileRef
+         location = "group:@autoreleasepool &#x76f8;&#x5173;&#x77e5;&#x8bc6;/@autoreleasepool &#x76f8;&#x5173;&#x77e5;&#x8bc6;.xcodeproj">
+      </FileRef>
+      <FileRef
          location = "group:weak &#x5173;&#x952e;&#x5b57;&#x7684;&#x76f8;&#x5173;&#x77e5;&#x8bc6;/weak &#x5173;&#x952e;&#x5b57;&#x7684;&#x76f8;&#x5173;&#x77e5;&#x8bc6;.xcodeproj">
       </FileRef>
       <FileRef
