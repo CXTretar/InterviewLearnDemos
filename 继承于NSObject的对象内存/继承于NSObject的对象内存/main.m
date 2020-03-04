@@ -31,14 +31,6 @@ int main(int argc, const char * argv[]) {
         
         Animal *animal = [[Animal alloc] init];
         animal->_age = 2;
-        
-        NSLog(@"sizeof -- %zd", sizeof([Animal class]));
-        NSLog(@"class_getInstanceSize -- %zd", class_getInstanceSize([Animal class]));
-        NSLog(@"malloc_size -- %zd", malloc_size((__bridge const void *)animal));
-        
-        
-        struct Animal_IMPL *aniImpl = (__bridge struct Animal_IMPL *)animal;
-        NSLog(@"age is %d", aniImpl->_age);
     }
     return 0;
 }

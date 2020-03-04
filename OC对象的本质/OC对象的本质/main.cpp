@@ -666,6 +666,17 @@ struct __darwin_arm_neon_state
  __uint32_t __fpsr;
  __uint32_t __fpcr;
 };
+struct __darwin_arm_amx_state_v1
+{
+ __uint8_t __x[8][64];
+ __uint8_t __y[8][64];
+ __uint8_t __z[64][64];
+ __uint64_t __amx_state_t_el1;
+} __attribute__((aligned(64)));
+struct __arm_pagein_state
+{
+ int __pagein_error;
+};
 struct arm_legacy_debug_state
 {
  __uint32_t __bvr[16];
@@ -971,8 +982,7 @@ struct rusage_info_v4 {
  uint64_t ri_billed_energy;
  uint64_t ri_serviced_energy;
  uint64_t ri_interval_max_phys_footprint;
-
- uint64_t ri_unused[1];
+ uint64_t ri_runnable_time;
 };
 
 typedef struct rusage_info_v4 rusage_info_current;
@@ -1090,13 +1100,18 @@ void *realloc(void *__ptr, size_t __size) __attribute__((__warn_unused_result__)
 
 void *valloc(size_t) __attribute__((alloc_size(1)));
 
+
+
+
+
+
 int posix_memalign(void **__memptr, size_t __alignment, size_t __size) __attribute__((availability(ios,introduced=3.0)));
 
 }
 
 extern "C" {
-void abort(void) __attribute__((noreturn));
-int abs(int) __attribute__((const));
+void abort(void) __attribute__((__cold__)) __attribute__((__noreturn__));
+int abs(int) __attribute__((__const__));
 int atexit(void (* _Nonnull)(void));
 double atof(const char *);
 int atoi(const char *);
@@ -1108,12 +1123,12 @@ long long
 void *bsearch(const void *__key, const void *__base, size_t __nel,
      size_t __width, int (* _Nonnull __compar)(const void *, const void *));
 
-div_t div(int, int) __attribute__((const));
-void exit(int) __attribute__((noreturn));
+div_t div(int, int) __attribute__((__const__));
+void exit(int) __attribute__((__noreturn__));
 
 char *getenv(const char *);
-long labs(long) __attribute__((const));
-ldiv_t ldiv(long, long) __attribute__((const));
+long labs(long) __attribute__((__const__));
+ldiv_t ldiv(long, long) __attribute__((__const__));
 
 long long
   llabs(long long);
@@ -1154,7 +1169,7 @@ size_t wcstombs(char * , const wchar_t * , size_t);
 int wctomb(char *, wchar_t);
 
 
-void _Exit(int) __attribute__((noreturn));
+void _Exit(int) __attribute__((__noreturn__));
 long a64l(const char *);
 double drand48(void);
 char *ecvt(double, int, int *, int *);
@@ -1244,36 +1259,43 @@ char *getbsize(int *, long *);
 int getloadavg(double [], int);
 const char
  *getprogname(void);
-
+void setprogname(const char *);
 int heapsort(void *__base, size_t __nel, size_t __width,
      int (* _Nonnull __compar)(const void *, const void *));
 
 int heapsort_b(void *__base, size_t __nel, size_t __width,
-     int (^ _Nonnull __compar)(const void *, const void *)) __attribute__((availability(ios,introduced=3.2)));
+     int (^ _Nonnull __compar)(const void *, const void *) __attribute__((__noescape__)))
+     __attribute__((availability(ios,introduced=3.2)));
 
 int mergesort(void *__base, size_t __nel, size_t __width,
      int (* _Nonnull __compar)(const void *, const void *));
 
 int mergesort_b(void *__base, size_t __nel, size_t __width,
-     int (^ _Nonnull __compar)(const void *, const void *)) __attribute__((availability(ios,introduced=3.2)));
+     int (^ _Nonnull __compar)(const void *, const void *) __attribute__((__noescape__)))
+     __attribute__((availability(ios,introduced=3.2)));
 
 void psort(void *__base, size_t __nel, size_t __width,
-     int (* _Nonnull __compar)(const void *, const void *)) __attribute__((availability(ios,introduced=3.2)));
+     int (* _Nonnull __compar)(const void *, const void *))
+     __attribute__((availability(ios,introduced=3.2)));
 
 void psort_b(void *__base, size_t __nel, size_t __width,
-     int (^ _Nonnull __compar)(const void *, const void *)) __attribute__((availability(ios,introduced=3.2)));
+     int (^ _Nonnull __compar)(const void *, const void *) __attribute__((__noescape__)))
+     __attribute__((availability(ios,introduced=3.2)));
 
 void psort_r(void *__base, size_t __nel, size_t __width, void *,
-     int (* _Nonnull __compar)(void *, const void *, const void *)) __attribute__((availability(ios,introduced=3.2)));
+     int (* _Nonnull __compar)(void *, const void *, const void *))
+     __attribute__((availability(ios,introduced=3.2)));
 
 void qsort_b(void *__base, size_t __nel, size_t __width,
-     int (^ _Nonnull __compar)(const void *, const void *)) __attribute__((availability(ios,introduced=3.2)));
+     int (^ _Nonnull __compar)(const void *, const void *) __attribute__((__noescape__)))
+     __attribute__((availability(ios,introduced=3.2)));
 
 void qsort_r(void *__base, size_t __nel, size_t __width, void *,
      int (* _Nonnull __compar)(void *, const void *, const void *));
 int radixsort(const unsigned char **__base, int __nel, const unsigned char *__table,
      unsigned __endbyte);
-void setprogname(const char *);
+int rpmatch(const char *)
+ __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(tvos,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0)));
 int sradixsort(const unsigned char **__base, int __nel, const unsigned char *__table,
      unsigned __endbyte);
 void sranddev(void);
@@ -1295,7 +1317,7 @@ extern char *suboptarg;
 
 }
 extern "C" {
-void __assert_rtn(const char *, const char *, int, const char *) __attribute__((noreturn)) __attribute__((__disable_tail_calls__));
+void __assert_rtn(const char *, const char *, int, const char *) __attribute__((__noreturn__)) __attribute__((__cold__)) __attribute__((__disable_tail_calls__));
 
 
 
@@ -2003,13 +2025,13 @@ typedef int sigjmp_buf[((14 + 8 + 2) * 2) + 1];
 
 extern "C" {
 extern int setjmp(jmp_buf);
-extern void longjmp(jmp_buf, int) __attribute__((noreturn));
+extern void longjmp(jmp_buf, int) __attribute__((__noreturn__));
 
 
 int _setjmp(jmp_buf);
-void _longjmp(jmp_buf, int) __attribute__((noreturn));
+void _longjmp(jmp_buf, int) __attribute__((__noreturn__));
 int sigsetjmp(sigjmp_buf, int);
-void siglongjmp(sigjmp_buf, int) __attribute__((noreturn));
+void siglongjmp(sigjmp_buf, int) __attribute__((__noreturn__));
 
 
 
@@ -2151,7 +2173,7 @@ size_t fwrite(const void * __ptr, size_t __size, size_t __nitems, FILE * __strea
 int getc(FILE *);
 int getchar(void);
 char *gets(char *);
-void perror(const char *);
+void perror(const char *) __attribute__((__cold__));
 int printf(const char * , ...) __attribute__((__format__ (__printf__, 1, 2)));
 int putc(int, FILE *);
 int putchar(int);
@@ -2168,7 +2190,7 @@ FILE *tmpfile(void);
 
 __attribute__((__availability__(swift, unavailable, message="Use mkstemp(3) instead.")))
 
-__attribute__((deprecated("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of tmpnam(3), it is highly recommended that you use mkstemp(3) instead.")))
+__attribute__((__deprecated__("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of tmpnam(3), it is highly recommended that you use mkstemp(3) instead.")))
 
 char *tmpnam(char *);
 int ungetc(int, FILE *);
@@ -2178,10 +2200,7 @@ int vsprintf(char * , const char * , va_list) __attribute__((__format__ (__print
 }
 extern "C" {
 
-
-
 char *ctermid(char *);
-
 
 
 
@@ -2233,7 +2252,7 @@ int putw(int, FILE *);
 
 __attribute__((__availability__(swift, unavailable, message="Use mkstemp(3) instead.")))
 
-__attribute__((deprecated("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of tempnam(3), it is highly recommended that you use mkstemp(3) instead.")))
+__attribute__((__deprecated__("This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of tempnam(3), it is highly recommended that you use mkstemp(3) instead.")))
 
 char *tempnam(const char *__dir, const char *__prefix) __asm("_" "tempnam" );
 }
@@ -2492,13 +2511,7 @@ __uint64_t clock_gettime_nsec_np(clockid_t __clock_id);
 __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,unavailable)))
 __attribute__((availability(tvos,unavailable))) __attribute__((availability(watchos,unavailable)))
 int clock_settime(clockid_t __clock_id, const struct timespec *__tp);
-
-
-
-
-
 }
-
 
 
 
@@ -3092,6 +3105,13 @@ CFAllocatorRef CFGetAllocator(CFTypeRef cf);
 
 extern
 CFTypeRef CFMakeCollectable(CFTypeRef cf) ;
+
+
+
+
+
+
+
 }
 extern "C" {
 typedef const void * (*CFArrayRetainCallBack)(CFAllocatorRef allocator, const void *value);
@@ -4047,7 +4067,7 @@ typedef struct {
     SInt8 hour;
     SInt8 minute;
     double second;
-} CFGregorianDate __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use CFCalendar or NSCalendar API instead")));
+} CFGregorianDate __attribute__((availability(macos,introduced=10.4,deprecated=10.10,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,message="Use CFCalendar or NSCalendar API instead")));
 
 typedef struct {
     SInt32 years;
@@ -4056,41 +4076,41 @@ typedef struct {
     SInt32 hours;
     SInt32 minutes;
     double seconds;
-} CFGregorianUnits __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use CFCalendar or NSCalendar API instead")));
+} CFGregorianUnits __attribute__((availability(macos,introduced=10.4,deprecated=10.10,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,message="Use CFCalendar or NSCalendar API instead")));
 
 typedef CFOptionFlags CFGregorianUnitFlags; enum {
-    kCFGregorianUnitsYears __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use CFCalendar or NSCalendar API instead"))) = (1UL << 0),
-    kCFGregorianUnitsMonths __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use CFCalendar or NSCalendar API instead"))) = (1UL << 1),
-    kCFGregorianUnitsDays __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use CFCalendar or NSCalendar API instead"))) = (1UL << 2),
-    kCFGregorianUnitsHours __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use CFCalendar or NSCalendar API instead"))) = (1UL << 3),
-    kCFGregorianUnitsMinutes __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use CFCalendar or NSCalendar API instead"))) = (1UL << 4),
-    kCFGregorianUnitsSeconds __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use CFCalendar or NSCalendar API instead"))) = (1UL << 5),
-    kCFGregorianAllUnits __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use CFCalendar or NSCalendar API instead"))) = 0x00FFFFFF
+    kCFGregorianUnitsYears __attribute__((availability(macos,introduced=10.4,deprecated=10.10,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,message="Use CFCalendar or NSCalendar API instead"))) = (1UL << 0),
+    kCFGregorianUnitsMonths __attribute__((availability(macos,introduced=10.4,deprecated=10.10,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,message="Use CFCalendar or NSCalendar API instead"))) = (1UL << 1),
+    kCFGregorianUnitsDays __attribute__((availability(macos,introduced=10.4,deprecated=10.10,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,message="Use CFCalendar or NSCalendar API instead"))) = (1UL << 2),
+    kCFGregorianUnitsHours __attribute__((availability(macos,introduced=10.4,deprecated=10.10,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,message="Use CFCalendar or NSCalendar API instead"))) = (1UL << 3),
+    kCFGregorianUnitsMinutes __attribute__((availability(macos,introduced=10.4,deprecated=10.10,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,message="Use CFCalendar or NSCalendar API instead"))) = (1UL << 4),
+    kCFGregorianUnitsSeconds __attribute__((availability(macos,introduced=10.4,deprecated=10.10,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,message="Use CFCalendar or NSCalendar API instead"))) = (1UL << 5),
+    kCFGregorianAllUnits __attribute__((availability(macos,introduced=10.4,deprecated=10.10,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,message="Use CFCalendar or NSCalendar API instead"))) = 0x00FFFFFF
 };
 
 extern
-Boolean CFGregorianDateIsValid(CFGregorianDate gdate, CFOptionFlags unitFlags) __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use CFCalendar or NSCalendar API instead")));
+Boolean CFGregorianDateIsValid(CFGregorianDate gdate, CFOptionFlags unitFlags) __attribute__((availability(macos,introduced=10.4,deprecated=10.10,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,message="Use CFCalendar or NSCalendar API instead")));
 
 extern
-CFAbsoluteTime CFGregorianDateGetAbsoluteTime(CFGregorianDate gdate, CFTimeZoneRef tz) __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use CFCalendar or NSCalendar API instead")));
+CFAbsoluteTime CFGregorianDateGetAbsoluteTime(CFGregorianDate gdate, CFTimeZoneRef tz) __attribute__((availability(macos,introduced=10.4,deprecated=10.10,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,message="Use CFCalendar or NSCalendar API instead")));
 
 extern
-CFGregorianDate CFAbsoluteTimeGetGregorianDate(CFAbsoluteTime at, CFTimeZoneRef tz) __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use CFCalendar or NSCalendar API instead")));
+CFGregorianDate CFAbsoluteTimeGetGregorianDate(CFAbsoluteTime at, CFTimeZoneRef tz) __attribute__((availability(macos,introduced=10.4,deprecated=10.10,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,message="Use CFCalendar or NSCalendar API instead")));
 
 extern
-CFAbsoluteTime CFAbsoluteTimeAddGregorianUnits(CFAbsoluteTime at, CFTimeZoneRef tz, CFGregorianUnits units) __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use CFCalendar or NSCalendar API instead")));
+CFAbsoluteTime CFAbsoluteTimeAddGregorianUnits(CFAbsoluteTime at, CFTimeZoneRef tz, CFGregorianUnits units) __attribute__((availability(macos,introduced=10.4,deprecated=10.10,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,message="Use CFCalendar or NSCalendar API instead")));
 
 extern
-CFGregorianUnits CFAbsoluteTimeGetDifferenceAsGregorianUnits(CFAbsoluteTime at1, CFAbsoluteTime at2, CFTimeZoneRef tz, CFOptionFlags unitFlags) __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use CFCalendar or NSCalendar API instead")));
+CFGregorianUnits CFAbsoluteTimeGetDifferenceAsGregorianUnits(CFAbsoluteTime at1, CFAbsoluteTime at2, CFTimeZoneRef tz, CFOptionFlags unitFlags) __attribute__((availability(macos,introduced=10.4,deprecated=10.10,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,message="Use CFCalendar or NSCalendar API instead")));
 
 extern
-SInt32 CFAbsoluteTimeGetDayOfWeek(CFAbsoluteTime at, CFTimeZoneRef tz) __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use CFCalendar or NSCalendar API instead")));
+SInt32 CFAbsoluteTimeGetDayOfWeek(CFAbsoluteTime at, CFTimeZoneRef tz) __attribute__((availability(macos,introduced=10.4,deprecated=10.10,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,message="Use CFCalendar or NSCalendar API instead")));
 
 extern
-SInt32 CFAbsoluteTimeGetDayOfYear(CFAbsoluteTime at, CFTimeZoneRef tz) __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use CFCalendar or NSCalendar API instead")));
+SInt32 CFAbsoluteTimeGetDayOfYear(CFAbsoluteTime at, CFTimeZoneRef tz) __attribute__((availability(macos,introduced=10.4,deprecated=10.10,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,message="Use CFCalendar or NSCalendar API instead")));
 
 extern
-SInt32 CFAbsoluteTimeGetWeekOfYear(CFAbsoluteTime at, CFTimeZoneRef tz) __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use CFCalendar or NSCalendar API instead")));
+SInt32 CFAbsoluteTimeGetWeekOfYear(CFAbsoluteTime at, CFTimeZoneRef tz) __attribute__((availability(macos,introduced=10.4,deprecated=10.10,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,message="Use CFCalendar or NSCalendar API instead"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,message="Use CFCalendar or NSCalendar API instead")));
 
 }
 extern "C" {
@@ -5544,8 +5564,7 @@ CFStringRef CFURLCopyPassword(CFURLRef anURL);
 
 
 extern
-CFStringRef CFURLCopyParameterString(CFURLRef anURL, CFStringRef charactersToLeaveEscaped);
-
+CFStringRef CFURLCopyParameterString(CFURLRef anURL, CFStringRef charactersToLeaveEscaped) __attribute__((availability(macosx,introduced=10.2,deprecated=10.15,message="The CFURLCopyParameterString function is deprecated. Post deprecation for applications linked with or after the macOS 10.15, and for all iOS, watchOS, and tvOS applications, CFURLCopyParameterString will always return NULL, and the CFURLCopyPath(), CFURLCopyStrictPath(), and CFURLCopyFileSystemPath() functions will return the complete path including the semicolon separator and params component if the URL string contains them."))) __attribute__((availability(ios,introduced=2.0,deprecated=13.0,message="The CFURLCopyParameterString function is deprecated. Post deprecation for applications linked with or after the macOS 10.15, and for all iOS, watchOS, and tvOS applications, CFURLCopyParameterString will always return NULL, and the CFURLCopyPath(), CFURLCopyStrictPath(), and CFURLCopyFileSystemPath() functions will return the complete path including the semicolon separator and params component if the URL string contains them."))) __attribute__((availability(watchos,introduced=2.0,deprecated=6.0,message="The CFURLCopyParameterString function is deprecated. Post deprecation for applications linked with or after the macOS 10.15, and for all iOS, watchOS, and tvOS applications, CFURLCopyParameterString will always return NULL, and the CFURLCopyPath(), CFURLCopyStrictPath(), and CFURLCopyFileSystemPath() functions will return the complete path including the semicolon separator and params component if the URL string contains them."))) __attribute__((availability(tvos,introduced=9.0,deprecated=13.0,message="The CFURLCopyParameterString function is deprecated. Post deprecation for applications linked with or after the macOS 10.15, and for all iOS, watchOS, and tvOS applications, CFURLCopyParameterString will always return NULL, and the CFURLCopyPath(), CFURLCopyStrictPath(), and CFURLCopyFileSystemPath() functions will return the complete path including the semicolon separator and params component if the URL string contains them.")));
 extern
 CFStringRef CFURLCopyQueryString(CFURLRef anURL, CFStringRef charactersToLeaveEscaped);
 
@@ -6125,17 +6144,18 @@ const CFStringRef kCFURLUbiquitousItemDownloadingStatusCurrent __attribute__((av
 typedef CFOptionFlags CFURLBookmarkCreationOptions; enum {
     kCFURLBookmarkCreationMinimalBookmarkMask = ( 1UL << 9 ),
     kCFURLBookmarkCreationSuitableForBookmarkFile = ( 1UL << 10 ),
-    kCFURLBookmarkCreationWithSecurityScope __attribute__((availability(ios,introduced=NA))) = ( 1UL << 11 ),
-    kCFURLBookmarkCreationSecurityScopeAllowOnlyReadAccess __attribute__((availability(ios,introduced=NA))) = ( 1UL << 12 ),
+    kCFURLBookmarkCreationWithSecurityScope __attribute__((availability(macos,introduced=10.7))) __attribute__((availability(macCatalyst,introduced=13.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) = ( 1UL << 11 ),
+    kCFURLBookmarkCreationSecurityScopeAllowOnlyReadAccess __attribute__((availability(macos,introduced=10.7))) __attribute__((availability(macCatalyst,introduced=13.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) = ( 1UL << 12 ),
 
 
-    kCFURLBookmarkCreationPreferFileIDResolutionMask __attribute__((availability(ios,introduced=4_0,deprecated=7_0,message="" "kCFURLBookmarkCreationPreferFileIDResolutionMask does nothing and has no effect on bookmark resolution"))) = ( 1UL << 8 ),
+    kCFURLBookmarkCreationPreferFileIDResolutionMask
+    __attribute__((availability(macos,introduced=10.6,deprecated=10.9,message="kCFURLBookmarkCreationPreferFileIDResolutionMask does nothing and has no effect on bookmark resolution"))) __attribute__((availability(ios,introduced=4.0,deprecated=7.0,message="kCFURLBookmarkCreationPreferFileIDResolutionMask does nothing and has no effect on bookmark resolution"))) = ( 1UL << 8 ),
 } __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
 typedef CFOptionFlags CFURLBookmarkResolutionOptions; enum {
     kCFURLBookmarkResolutionWithoutUIMask = ( 1UL << 8 ),
     kCFURLBookmarkResolutionWithoutMountingMask = ( 1UL << 9 ),
-    kCFURLBookmarkResolutionWithSecurityScope __attribute__((availability(ios,introduced=NA))) = ( 1UL << 10 ),
+    kCFURLBookmarkResolutionWithSecurityScope __attribute__((availability(macos,introduced=10.7))) __attribute__((availability(macCatalyst,introduced=13.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) = ( 1UL << 10 ),
 
     kCFBookmarkResolutionWithoutUIMask = kCFURLBookmarkResolutionWithoutUIMask,
     kCFBookmarkResolutionWithoutMountingMask = kCFURLBookmarkResolutionWithoutMountingMask,
@@ -6289,6 +6309,8 @@ enum mach_port_guard_exception_codes {
  kGUARD_EXC_SET_CONTEXT = 1u << 2,
  kGUARD_EXC_UNGUARDED = 1u << 3,
  kGUARD_EXC_INCORRECT_GUARD = 1u << 4,
+ kGUARD_EXC_IMMOVABLE = 1u << 5,
+ kGUARD_EXC_STRICT_REPLY = 1u << 6,
 
  kGUARD_EXC_INVALID_RIGHT = 1u << 8,
  kGUARD_EXC_INVALID_NAME = 1u << 9,
@@ -6299,10 +6321,10 @@ enum mach_port_guard_exception_codes {
  kGUARD_EXC_KERN_FAILURE = 1u << 14,
  kGUARD_EXC_KERN_RESOURCE = 1u << 15,
  kGUARD_EXC_SEND_INVALID_REPLY = 1u << 16,
- kGUARD_EXC_SEND_INVALID_VOUCHER = 1u << 16,
- kGUARD_EXC_SEND_INVALID_RIGHT = 1u << 17,
- kGUARD_EXC_RCV_INVALID_NAME = 1u << 18,
- kGUARD_EXC_RCV_INVALID_NOTIFY = 1u << 19
+ kGUARD_EXC_SEND_INVALID_VOUCHER = 1u << 17,
+ kGUARD_EXC_SEND_INVALID_RIGHT = 1u << 18,
+ kGUARD_EXC_RCV_INVALID_NAME = 1u << 19,
+ kGUARD_EXC_RCV_GUARDED_DESC = 1u << 20,
 };
 
 
@@ -6583,6 +6605,10 @@ typedef void (*os_block_t)(void);
 
 
 
+
+
+
+
 struct accessx_descriptor {
  unsigned int ad_name_offset;
  int ad_flags;
@@ -6606,7 +6632,7 @@ int unlinkat(int, const char *, int) __attribute__((availability(ios,introduced=
 
 }
 extern "C" {
-void _exit(int) __attribute__((noreturn));
+void _exit(int) __attribute__((__noreturn__));
 int access(const char *, int);
 unsigned int
   alarm(unsigned int);
@@ -6688,18 +6714,13 @@ extern int optind, opterr, optopt;
 
 
 
-__attribute__((deprecated)) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)))
+__attribute__((__deprecated__)) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)))
 
 void *brk(const void *);
 int chroot(const char *) ;
 
 
 char *crypt(const char *, const char *);
-
-
-
-
-
 
 void encrypt(char *, int) __asm("_" "encrypt" );
 
@@ -6713,7 +6734,7 @@ pid_t getsid(pid_t);
 
 
 int getdtablesize(void) ;
-int getpagesize(void) __attribute__((const)) ;
+int getpagesize(void) __attribute__((__const__)) ;
 char *getpass(const char *) ;
 
 
@@ -6737,7 +6758,7 @@ ssize_t pwrite(int __fd, const void * __buf, size_t __nbyte, off_t __offset) __a
 
 
 
-__attribute__((deprecated)) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)))
+__attribute__((__deprecated__)) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)))
 
 void *sbrk(int);
 
@@ -6820,7 +6841,7 @@ __asm("_" "select" )
 typedef __darwin_uuid_t uuid_t;
 
 extern "C" {
-void _Exit(int) __attribute__((noreturn));
+void _Exit(int) __attribute__((__noreturn__));
 int accessx_np(const struct accessx_descriptor *, size_t, int *, uid_t);
 int acct(const char *);
 int add_profil(char *, size_t, unsigned long, unsigned int) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
@@ -6877,21 +6898,21 @@ int mkostempsat_np(int dfd, char *path, int slen, int oflags)
 int nfssvc(int, void *);
 int profil(char *, size_t, unsigned long, unsigned int);
 
-__attribute__((deprecated("Use of per-thread security contexts is error-prone and discouraged.")))
+__attribute__((__deprecated__("Use of per-thread security contexts is error-prone and discouraged.")))
 int pthread_setugid_np(uid_t, gid_t);
 int pthread_getugid_np( uid_t *, gid_t *);
 
 int reboot(int);
 int revoke(const char *);
 
-__attribute__((deprecated)) int rcmd(char **, int, const char *, const char *, const char *, int *);
-__attribute__((deprecated)) int rcmd_af(char **, int, const char *, const char *, const char *, int *,
+__attribute__((__deprecated__)) int rcmd(char **, int, const char *, const char *, const char *, int *);
+__attribute__((__deprecated__)) int rcmd_af(char **, int, const char *, const char *, const char *, int *,
   int);
-__attribute__((deprecated)) int rresvport(int *);
-__attribute__((deprecated)) int rresvport_af(int *, int);
-__attribute__((deprecated)) int iruserok(unsigned long, int, const char *, const char *);
-__attribute__((deprecated)) int iruserok_sa(const void *, int, int, const char *, const char *);
-__attribute__((deprecated)) int ruserok(const char *, int, const char *, const char *);
+__attribute__((__deprecated__)) int rresvport(int *);
+__attribute__((__deprecated__)) int rresvport_af(int *, int);
+__attribute__((__deprecated__)) int iruserok(unsigned long, int, const char *, const char *);
+__attribute__((__deprecated__)) int iruserok_sa(const void *, int, int, const char *, const char *);
+__attribute__((__deprecated__)) int ruserok(const char *, int, const char *, const char *);
 
 int setdomainname(const char *, int);
 int setgroups(int, const gid_t *);
@@ -7016,6 +7037,14 @@ typedef struct ftrimactivefile {
 } ftrimactivefile_t;
 
 
+typedef struct fspecread {
+ unsigned int fsr_flags;
+ unsigned int reserved;
+ off_t fsr_offset;
+ off_t fsr_length;
+} fspecread_t;
+
+
 
 typedef struct fbootstraptransfer {
  off_t fbt_offset;
@@ -7086,14 +7115,6 @@ int filesec_unset_property(filesec_t, filesec_property_t) __attribute__((availab
 
 
 
-
-
-
-
-
-
-
-
 typedef struct objc_class *Class;
 
 
@@ -7110,9 +7131,7 @@ typedef struct objc_selector *SEL;
 
 
 
-
-
-typedef id _Nullable (*IMP)(id _Nonnull, SEL _Nonnull, ...);
+typedef void (*IMP)(void );
     typedef bool BOOL;
 extern "C" __attribute__((visibility("default"))) const char * _Nonnull sel_getName(SEL _Nonnull sel)
     __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
@@ -7339,6 +7358,18 @@ dispatch_walltime(const struct timespec *_Nullable when, int64_t delta);
 
 }
 #pragma clang assume_nonnull end
+typedef enum : unsigned int { QOS_CLASS_USER_INTERACTIVE __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) = 0x21, QOS_CLASS_USER_INITIATED __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) = 0x19, QOS_CLASS_DEFAULT __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) = 0x15, QOS_CLASS_UTILITY __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) = 0x11, QOS_CLASS_BACKGROUND __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) = 0x09, QOS_CLASS_UNSPECIFIED __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) = 0x00, } qos_class_t;
+extern "C" {
+__attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0)))
+qos_class_t
+qos_class_self(void);
+__attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0)))
+qos_class_t
+qos_class_main(void);
+
+}
+
+
 #pragma clang assume_nonnull begin
 // @protocol OS_dispatch_object <NSObject> /* @end */
  typedef NSObject/*<OS_dispatch_object>*/ * __attribute__((objc_independent_class)) dispatch_object_t;
@@ -7353,6 +7384,13 @@ typedef void (*dispatch_block_t)(void);
 
 
 extern "C" {
+
+
+
+
+
+
+typedef qos_class_t dispatch_qos_class_t;
 __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0)))
 extern __attribute__((visibility("default"))) __attribute__((__nonnull__)) __attribute__((__nothrow__))
 __attribute__((__availability__(swift, unavailable, message="Can't be used with ARC")))
@@ -7389,6 +7427,11 @@ __attribute__((availability(macos,introduced=10.6))) __attribute__((availability
 extern __attribute__((visibility("default"))) __attribute__((__nonnull__)) __attribute__((__nothrow__))
 void
 dispatch_resume(dispatch_object_t object);
+__attribute__((availability(macos,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(tvos,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0)))
+extern __attribute__((visibility("default"))) __attribute__((__nothrow__))
+void
+dispatch_set_qos_class_floor(dispatch_object_t object,
+  dispatch_qos_class_t qos_class, int relative_priority);
 __attribute__((__unavailable__))
 extern __attribute__((visibility("default"))) __attribute__((__nonnull__(1))) __attribute__((__nothrow__))
 long
@@ -7408,31 +7451,19 @@ __attribute__((__nothrow__))
 long
 dispatch_testcancel(void *object);
 __attribute__((availability(macos,introduced=10.6,deprecated=10.9,message="unsupported interface"))) __attribute__((availability(ios,introduced=4.0,deprecated=6.0,message="unsupported interface")))
-extern __attribute__((visibility("default"))) __attribute__((__nonnull__(2))) __attribute__((__nothrow__))
+extern __attribute__((visibility("default"))) __attribute__((__nonnull__(2))) __attribute__((__nothrow__)) __attribute__((__cold__))
 __attribute__((__format__(printf,2,3)))
 void
 dispatch_debug(dispatch_object_t object, const char *message, ...);
 
 __attribute__((availability(macos,introduced=10.6,deprecated=10.9,message="unsupported interface"))) __attribute__((availability(ios,introduced=4.0,deprecated=6.0,message="unsupported interface")))
-extern __attribute__((visibility("default"))) __attribute__((__nonnull__(2))) __attribute__((__nothrow__))
+extern __attribute__((visibility("default"))) __attribute__((__nonnull__(2))) __attribute__((__nothrow__)) __attribute__((__cold__))
 __attribute__((__format__(printf,2,0)))
 void
 dispatch_debugv(dispatch_object_t object, const char *message, va_list ap);
 
 }
 #pragma clang assume_nonnull end
-typedef enum : unsigned int { QOS_CLASS_USER_INTERACTIVE __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) = 0x21, QOS_CLASS_USER_INITIATED __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) = 0x19, QOS_CLASS_DEFAULT __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) = 0x15, QOS_CLASS_UTILITY __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) = 0x11, QOS_CLASS_BACKGROUND __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) = 0x09, QOS_CLASS_UNSPECIFIED __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) = 0x00, } qos_class_t;
-extern "C" {
-__attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0)))
-qos_class_t
-qos_class_self(void);
-__attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0)))
-qos_class_t
-qos_class_main(void);
-
-}
-
-
 #pragma clang assume_nonnull begin
 // @protocol OS_dispatch_queue <OS_dispatch_object> /* @end */
  typedef NSObject/*<OS_dispatch_queue>*/ * __attribute__((objc_independent_class)) dispatch_queue_t;
@@ -7464,6 +7495,16 @@ extern __attribute__((visibility("default"))) __attribute__((__nonnull__(1))) __
 void
 dispatch_sync_f(dispatch_queue_t queue,
   void *_Nullable context, dispatch_function_t work);
+__attribute__((availability(macos,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(tvos,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0)))
+extern __attribute__((visibility("default"))) __attribute__((__nonnull__)) __attribute__((__nothrow__))
+void
+dispatch_async_and_wait(dispatch_queue_t queue,
+  __attribute__((__noescape__)) dispatch_block_t block);
+__attribute__((availability(macos,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(tvos,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0)))
+extern __attribute__((visibility("default"))) __attribute__((__nonnull__(1))) __attribute__((__nonnull__(3))) __attribute__((__nothrow__))
+void
+dispatch_async_and_wait_f(dispatch_queue_t queue,
+  void *_Nullable context, dispatch_function_t work);
 __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0)))
 extern __attribute__((visibility("default"))) __attribute__((__nonnull__(3))) __attribute__((__nothrow__))
 void
@@ -7491,13 +7532,6 @@ dispatch_get_main_queue(void)
  return (( dispatch_queue_main_t)&(_dispatch_main_q));
 }
 typedef long dispatch_queue_priority_t;
-
-
-
-
-
-
-typedef qos_class_t dispatch_qos_class_t;
 __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0)))
 extern __attribute__((visibility("default"))) __attribute__((__const__)) __attribute__((__warn_unused_result__)) __attribute__((__nothrow__))
 dispatch_queue_global_t
@@ -7519,7 +7553,7 @@ extern __attribute__((visibility("default"))) __attribute__((__warn_unused_resul
 dispatch_queue_attr_t
 dispatch_queue_attr_make_initially_inactive(
   dispatch_queue_attr_t _Nullable attr);
-typedef enum : unsigned long { DISPATCH_AUTORELEASE_FREQUENCY_INHERIT __attribute__((availability(macos,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(tvos,introduced=10.0))) __attribute__((availability(watchos,introduced=3.0))) = 0, DISPATCH_AUTORELEASE_FREQUENCY_WORK_ITEM __attribute__((availability(macos,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(tvos,introduced=10.0))) __attribute__((availability(watchos,introduced=3.0))) = 1, DISPATCH_AUTORELEASE_FREQUENCY_NEVER __attribute__((availability(macos,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(tvos,introduced=10.0))) __attribute__((availability(watchos,introduced=3.0))) = 2, } dispatch_autorelease_frequency_t;
+typedef enum : unsigned long { DISPATCH_AUTORELEASE_FREQUENCY_INHERIT __attribute__((availability(macos,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(tvos,introduced=10.0))) __attribute__((availability(watchos,introduced=3.0))) = 0, DISPATCH_AUTORELEASE_FREQUENCY_WORK_ITEM __attribute__((availability(macos,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(tvos,introduced=10.0))) __attribute__((availability(watchos,introduced=3.0))) = 1, DISPATCH_AUTORELEASE_FREQUENCY_NEVER __attribute__((availability(macos,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(tvos,introduced=10.0))) __attribute__((availability(watchos,introduced=3.0))) = 2, } __attribute__((__enum_extensibility__(open))) dispatch_autorelease_frequency_t;
 __attribute__((availability(macos,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(tvos,introduced=10.0))) __attribute__((availability(watchos,introduced=3.0)))
 extern __attribute__((visibility("default"))) __attribute__((__warn_unused_result__)) __attribute__((__pure__)) __attribute__((__nothrow__))
 dispatch_queue_attr_t
@@ -7591,6 +7625,16 @@ extern __attribute__((visibility("default"))) __attribute__((__nonnull__(1))) __
 void
 dispatch_barrier_sync_f(dispatch_queue_t queue,
   void *_Nullable context, dispatch_function_t work);
+__attribute__((availability(macos,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(tvos,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0)))
+extern __attribute__((visibility("default"))) __attribute__((__nonnull__)) __attribute__((__nothrow__))
+void
+dispatch_barrier_async_and_wait(dispatch_queue_t queue,
+  __attribute__((__noescape__)) dispatch_block_t block);
+__attribute__((availability(macos,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(tvos,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0)))
+extern __attribute__((visibility("default"))) __attribute__((__nonnull__(1))) __attribute__((__nonnull__(3))) __attribute__((__nothrow__))
+void
+dispatch_barrier_async_and_wait_f(dispatch_queue_t queue,
+  void *_Nullable context, dispatch_function_t work);
 __attribute__((availability(macos,introduced=10.7))) __attribute__((availability(ios,introduced=5.0)))
 extern __attribute__((visibility("default"))) __attribute__((__nonnull__(1))) __attribute__((__nothrow__))
 void
@@ -7624,7 +7668,7 @@ dispatch_assert_queue_not(dispatch_queue_t queue)
 #pragma clang assume_nonnull begin
 
 extern "C" {
-typedef enum : unsigned long { DISPATCH_BLOCK_BARRIER __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) = 0x1, DISPATCH_BLOCK_DETACHED __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) = 0x2, DISPATCH_BLOCK_ASSIGN_CURRENT __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) = 0x4, DISPATCH_BLOCK_NO_QOS_CLASS __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) = 0x8, DISPATCH_BLOCK_INHERIT_QOS_CLASS __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) = 0x10, DISPATCH_BLOCK_ENFORCE_QOS_CLASS __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) = 0x20, } dispatch_block_flags_t;
+typedef enum : unsigned long { DISPATCH_BLOCK_BARRIER __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) = 0x1, DISPATCH_BLOCK_DETACHED __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) = 0x2, DISPATCH_BLOCK_ASSIGN_CURRENT __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) = 0x4, DISPATCH_BLOCK_NO_QOS_CLASS __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) = 0x8, DISPATCH_BLOCK_INHERIT_QOS_CLASS __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) = 0x10, DISPATCH_BLOCK_ENFORCE_QOS_CLASS __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) = 0x20, } __attribute__((__flag_enum__)) __attribute__((__enum_extensibility__(open))) dispatch_block_flags_t;
 __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0)))
 extern __attribute__((visibility("default"))) __attribute__((__nonnull__(2))) __attribute__((__ns_returns_retained__))
 __attribute__((__warn_unused_result__)) __attribute__((__nothrow__))
@@ -7677,6 +7721,7 @@ typedef unsigned int mach_msg_priority_t;
 
 typedef unsigned int mach_msg_type_name_t;
 typedef unsigned int mach_msg_copy_options_t;
+typedef unsigned int mach_msg_guard_flags_t;
 typedef unsigned int mach_msg_descriptor_type_t;
 
 
@@ -7684,7 +7729,8 @@ typedef unsigned int mach_msg_descriptor_type_t;
 
 
 
-#pragma pack(4)
+
+#pragma pack(push, 4)
 
 typedef struct{
  natural_t pad1;
@@ -7766,6 +7812,35 @@ typedef struct{
 
 } mach_msg_ool_ports_descriptor_t;
 
+typedef struct{
+ uint32_t context;
+ mach_port_name_t name;
+ mach_msg_guard_flags_t flags : 16;
+ mach_msg_type_name_t disposition : 8;
+ mach_msg_descriptor_type_t type : 8;
+} mach_msg_guarded_port_descriptor32_t;
+
+typedef struct{
+ uint64_t context;
+ mach_msg_guard_flags_t flags : 16;
+ mach_msg_type_name_t disposition : 8;
+ mach_msg_descriptor_type_t type : 8;
+ mach_port_name_t name;
+} mach_msg_guarded_port_descriptor64_t;
+
+typedef struct{
+ mach_port_context_t context;
+
+
+
+ mach_msg_guard_flags_t flags : 16;
+ mach_msg_type_name_t disposition : 8;
+ mach_msg_descriptor_type_t type : 8;
+
+ mach_port_name_t name;
+
+} mach_msg_guarded_port_descriptor_t;
+
 
 
 
@@ -7776,6 +7851,7 @@ typedef union{
  mach_msg_ool_descriptor_t out_of_line;
  mach_msg_ool_ports_descriptor_t ool_ports;
  mach_msg_type_descriptor_t type;
+ mach_msg_guarded_port_descriptor_t guarded_port;
 } mach_msg_descriptor_t;
 
 typedef struct{
@@ -7880,10 +7956,10 @@ typedef mach_msg_security_trailer_t mach_msg_format_0_trailer_t;
 
 
 
-extern security_token_t KERNEL_SECURITY_TOKEN;
+extern const security_token_t KERNEL_SECURITY_TOKEN;
 
 
-extern audit_token_t KERNEL_AUDIT_TOKEN;
+extern const audit_token_t KERNEL_AUDIT_TOKEN;
 
 typedef integer_t mach_msg_options_t;
 
@@ -7901,7 +7977,7 @@ typedef union{
  mach_msg_empty_rcv_t rcv;
 } mach_msg_empty_t;
 
-#pragma pack()
+#pragma pack(pop)
 typedef natural_t mach_msg_type_size_t;
 typedef natural_t mach_msg_type_number_t;
 typedef integer_t mach_msg_option_t;
@@ -7944,6 +8020,8 @@ extern kern_return_t mach_voucher_deallocate(
 
 
 
+
+
 #pragma clang assume_nonnull begin
 // @protocol OS_dispatch_source <OS_dispatch_object> /* @end */
  typedef NSObject/*<OS_dispatch_source>*/ * __attribute__((objc_independent_class)) dispatch_source_t;;
@@ -7975,6 +8053,12 @@ extern __attribute__((visibility("default"))) const struct dispatch_source_type_
 __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0)))
 extern __attribute__((visibility("default"))) const struct dispatch_source_type_s _dispatch_source_type_write;
 typedef unsigned long dispatch_source_mach_send_flags_t;
+
+
+
+
+
+typedef unsigned long dispatch_source_mach_recv_flags_t;
 typedef unsigned long dispatch_source_memorypressure_flags_t;
 typedef unsigned long dispatch_source_proc_flags_t;
 typedef unsigned long dispatch_source_vnode_flags_t;
@@ -8145,7 +8229,7 @@ dispatch_semaphore_signal(dispatch_semaphore_t dsema);
 #pragma clang assume_nonnull begin
 
 extern "C" {
-typedef long dispatch_once_t;
+typedef intptr_t dispatch_once_t;
 __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0)))
 extern __attribute__((visibility("default"))) __attribute__((__nonnull__)) __attribute__((__nothrow__))
 
@@ -8361,6 +8445,29 @@ void
 dispatch_io_set_interval(dispatch_io_t channel,
  uint64_t interval,
  dispatch_io_interval_flags_t flags);
+
+}
+#pragma clang assume_nonnull end
+#pragma clang assume_nonnull begin
+
+extern "C" {
+// @protocol OS_dispatch_workloop <OS_dispatch_queue> /* @end */
+ typedef NSObject/*<OS_dispatch_workloop>*/ * __attribute__((objc_independent_class)) dispatch_workloop_t;
+__attribute__((availability(macos,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(tvos,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0)))
+extern __attribute__((visibility("default"))) __attribute__((__malloc__)) __attribute__((__ns_returns_retained__)) __attribute__((__warn_unused_result__))
+__attribute__((__nothrow__))
+dispatch_workloop_t
+dispatch_workloop_create(const char *_Nullable label);
+__attribute__((availability(macos,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(tvos,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0)))
+extern __attribute__((visibility("default"))) __attribute__((__malloc__)) __attribute__((__ns_returns_retained__)) __attribute__((__warn_unused_result__))
+__attribute__((__nothrow__))
+dispatch_workloop_t
+dispatch_workloop_create_inactive(const char *_Nullable label);
+__attribute__((availability(macos,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(tvos,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0)))
+extern __attribute__((visibility("default"))) __attribute__((__nonnull__)) __attribute__((__nothrow__))
+void
+dispatch_workloop_set_autorelease_frequency(dispatch_workloop_t workloop,
+  dispatch_autorelease_frequency_t frequency);
 
 }
 #pragma clang assume_nonnull end
@@ -9395,7 +9502,7 @@ typedef int CFBundleRefNum;
 
 
 extern
-CFBundleRefNum CFBundleOpenBundleResourceMap(CFBundleRef bundle);
+CFBundleRefNum CFBundleOpenBundleResourceMap(CFBundleRef bundle) __attribute__((availability(macosx,introduced=10.0,deprecated=10.15,message="The Carbon Resource Manager is deprecated. This should only be used to access Resource Manager-style resources in old bundles."))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
 
 
 
@@ -9403,12 +9510,12 @@ CFBundleRefNum CFBundleOpenBundleResourceMap(CFBundleRef bundle);
 
 
 extern
-SInt32 CFBundleOpenBundleResourceFiles(CFBundleRef bundle, CFBundleRefNum *refNum, CFBundleRefNum *localizedRefNum);
+SInt32 CFBundleOpenBundleResourceFiles(CFBundleRef bundle, CFBundleRefNum *refNum, CFBundleRefNum *localizedRefNum) __attribute__((availability(macosx,introduced=10.0,deprecated=10.15,message="The Carbon Resource Manager is deprecated. This should only be used to access Resource Manager-style resources in old bundles."))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
 
 
 
 extern
-void CFBundleCloseBundleResourceMap(CFBundleRef bundle, CFBundleRefNum refNum);
+void CFBundleCloseBundleResourceMap(CFBundleRef bundle, CFBundleRefNum refNum) __attribute__((availability(macosx,introduced=10.0,deprecated=10.15,message="The Carbon Resource Manager is deprecated. This should only be used to access Resource Manager-style resources in old bundles."))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
 
 }
 
@@ -9586,7 +9693,6 @@ extern CFRunLoopSourceRef CFMachPortCreateRunLoopSource(CFAllocatorRef allocator
 
 }
 
-
 extern "C" {
 
 
@@ -9696,6 +9802,7 @@ extern void CFAttributedStringEndEditing(CFMutableAttributedStringRef aStr);
 
 }
 
+
 extern "C" {
 
 
@@ -9716,6 +9823,7 @@ typedef CFOptionFlags CFURLEnumeratorOptions; enum {
     kCFURLEnumeratorIncludeDirectoriesPreOrder = 1UL << 4,
     kCFURLEnumeratorIncludeDirectoriesPostOrder = 1UL << 5,
 
+    kCFURLEnumeratorGenerateRelativePathURLs __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0))) = 1UL << 6,
 };
 
 
@@ -9769,9 +9877,10 @@ Boolean CFURLEnumeratorGetSourceDidChange( CFURLEnumeratorRef enumerator ) __att
 
 
 
-typedef struct {
+typedef union {
 
  unsigned char g_guid[16];
+ unsigned int g_guid_asint[16 / sizeof(unsigned int)];
 } guid_t;
 
 
@@ -10190,6 +10299,125 @@ extern CFRunLoopSourceRef CFFileDescriptorCreateRunLoopSource(CFAllocatorRef all
 
 }
 
+
+
+extern "C" {
+
+typedef struct __attribute__((objc_bridge_mutable(id))) __CFUserNotification * CFUserNotificationRef;
+typedef void (*CFUserNotificationCallBack)(CFUserNotificationRef userNotification, CFOptionFlags responseFlags);
+
+extern
+CFTypeID CFUserNotificationGetTypeID(void) __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+
+extern
+CFUserNotificationRef CFUserNotificationCreate(CFAllocatorRef allocator, CFTimeInterval timeout, CFOptionFlags flags, SInt32 *error, CFDictionaryRef dictionary) __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+
+extern
+SInt32 CFUserNotificationReceiveResponse(CFUserNotificationRef userNotification, CFTimeInterval timeout, CFOptionFlags *responseFlags) __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+
+extern
+CFStringRef CFUserNotificationGetResponseValue(CFUserNotificationRef userNotification, CFStringRef key, CFIndex idx) __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+
+extern
+CFDictionaryRef CFUserNotificationGetResponseDictionary(CFUserNotificationRef userNotification) __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+
+extern
+SInt32 CFUserNotificationUpdate(CFUserNotificationRef userNotification, CFTimeInterval timeout, CFOptionFlags flags, CFDictionaryRef dictionary) __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+
+extern
+SInt32 CFUserNotificationCancel(CFUserNotificationRef userNotification) __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+
+extern
+CFRunLoopSourceRef CFUserNotificationCreateRunLoopSource(CFAllocatorRef allocator, CFUserNotificationRef userNotification, CFUserNotificationCallBack callout, CFIndex order) __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+
+
+
+
+extern
+SInt32 CFUserNotificationDisplayNotice(CFTimeInterval timeout, CFOptionFlags flags, CFURLRef iconURL, CFURLRef soundURL, CFURLRef localizationURL, CFStringRef alertHeader, CFStringRef alertMessage, CFStringRef defaultButtonTitle) __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+
+extern
+SInt32 CFUserNotificationDisplayAlert(CFTimeInterval timeout, CFOptionFlags flags, CFURLRef iconURL, CFURLRef soundURL, CFURLRef localizationURL, CFStringRef alertHeader, CFStringRef alertMessage, CFStringRef defaultButtonTitle, CFStringRef alternateButtonTitle, CFStringRef otherButtonTitle, CFOptionFlags *responseFlags) __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+
+
+
+
+enum {
+    kCFUserNotificationStopAlertLevel __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) = 0,
+    kCFUserNotificationNoteAlertLevel __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) = 1,
+    kCFUserNotificationCautionAlertLevel __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) = 2,
+    kCFUserNotificationPlainAlertLevel __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) = 3
+};
+
+enum {
+    kCFUserNotificationDefaultResponse __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) = 0,
+    kCFUserNotificationAlternateResponse __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) = 1,
+    kCFUserNotificationOtherResponse __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) = 2,
+    kCFUserNotificationCancelResponse __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) = 3
+};
+
+enum {
+    kCFUserNotificationNoDefaultButtonFlag __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) = (1UL << 5),
+    kCFUserNotificationUseRadioButtonsFlag __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) = (1UL << 6)
+};
+
+static __inline__ __attribute__((always_inline)) CFOptionFlags CFUserNotificationCheckBoxChecked(CFIndex i) __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) {return ((CFOptionFlags)(1UL << (8 + i)));}
+static __inline__ __attribute__((always_inline)) CFOptionFlags CFUserNotificationSecureTextField(CFIndex i) __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) {return ((CFOptionFlags)(1UL << (16 + i)));}
+static __inline__ __attribute__((always_inline)) CFOptionFlags CFUserNotificationPopUpSelection(CFIndex n) __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) {return ((CFOptionFlags)(n << 24));}
+
+
+
+
+extern
+const CFStringRef kCFUserNotificationIconURLKey __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+
+extern
+const CFStringRef kCFUserNotificationSoundURLKey __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+
+extern
+const CFStringRef kCFUserNotificationLocalizationURLKey __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+
+extern
+const CFStringRef kCFUserNotificationAlertHeaderKey __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+
+extern
+const CFStringRef kCFUserNotificationAlertMessageKey __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+
+extern
+const CFStringRef kCFUserNotificationDefaultButtonTitleKey __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+
+extern
+const CFStringRef kCFUserNotificationAlternateButtonTitleKey __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+
+extern
+const CFStringRef kCFUserNotificationOtherButtonTitleKey __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+
+extern
+const CFStringRef kCFUserNotificationProgressIndicatorValueKey __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+
+extern
+const CFStringRef kCFUserNotificationPopUpTitlesKey __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+
+extern
+const CFStringRef kCFUserNotificationTextFieldTitlesKey __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+
+extern
+const CFStringRef kCFUserNotificationCheckBoxTitlesKey __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+
+extern
+const CFStringRef kCFUserNotificationTextFieldValuesKey __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+
+extern
+const CFStringRef kCFUserNotificationPopUpSelectionKey __attribute__((availability(macos,introduced=10.3))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+
+extern
+const CFStringRef kCFUserNotificationAlertTopMostKey __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+
+extern
+const CFStringRef kCFUserNotificationKeyboardTypesKey __attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+
+}
+
 #pragma clang assume_nonnull begin
 
 extern "C" double NSFoundationVersionNumber;
@@ -10374,8 +10602,8 @@ typedef struct {} _objc_exc_Protocol;
 
 // @protocol NSCoding
 
-// - (void)encodeWithCoder:(NSCoder *)aCoder;
-// - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder;
+// - (void)encodeWithCoder:(NSCoder *)coder;
+// - (nullable instancetype)initWithCoder:(NSCoder *)coder;
 
 /* @end */
 
@@ -10398,8 +10626,8 @@ typedef struct {} _objc_exc_Protocol;
 // + (NSInteger)version;
 // + (void)setVersion:(NSInteger)aVersion;
 // @property (readonly) Class classForCoder;
-// - (nullable id)replacementObjectForCoder:(NSCoder *)aCoder;
-// - (nullable id)awakeAfterUsingCoder:(NSCoder *)aDecoder __attribute__((ns_consumes_self)) __attribute__((ns_returns_retained));
+// - (nullable id)replacementObjectForCoder:(NSCoder *)coder;
+// - (nullable id)awakeAfterUsingCoder:(NSCoder *)coder __attribute__((ns_consumes_self)) __attribute__((ns_returns_retained));
 
 /* @end */
 
@@ -10438,7 +10666,7 @@ static __inline__ __attribute__((always_inline)) __attribute__((cf_returns_retai
 }
 
 
-static __inline__ __attribute__((always_inline)) id _Nullable CFBridgingRelease(CFTypeRef __attribute__((cf_consumed)) _Nullable X) {
+static __inline__ __attribute__((always_inline)) id _Nullable CFBridgingRelease(CFTypeRef __attribute__((cf_consumed)) _Nullable X) __attribute__((ns_returns_retained)) {
     return ((id (*)(id, SEL))(void *)objc_msgSend)((id)CFMakeCollectable(X), sel_registerName("autorelease"));
 }
 #pragma clang assume_nonnull end
@@ -10538,7 +10766,7 @@ struct NSValue_IMPL {
 // @property (readonly) const char *objCType __attribute__((objc_returns_inner_pointer));
 
 // - (instancetype)initWithBytes:(const void *)value objCType:(const char *)type __attribute__((objc_designated_initializer));
-// - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder __attribute__((objc_designated_initializer));
+// - (nullable instancetype)initWithCoder:(NSCoder *)coder __attribute__((objc_designated_initializer));
 
 /* @end */
 
@@ -10576,7 +10804,7 @@ struct NSNumber_IMPL {
 };
 
 
-// - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder __attribute__((objc_designated_initializer));
+// - (nullable instancetype)initWithCoder:(NSCoder *)coder __attribute__((objc_designated_initializer));
 // - (NSNumber *)initWithChar:(char)value __attribute__((objc_designated_initializer));
 // - (NSNumber *)initWithUnsignedChar:(unsigned char)value __attribute__((objc_designated_initializer));
 // - (NSNumber *)initWithShort:(short)value __attribute__((objc_designated_initializer));
@@ -10644,7 +10872,7 @@ struct NSNumber_IMPL {
 // @interface NSValue (NSDeprecated)
 
 
-// - (void)getValue:(void *)value;
+// - (void)getValue:(void *)value __attribute__((availability(macos,introduced=10.0,deprecated=100000,replacement="getValue:size:"))) __attribute__((availability(ios,introduced=2.0,deprecated=100000,replacement="getValue:size:"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,replacement="getValue:size:"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,replacement="getValue:size:")));
 /* @end */
 
 #pragma clang assume_nonnull end
@@ -10701,6 +10929,278 @@ extern "C" NSRange NSRangeFromString(NSString *aString);
 #pragma clang assume_nonnull end
 
 
+
+
+
+// @class NSArray;
+#ifndef _REWRITER_typedef_NSArray
+#define _REWRITER_typedef_NSArray
+typedef struct objc_object NSArray;
+typedef struct {} _objc_exc_NSArray;
+#endif
+
+
+
+
+
+
+
+
+
+#pragma clang assume_nonnull begin
+
+typedef NSInteger NSCollectionChangeType; enum {
+    NSCollectionChangeInsert,
+    NSCollectionChangeRemove
+} __attribute__((availability(macosx,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
+__attribute__((availability(macosx,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)))
+
+#ifndef _REWRITER_typedef_NSOrderedCollectionChange
+#define _REWRITER_typedef_NSOrderedCollectionChange
+typedef struct objc_object NSOrderedCollectionChange;
+typedef struct {} _objc_exc_NSOrderedCollectionChange;
+#endif
+
+struct NSOrderedCollectionChange_IMPL {
+	struct NSObject_IMPL NSObject_IVARS;
+};
+
+#if 0
++ (NSOrderedCollectionChange<ObjectType> *)changeWithObject:(nullable ObjectType)anObject
+                                                       type:(NSCollectionChangeType)type
+                                                      index:(NSUInteger)index;
+#endif
+
+
+#if 0
++ (NSOrderedCollectionChange<ObjectType> *)changeWithObject:(nullable ObjectType)anObject
+                                                       type:(NSCollectionChangeType)type
+                                                      index:(NSUInteger)index
+                                            associatedIndex:(NSUInteger)associatedIndex;
+#endif
+
+
+
+// @property (readonly, strong, nullable) ObjectType object;
+
+
+// @property (readonly) NSCollectionChangeType changeType;
+
+
+
+// @property (readonly) NSUInteger index;
+
+
+
+
+
+// @property (readonly) NSUInteger associatedIndex;
+
+// - (id)init __attribute__((availability(macos,unavailable))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+
+#if 0
+- (instancetype)initWithObject:(nullable ObjectType)anObject
+                          type:(NSCollectionChangeType)type
+                         index:(NSUInteger)index;
+#endif
+
+
+#if 0
+- (instancetype)initWithObject:(nullable ObjectType)anObject
+                          type:(NSCollectionChangeType)type
+                         index:(NSUInteger)index
+               associatedIndex:(NSUInteger)associatedIndex __attribute__((objc_designated_initializer));
+#endif
+
+/* @end */
+
+#pragma clang assume_nonnull end
+#pragma clang assume_nonnull begin
+
+
+#ifndef _REWRITER_typedef_NSIndexSet
+#define _REWRITER_typedef_NSIndexSet
+typedef struct objc_object NSIndexSet;
+typedef struct {} _objc_exc_NSIndexSet;
+#endif
+
+struct NSIndexSet_IMPL {
+	struct NSObject_IMPL NSObject_IVARS;
+
+	struct  {
+	NSUInteger _isEmpty : 1;
+	NSUInteger _hasSingleRange : 1;
+	NSUInteger _cacheValid : 1;
+	NSUInteger _reservedArrayBinderController : 29;
+	} _indexSetFlags;
+
+	union  {
+
+	struct  {
+	NSRange _range;
+	} _singleRange;
+
+	struct  {
+	void * _Nonnull _data;
+	void * _Nonnull _reserved;
+	} _multipleRanges;
+	} _internal;
+};
+
+
+// + (instancetype)indexSet;
+// + (instancetype)indexSetWithIndex:(NSUInteger)value;
+// + (instancetype)indexSetWithIndexesInRange:(NSRange)range;
+
+// - (instancetype)initWithIndexesInRange:(NSRange)range __attribute__((objc_designated_initializer));
+// - (instancetype)initWithIndexSet:(NSIndexSet *)indexSet __attribute__((objc_designated_initializer));
+
+// - (instancetype)initWithIndex:(NSUInteger)value;
+
+// - (BOOL)isEqualToIndexSet:(NSIndexSet *)indexSet;
+
+// @property (readonly) NSUInteger count;
+
+
+
+// @property (readonly) NSUInteger firstIndex;
+// @property (readonly) NSUInteger lastIndex;
+// - (NSUInteger)indexGreaterThanIndex:(NSUInteger)value;
+// - (NSUInteger)indexLessThanIndex:(NSUInteger)value;
+// - (NSUInteger)indexGreaterThanOrEqualToIndex:(NSUInteger)value;
+// - (NSUInteger)indexLessThanOrEqualToIndex:(NSUInteger)value;
+
+
+
+// - (NSUInteger)getIndexes:(NSUInteger *)indexBuffer maxCount:(NSUInteger)bufferSize inIndexRange:(nullable NSRangePointer)range;
+
+// - (NSUInteger)countOfIndexesInRange:(NSRange)range __attribute__((availability(macos,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
+
+// - (BOOL)containsIndex:(NSUInteger)value;
+// - (BOOL)containsIndexesInRange:(NSRange)range;
+// - (BOOL)containsIndexes:(NSIndexSet *)indexSet;
+
+// - (BOOL)intersectsIndexesInRange:(NSRange)range;
+
+// - (void)enumerateIndexesUsingBlock:(void (__attribute__((noescape)) ^)(NSUInteger idx, BOOL *stop))block __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
+// - (void)enumerateIndexesWithOptions:(NSEnumerationOptions)opts usingBlock:(void (__attribute__((noescape)) ^)(NSUInteger idx, BOOL *stop))block __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
+// - (void)enumerateIndexesInRange:(NSRange)range options:(NSEnumerationOptions)opts usingBlock:(void (__attribute__((noescape)) ^)(NSUInteger idx, BOOL *stop))block __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
+
+// - (NSUInteger)indexPassingTest:(BOOL (__attribute__((noescape)) ^)(NSUInteger idx, BOOL *stop))predicate __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
+// - (NSUInteger)indexWithOptions:(NSEnumerationOptions)opts passingTest:(BOOL (__attribute__((noescape)) ^)(NSUInteger idx, BOOL *stop))predicate __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
+// - (NSUInteger)indexInRange:(NSRange)range options:(NSEnumerationOptions)opts passingTest:(BOOL (__attribute__((noescape)) ^)(NSUInteger idx, BOOL *stop))predicate __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
+
+// - (NSIndexSet *)indexesPassingTest:(BOOL (__attribute__((noescape)) ^)(NSUInteger idx, BOOL *stop))predicate __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
+// - (NSIndexSet *)indexesWithOptions:(NSEnumerationOptions)opts passingTest:(BOOL (__attribute__((noescape)) ^)(NSUInteger idx, BOOL *stop))predicate __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
+// - (NSIndexSet *)indexesInRange:(NSRange)range options:(NSEnumerationOptions)opts passingTest:(BOOL (__attribute__((noescape)) ^)(NSUInteger idx, BOOL *stop))predicate __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
+
+
+
+
+
+
+// - (void)enumerateRangesUsingBlock:(void (__attribute__((noescape)) ^)(NSRange range, BOOL *stop))block __attribute__((availability(macos,introduced=10.7))) __attribute__((availability(ios,introduced=5.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
+// - (void)enumerateRangesWithOptions:(NSEnumerationOptions)opts usingBlock:(void (__attribute__((noescape)) ^)(NSRange range, BOOL *stop))block __attribute__((availability(macos,introduced=10.7))) __attribute__((availability(ios,introduced=5.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
+// - (void)enumerateRangesInRange:(NSRange)range options:(NSEnumerationOptions)opts usingBlock:(void (__attribute__((noescape)) ^)(NSRange range, BOOL *stop))block __attribute__((availability(macos,introduced=10.7))) __attribute__((availability(ios,introduced=5.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
+
+/* @end */
+
+
+
+#ifndef _REWRITER_typedef_NSMutableIndexSet
+#define _REWRITER_typedef_NSMutableIndexSet
+typedef struct objc_object NSMutableIndexSet;
+typedef struct {} _objc_exc_NSMutableIndexSet;
+#endif
+
+struct NSMutableIndexSet_IMPL {
+	struct NSIndexSet_IMPL NSIndexSet_IVARS;
+	void *_reserved;
+};
+
+
+// - (void)addIndexes:(NSIndexSet *)indexSet;
+// - (void)removeIndexes:(NSIndexSet *)indexSet;
+// - (void)removeAllIndexes;
+// - (void)addIndex:(NSUInteger)value;
+// - (void)removeIndex:(NSUInteger)value;
+// - (void)addIndexesInRange:(NSRange)range;
+// - (void)removeIndexesInRange:(NSRange)range;
+
+
+
+// - (void)shiftIndexesStartingAtIndex:(NSUInteger)index by:(NSInteger)delta;
+
+/* @end */
+
+#pragma clang assume_nonnull end
+
+
+#pragma clang assume_nonnull begin
+
+
+typedef NSUInteger NSOrderedCollectionDifferenceCalculationOptions; enum {
+
+    NSOrderedCollectionDifferenceCalculationOmitInsertedObjects = (1 << 0UL),
+
+    NSOrderedCollectionDifferenceCalculationOmitRemovedObjects = (1 << 1UL),
+
+
+    NSOrderedCollectionDifferenceCalculationInferMoves = (1 << 2UL)
+} __attribute__((availability(macosx,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
+__attribute__((availability(macosx,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)))
+
+#ifndef _REWRITER_typedef_NSOrderedCollectionDifference
+#define _REWRITER_typedef_NSOrderedCollectionDifference
+typedef struct objc_object NSOrderedCollectionDifference;
+typedef struct {} _objc_exc_NSOrderedCollectionDifference;
+#endif
+
+struct NSOrderedCollectionDifference_IMPL {
+	struct NSObject_IMPL NSObject_IVARS;
+};
+
+// - (instancetype)initWithChanges:(NSArray<NSOrderedCollectionChange<ObjectType> *> *)changes;
+
+#if 0
+- (instancetype)initWithInsertIndexes:(NSIndexSet *)inserts
+                      insertedObjects:(nullable NSArray<ObjectType> *)insertedObjects
+                        removeIndexes:(NSIndexSet *)removes
+                       removedObjects:(nullable NSArray<ObjectType> *)removedObjects
+                    additionalChanges:(NSArray<NSOrderedCollectionChange<ObjectType> *> *)changes __attribute__((objc_designated_initializer));
+#endif
+
+
+#if 0
+- (instancetype)initWithInsertIndexes:(NSIndexSet *)inserts
+                      insertedObjects:(nullable NSArray<ObjectType> *)insertedObjects
+                        removeIndexes:(NSIndexSet *)removes
+                       removedObjects:(nullable NSArray<ObjectType> *)removedObjects;
+#endif
+
+
+// @property (strong, readonly) NSArray<NSOrderedCollectionChange<ObjectType> *> *insertions __attribute__((availability(macosx,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+// @property (strong, readonly) NSArray<NSOrderedCollectionChange<ObjectType> *> *removals __attribute__((availability(macosx,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
+// @property (assign, readonly) BOOL hasChanges;
+
+
+// - (NSOrderedCollectionDifference<id> *)differenceByTransformingChangesWithBlock:(NSOrderedCollectionChange<id> *(__attribute__((noescape)) ^)(NSOrderedCollectionChange<ObjectType> *))block;
+
+
+
+
+
+
+
+// - (instancetype)inverseDifference __attribute__((availability(macosx,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
+/* @end */
+
+#pragma clang assume_nonnull end
+
 // @class NSData;
 #ifndef _REWRITER_typedef_NSData
 #define _REWRITER_typedef_NSData
@@ -10747,7 +11247,7 @@ struct NSArray_IMPL {
 // - (ObjectType)objectAtIndex:(NSUInteger)index;
 // - (instancetype)init __attribute__((objc_designated_initializer));
 // - (instancetype)initWithObjects:(const ObjectType _Nonnull [_Nullable])objects count:(NSUInteger)cnt __attribute__((objc_designated_initializer));
-// - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder __attribute__((objc_designated_initializer));
+// - (nullable instancetype)initWithCoder:(NSCoder *)coder __attribute__((objc_designated_initializer));
 
 /* @end */
 
@@ -10834,6 +11334,22 @@ typedef NSUInteger NSBinarySearchingOptions; enum {
 /* @end */
 
 
+__attribute__((availability(macosx,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)))
+__attribute__((availability(swift, unavailable, message="NSArray diffing methods are not available in Swift, use Collection.difference(from:) instead")))
+// @interface NSArray<ObjectType> (NSArrayDiffing)
+
+// - (NSOrderedCollectionDifference<ObjectType> *)differenceFromArray:(NSArray<ObjectType> *)other withOptions:(NSOrderedCollectionDifferenceCalculationOptions)options usingEquivalenceTest:(BOOL (__attribute__((noescape)) ^)(ObjectType obj1, ObjectType obj2))block;
+
+// - (NSOrderedCollectionDifference<ObjectType> *)differenceFromArray:(NSArray<ObjectType> *)other withOptions:(NSOrderedCollectionDifferenceCalculationOptions)options;
+
+
+// - (NSOrderedCollectionDifference<ObjectType> *)differenceFromArray:(NSArray<ObjectType> *)other;
+
+// - (nullable NSArray<ObjectType> *)arrayByApplyingDifference:(NSOrderedCollectionDifference<ObjectType> *)difference;
+
+/* @end */
+
+
 // @interface NSArray<ObjectType> (NSDeprecated)
 
 
@@ -10842,12 +11358,12 @@ typedef NSUInteger NSBinarySearchingOptions; enum {
 // - (void)getObjects:(ObjectType _Nonnull __attribute__((objc_ownership(none))) [_Nonnull])objects __attribute__((availability(swift, unavailable, message="Use 'as [AnyObject]' instead"))) __attribute__((availability(macos,introduced=10.0,deprecated=10.13,message="Use -getObjects:range: instead"))) __attribute__((availability(ios,introduced=2.0,deprecated=11.0,message="Use -getObjects:range: instead"))) __attribute__((availability(watchos,introduced=2.0,deprecated=4.0,message="Use -getObjects:range: instead"))) __attribute__((availability(tvos,introduced=9.0,deprecated=11.0,message="Use -getObjects:range: instead")));
 
 
-// + (nullable NSArray<ObjectType> *)arrayWithContentsOfFile:(NSString *)path;
-// + (nullable NSArray<ObjectType> *)arrayWithContentsOfURL:(NSURL *)url;
-// - (nullable NSArray<ObjectType> *)initWithContentsOfFile:(NSString *)path;
-// - (nullable NSArray<ObjectType> *)initWithContentsOfURL:(NSURL *)url;
-// - (BOOL)writeToFile:(NSString *)path atomically:(BOOL)useAuxiliaryFile;
-// - (BOOL)writeToURL:(NSURL *)url atomically:(BOOL)atomically;
+// + (nullable NSArray<ObjectType> *)arrayWithContentsOfFile:(NSString *)path __attribute__((availability(macos,introduced=10.0,deprecated=100000,replacement="arrayWithContentsOfURL:error:"))) __attribute__((availability(ios,introduced=2.0,deprecated=100000,replacement="arrayWithContentsOfURL:error:"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,replacement="arrayWithContentsOfURL:error:"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,replacement="arrayWithContentsOfURL:error:")));
+// + (nullable NSArray<ObjectType> *)arrayWithContentsOfURL:(NSURL *)url __attribute__((availability(macos,introduced=10.0,deprecated=100000,replacement="arrayWithContentsOfURL:error:"))) __attribute__((availability(ios,introduced=2.0,deprecated=100000,replacement="arrayWithContentsOfURL:error:"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,replacement="arrayWithContentsOfURL:error:"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,replacement="arrayWithContentsOfURL:error:")));
+// - (nullable NSArray<ObjectType> *)initWithContentsOfFile:(NSString *)path __attribute__((availability(macos,introduced=10.0,deprecated=100000,replacement="initWithContentsOfURL:error:"))) __attribute__((availability(ios,introduced=2.0,deprecated=100000,replacement="initWithContentsOfURL:error:"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,replacement="initWithContentsOfURL:error:"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,replacement="initWithContentsOfURL:error:")));
+// - (nullable NSArray<ObjectType> *)initWithContentsOfURL:(NSURL *)url __attribute__((availability(macos,introduced=10.0,deprecated=100000,replacement="initWithContentsOfURL:error:"))) __attribute__((availability(ios,introduced=2.0,deprecated=100000,replacement="initWithContentsOfURL:error:"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,replacement="initWithContentsOfURL:error:"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,replacement="initWithContentsOfURL:error:")));
+// - (BOOL)writeToFile:(NSString *)path atomically:(BOOL)useAuxiliaryFile __attribute__((availability(macos,introduced=10.0,deprecated=100000,replacement="writeToURL:error:"))) __attribute__((availability(ios,introduced=2.0,deprecated=100000,replacement="writeToURL:error:"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,replacement="writeToURL:error:"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,replacement="writeToURL:error:")));
+// - (BOOL)writeToURL:(NSURL *)url atomically:(BOOL)atomically __attribute__((availability(macos,introduced=10.0,deprecated=100000,replacement="writeToURL:error:"))) __attribute__((availability(ios,introduced=2.0,deprecated=100000,replacement="writeToURL:error:"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,replacement="writeToURL:error:"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,replacement="writeToURL:error:")));
 
 /* @end */
 
@@ -10873,7 +11389,7 @@ struct NSMutableArray_IMPL {
 // - (void)replaceObjectAtIndex:(NSUInteger)index withObject:(ObjectType)anObject;
 // - (instancetype)init __attribute__((objc_designated_initializer));
 // - (instancetype)initWithCapacity:(NSUInteger)numItems __attribute__((objc_designated_initializer));
-// - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder __attribute__((objc_designated_initializer));
+// - (nullable instancetype)initWithCoder:(NSCoder *)coder __attribute__((objc_designated_initializer));
 
 /* @end */
 
@@ -10916,6 +11432,15 @@ struct NSMutableArray_IMPL {
 // + (nullable NSMutableArray<ObjectType> *)arrayWithContentsOfURL:(NSURL *)url;
 // - (nullable NSMutableArray<ObjectType> *)initWithContentsOfFile:(NSString *)path;
 // - (nullable NSMutableArray<ObjectType> *)initWithContentsOfURL:(NSURL *)url;
+
+/* @end */
+
+
+__attribute__((availability(macosx,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)))
+__attribute__((availability(swift, unavailable, message="NSMutableArray diffing methods are not available in Swift")))
+// @interface NSMutableArray<ObjectType> (NSMutableArrayDiffing)
+
+// - (void)applyDifference:(NSOrderedCollectionDifference<ObjectType> *)difference;
 
 /* @end */
 
@@ -11048,7 +11573,7 @@ typedef void (*NSItemProviderLoadHandler)(_Null_unspecified NSItemProviderComple
 
 
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=8_0)))
+__attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSItemProvider
 #define _REWRITER_typedef_NSItemProvider
@@ -11347,7 +11872,7 @@ struct NSString_IMPL {
 
 
 // - (instancetype)init __attribute__((objc_designated_initializer));
-// - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder __attribute__((objc_designated_initializer));
+// - (nullable instancetype)initWithCoder:(NSCoder *)coder __attribute__((objc_designated_initializer));
 
 /* @end */
 
@@ -11838,10 +12363,8 @@ struct NSDictionary_IMPL {
 // - (nullable ObjectType)objectForKey:(KeyType)aKey;
 // - (NSEnumerator<KeyType> *)keyEnumerator;
 // - (instancetype)init __attribute__((objc_designated_initializer));
-
 // - (instancetype)initWithObjects:(const ObjectType _Nonnull [_Nullable])objects forKeys:(const KeyType <NSCopying> _Nonnull [_Nullable])keys count:(NSUInteger)cnt __attribute__((objc_designated_initializer));
-
-// - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder __attribute__((objc_designated_initializer));
+// - (nullable instancetype)initWithCoder:(NSCoder *)coder __attribute__((objc_designated_initializer));
 
 /* @end */
 
@@ -11886,13 +12409,13 @@ struct NSDictionary_IMPL {
 // - (void)getObjects:(ObjectType _Nonnull __attribute__((objc_ownership(none))) [_Nullable])objects andKeys:(KeyType _Nonnull __attribute__((objc_ownership(none))) [_Nullable])keys __attribute__((availability(swift, unavailable, message="Use 'allKeys' and/or 'allValues' instead"))) __attribute__((availability(macos,introduced=10.0,deprecated=10.13,message="Use -getObjects:andKeys:count: instead"))) __attribute__((availability(ios,introduced=2.0,deprecated=11.0,message="Use -getObjects:andKeys:count: instead"))) __attribute__((availability(watchos,introduced=2.0,deprecated=4.0,message="Use -getObjects:andKeys:count: instead"))) __attribute__((availability(tvos,introduced=9.0,deprecated=11.0,message="Use -getObjects:andKeys:count: instead")));
 
 
-// + (nullable NSDictionary<KeyType, ObjectType> *)dictionaryWithContentsOfFile:(NSString *)path;
-// + (nullable NSDictionary<KeyType, ObjectType> *)dictionaryWithContentsOfURL:(NSURL *)url;
-// - (nullable NSDictionary<KeyType, ObjectType> *)initWithContentsOfFile:(NSString *)path;
-// - (nullable NSDictionary<KeyType, ObjectType> *)initWithContentsOfURL:(NSURL *)url;
+// + (nullable NSDictionary<KeyType, ObjectType> *)dictionaryWithContentsOfFile:(NSString *)path __attribute__((availability(macos,introduced=10.0,deprecated=100000,replacement="dictionaryWithContentsOfURL:error:"))) __attribute__((availability(ios,introduced=2.0,deprecated=100000,replacement="dictionaryWithContentsOfURL:error:"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,replacement="dictionaryWithContentsOfURL:error:"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,replacement="dictionaryWithContentsOfURL:error:")));
+// + (nullable NSDictionary<KeyType, ObjectType> *)dictionaryWithContentsOfURL:(NSURL *)url __attribute__((availability(macos,introduced=10.0,deprecated=100000,replacement="dictionaryWithContentsOfURL:error:"))) __attribute__((availability(ios,introduced=2.0,deprecated=100000,replacement="dictionaryWithContentsOfURL:error:"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,replacement="dictionaryWithContentsOfURL:error:"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,replacement="dictionaryWithContentsOfURL:error:")));
+// - (nullable NSDictionary<KeyType, ObjectType> *)initWithContentsOfFile:(NSString *)path __attribute__((availability(macos,introduced=10.0,deprecated=100000,replacement="initWithContentsOfURL:error:"))) __attribute__((availability(ios,introduced=2.0,deprecated=100000,replacement="initWithContentsOfURL:error:"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,replacement="initWithContentsOfURL:error:"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,replacement="initWithContentsOfURL:error:")));
+// - (nullable NSDictionary<KeyType, ObjectType> *)initWithContentsOfURL:(NSURL *)url __attribute__((availability(macos,introduced=10.0,deprecated=100000,replacement="initWithContentsOfURL:error:"))) __attribute__((availability(ios,introduced=2.0,deprecated=100000,replacement="initWithContentsOfURL:error:"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,replacement="initWithContentsOfURL:error:"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,replacement="initWithContentsOfURL:error:")));
 
-// - (BOOL)writeToFile:(NSString *)path atomically:(BOOL)useAuxiliaryFile;
-// - (BOOL)writeToURL:(NSURL *)url atomically:(BOOL)atomically;
+// - (BOOL)writeToFile:(NSString *)path atomically:(BOOL)useAuxiliaryFile __attribute__((availability(macos,introduced=10.0,deprecated=100000,replacement="writeToURL:error:"))) __attribute__((availability(ios,introduced=2.0,deprecated=100000,replacement="writeToURL:error:"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,replacement="writeToURL:error:"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,replacement="writeToURL:error:")));
+// - (BOOL)writeToURL:(NSURL *)url atomically:(BOOL)atomically __attribute__((availability(macos,introduced=10.0,deprecated=100000,replacement="writeToURL:error:"))) __attribute__((availability(ios,introduced=2.0,deprecated=100000,replacement="writeToURL:error:"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,replacement="writeToURL:error:"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,replacement="writeToURL:error:")));
 /* @end */
 
 
@@ -11900,9 +12423,7 @@ struct NSDictionary_IMPL {
 
 // + (instancetype)dictionary;
 // + (instancetype)dictionaryWithObject:(ObjectType)object forKey:(KeyType <NSCopying>)key;
-
 // + (instancetype)dictionaryWithObjects:(const ObjectType _Nonnull [_Nullable])objects forKeys:(const KeyType <NSCopying> _Nonnull [_Nullable])keys count:(NSUInteger)cnt;
-
 
 // + (instancetype)dictionaryWithObjectsAndKeys:(id)firstObject, ... __attribute__((sentinel(0,1))) __attribute__((availability(swift, unavailable, message="Use dictionary literals instead")));
 
@@ -11941,7 +12462,7 @@ struct NSMutableDictionary_IMPL {
 // - (void)setObject:(ObjectType)anObject forKey:(KeyType <NSCopying>)aKey;
 // - (instancetype)init __attribute__((objc_designated_initializer));
 // - (instancetype)initWithCapacity:(NSUInteger)numItems __attribute__((objc_designated_initializer));
-// - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder __attribute__((objc_designated_initializer));
+// - (nullable instancetype)initWithCoder:(NSCoder *)coder __attribute__((objc_designated_initializer));
 
 /* @end */
 
@@ -12041,7 +12562,7 @@ struct NSSet_IMPL {
 // - (NSEnumerator<ObjectType> *)objectEnumerator;
 // - (instancetype)init __attribute__((objc_designated_initializer));
 // - (instancetype)initWithObjects:(const ObjectType _Nonnull [_Nullable])objects count:(NSUInteger)cnt __attribute__((objc_designated_initializer));
-// - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder __attribute__((objc_designated_initializer));
+// - (nullable instancetype)initWithCoder:(NSCoder *)coder __attribute__((objc_designated_initializer));
 
 /* @end */
 
@@ -12106,7 +12627,7 @@ struct NSMutableSet_IMPL {
 
 // - (void)addObject:(ObjectType)object;
 // - (void)removeObject:(ObjectType)object;
-// - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder __attribute__((objc_designated_initializer));
+// - (nullable instancetype)initWithCoder:(NSCoder *)coder __attribute__((objc_designated_initializer));
 // - (instancetype)init __attribute__((objc_designated_initializer));
 // - (instancetype)initWithCapacity:(NSUInteger)numItems __attribute__((objc_designated_initializer));
 
@@ -12212,7 +12733,7 @@ typedef NSString * NSProgressUserInfoKey __attribute__((swift_wrapper(struct)));
 typedef NSString * NSProgressFileOperationKind __attribute__((swift_wrapper(struct)));
 
 #pragma clang assume_nonnull begin
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=7_0)))
+__attribute__((availability(macos,introduced=10.9))) __attribute__((availability(ios,introduced=7.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSProgress
 #define _REWRITER_typedef_NSProgress
@@ -12222,25 +12743,6 @@ typedef struct {} _objc_exc_NSProgress;
 
 struct NSProgress_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	NSProgress *__weak _parent;
-	int64_t _reserved4;
-	id _values;
-	void (*_resumingHandler)();
-	void (*_cancellationHandler)();
-	void (*_pausingHandler)();
-	void (*_prioritizationHandler)();
-	uint64_t _flags;
-	id _userInfoProxy;
-	NSString *_publisherID;
-	id _reserved5;
-	NSInteger _reserved6;
-	NSInteger _reserved7;
-	NSInteger _reserved8;
-	NSMutableDictionary *_acknowledgementHandlersByLowercaseBundleID;
-	NSMutableDictionary *_lastNotificationTimesByKey;
-	NSMutableDictionary *_userInfoLastNotificationTimesByKey;
-	NSLock *_lock;
-	NSMutableSet *_children;
 };
 
 
@@ -12256,11 +12758,11 @@ struct NSProgress_IMPL {
 
 
 
-// + (NSProgress *)discreteProgressWithTotalUnitCount:(int64_t)unitCount __attribute__((availability(ios,introduced=9_0)));
+// + (NSProgress *)discreteProgressWithTotalUnitCount:(int64_t)unitCount __attribute__((availability(macos,introduced=10.11))) __attribute__((availability(ios,introduced=9.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
 
 
-// + (NSProgress *)progressWithTotalUnitCount:(int64_t)unitCount parent:(NSProgress *)parent pendingUnitCount:(int64_t)portionOfParentTotalUnitCount __attribute__((availability(ios,introduced=9_0)));
+// + (NSProgress *)progressWithTotalUnitCount:(int64_t)unitCount parent:(NSProgress *)parent pendingUnitCount:(int64_t)portionOfParentTotalUnitCount __attribute__((availability(macos,introduced=10.11))) __attribute__((availability(ios,introduced=9.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
 
 
@@ -12282,7 +12784,7 @@ struct NSProgress_IMPL {
 
 
 
-// - (void)addChild:(NSProgress *)child withPendingUnitCount:(int64_t)inUnitCount __attribute__((availability(ios,introduced=9_0)));
+// - (void)addChild:(NSProgress *)child withPendingUnitCount:(int64_t)inUnitCount __attribute__((availability(macos,introduced=10.11))) __attribute__((availability(ios,introduced=9.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
 
 
@@ -12315,7 +12817,7 @@ struct NSProgress_IMPL {
 
 
 
-// @property (nullable, copy) void (^resumingHandler)(void) __attribute__((availability(ios,introduced=9_0)));
+// @property (nullable, copy) void (^resumingHandler)(void) __attribute__((availability(macos,introduced=10.11))) __attribute__((availability(ios,introduced=9.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
 
 
@@ -12346,7 +12848,7 @@ struct NSProgress_IMPL {
 
 
 
-// - (void)resume __attribute__((availability(ios,introduced=9_0)));
+// - (void)resume __attribute__((availability(macos,introduced=10.11))) __attribute__((availability(ios,introduced=9.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
 
 
@@ -12434,37 +12936,37 @@ typedef _Nullable NSProgressUnpublishingHandler (*NSProgressPublishingHandler)(N
 
 
 
-extern "C" NSProgressUserInfoKey const NSProgressEstimatedTimeRemainingKey __attribute__((availability(ios,introduced=7_0)));
+extern "C" NSProgressUserInfoKey const NSProgressEstimatedTimeRemainingKey __attribute__((availability(macos,introduced=10.9))) __attribute__((availability(ios,introduced=7.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
 
 
-extern "C" NSProgressUserInfoKey const NSProgressThroughputKey __attribute__((availability(ios,introduced=7_0)));
+extern "C" NSProgressUserInfoKey const NSProgressThroughputKey __attribute__((availability(macos,introduced=10.9))) __attribute__((availability(ios,introduced=7.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
 
 
 
 
-extern "C" NSProgressKind const NSProgressKindFile __attribute__((availability(ios,introduced=7_0)));
+extern "C" NSProgressKind const NSProgressKindFile __attribute__((availability(macos,introduced=10.9))) __attribute__((availability(ios,introduced=7.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
 
 
-extern "C" NSProgressUserInfoKey const NSProgressFileOperationKindKey __attribute__((availability(ios,introduced=7_0)));
+extern "C" NSProgressUserInfoKey const NSProgressFileOperationKindKey __attribute__((availability(macos,introduced=10.9))) __attribute__((availability(ios,introduced=7.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
 
 
-extern "C" NSProgressFileOperationKind const NSProgressFileOperationKindDownloading __attribute__((availability(ios,introduced=7_0)));
-extern "C" NSProgressFileOperationKind const NSProgressFileOperationKindDecompressingAfterDownloading __attribute__((availability(ios,introduced=7_0)));
-extern "C" NSProgressFileOperationKind const NSProgressFileOperationKindReceiving __attribute__((availability(ios,introduced=7_0)));
-extern "C" NSProgressFileOperationKind const NSProgressFileOperationKindCopying __attribute__((availability(ios,introduced=7_0)));
+extern "C" NSProgressFileOperationKind const NSProgressFileOperationKindDownloading __attribute__((availability(macos,introduced=10.9))) __attribute__((availability(ios,introduced=7.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
+extern "C" NSProgressFileOperationKind const NSProgressFileOperationKindDecompressingAfterDownloading __attribute__((availability(macos,introduced=10.9))) __attribute__((availability(ios,introduced=7.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
+extern "C" NSProgressFileOperationKind const NSProgressFileOperationKindReceiving __attribute__((availability(macos,introduced=10.9))) __attribute__((availability(ios,introduced=7.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
+extern "C" NSProgressFileOperationKind const NSProgressFileOperationKindCopying __attribute__((availability(macos,introduced=10.9))) __attribute__((availability(ios,introduced=7.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
 
 
-extern "C" NSProgressUserInfoKey const NSProgressFileURLKey __attribute__((availability(ios,introduced=7_0)));
+extern "C" NSProgressUserInfoKey const NSProgressFileURLKey __attribute__((availability(macos,introduced=10.9))) __attribute__((availability(ios,introduced=7.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
 
 
-extern "C" NSProgressUserInfoKey const NSProgressFileTotalCountKey __attribute__((availability(ios,introduced=7_0)));
-extern "C" NSProgressUserInfoKey const NSProgressFileCompletedCountKey __attribute__((availability(ios,introduced=7_0)));
+extern "C" NSProgressUserInfoKey const NSProgressFileTotalCountKey __attribute__((availability(macos,introduced=10.9))) __attribute__((availability(ios,introduced=7.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
+extern "C" NSProgressUserInfoKey const NSProgressFileCompletedCountKey __attribute__((availability(macos,introduced=10.9))) __attribute__((availability(ios,introduced=7.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
 
 
@@ -12524,7 +13026,7 @@ struct NSNotification_IMPL {
 // @property (nullable, readonly, copy) NSDictionary *userInfo;
 
 // - (instancetype)initWithName:(NSNotificationName)name object:(nullable id)object userInfo:(nullable NSDictionary *)userInfo __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((objc_designated_initializer));
-// - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder __attribute__((objc_designated_initializer));
+// - (nullable instancetype)initWithCoder:(NSCoder *)coder __attribute__((objc_designated_initializer));
 
 /* @end */
 
@@ -12632,8 +13134,7 @@ struct NSBundle_IMPL {
 	Class _principalClass;
 	id _initialPath;
 	id _resolvedPath;
-	Class _firstClass;
-	id _lock;
+	NSString *_firstClassName;
 };
 
 
@@ -12748,7 +13249,7 @@ enum {
 
 extern "C" NSNotificationName const NSBundleDidLoadNotification;
 extern "C" NSString * const NSLoadedClasses;
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=9_0)))
+__attribute__((availability(ios,introduced=9.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(macos,unavailable)))
 
 #ifndef _REWRITER_typedef_NSBundleResourceRequest
 #define _REWRITER_typedef_NSBundleResourceRequest
@@ -12761,7 +13262,7 @@ struct NSBundleResourceRequest_IMPL {
 };
 
 
-// - (instancetype)init __attribute__((unavailable));
+// - (instancetype)init __attribute__((availability(macos,unavailable))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
 
 
 
@@ -13064,7 +13565,7 @@ struct NSDate_IMPL {
 
 // - (instancetype)init __attribute__((objc_designated_initializer));
 // - (instancetype)initWithTimeIntervalSinceReferenceDate:(NSTimeInterval)ti __attribute__((objc_designated_initializer));
-// - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder __attribute__((objc_designated_initializer));
+// - (nullable instancetype)initWithCoder:(NSCoder *)coder __attribute__((objc_designated_initializer));
 
 /* @end */
 
@@ -13101,6 +13602,8 @@ struct NSDate_IMPL {
 
 @property (class, readonly, copy) NSDate *distantFuture;
 @property (class, readonly, copy) NSDate *distantPast;
+
+@property (class, readonly, copy) NSDate *now __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
 
 // - (instancetype)initWithTimeIntervalSinceNow:(NSTimeInterval)secs;
 // - (instancetype)initWithTimeIntervalSince1970:(NSTimeInterval)secs;
@@ -13192,22 +13695,22 @@ typedef NSUInteger NSCalendarUnit; enum {
         NSCalendarUnitCalendar __attribute__((availability(macos,introduced=10.7))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) = (1 << 20),
         NSCalendarUnitTimeZone __attribute__((availability(macos,introduced=10.7))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) = (1 << 21),
 
- NSEraCalendarUnit __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use NSCalendarUnitEra instead"))) = NSCalendarUnitEra,
- NSYearCalendarUnit __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use NSCalendarUnitYear instead"))) = NSCalendarUnitYear,
- NSMonthCalendarUnit __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use NSCalendarUnitMonth instead"))) = NSCalendarUnitMonth,
- NSDayCalendarUnit __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use NSCalendarUnitDay instead"))) = NSCalendarUnitDay,
- NSHourCalendarUnit __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use NSCalendarUnitHour instead"))) = NSCalendarUnitHour,
- NSMinuteCalendarUnit __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use NSCalendarUnitMinute instead"))) = NSCalendarUnitMinute,
- NSSecondCalendarUnit __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use NSCalendarUnitSecond instead"))) = NSCalendarUnitSecond,
- NSWeekCalendarUnit __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use NSCalendarUnitWeekOfMonth or NSCalendarUnitWeekOfYear, depending on which you mean"))) = kCFCalendarUnitWeek,
- NSWeekdayCalendarUnit __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use NSCalendarUnitWeekday instead"))) = NSCalendarUnitWeekday,
- NSWeekdayOrdinalCalendarUnit __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use NSCalendarUnitWeekdayOrdinal instead"))) = NSCalendarUnitWeekdayOrdinal,
- NSQuarterCalendarUnit __attribute__((availability(ios,introduced=4_0,deprecated=8_0,message="" "Use NSCalendarUnitQuarter instead"))) = NSCalendarUnitQuarter,
- NSWeekOfMonthCalendarUnit __attribute__((availability(ios,introduced=5_0,deprecated=8_0,message="" "Use NSCalendarUnitWeekOfMonth instead"))) = NSCalendarUnitWeekOfMonth,
- NSWeekOfYearCalendarUnit __attribute__((availability(ios,introduced=5_0,deprecated=8_0,message="" "Use NSCalendarUnitWeekOfYear instead"))) = NSCalendarUnitWeekOfYear,
- NSYearForWeekOfYearCalendarUnit __attribute__((availability(ios,introduced=5_0,deprecated=8_0,message="" "Use NSCalendarUnitYearForWeekOfYear instead"))) = NSCalendarUnitYearForWeekOfYear,
- NSCalendarCalendarUnit __attribute__((availability(ios,introduced=4_0,deprecated=8_0,message="" "Use NSCalendarUnitCalendar instead"))) = NSCalendarUnitCalendar,
- NSTimeZoneCalendarUnit __attribute__((availability(ios,introduced=4_0,deprecated=8_0,message="" "Use NSCalendarUnitTimeZone instead"))) = NSCalendarUnitTimeZone,
+ NSEraCalendarUnit __attribute__((availability(macos,introduced=10.4,deprecated=10.10,replacement="NSCalendarUnitEra"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,replacement="NSCalendarUnitEra"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,replacement="NSCalendarUnitEra"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,replacement="NSCalendarUnitEra"))) = NSCalendarUnitEra,
+ NSYearCalendarUnit __attribute__((availability(macos,introduced=10.4,deprecated=10.10,replacement="NSCalendarUnitYear"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,replacement="NSCalendarUnitYear"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,replacement="NSCalendarUnitYear"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,replacement="NSCalendarUnitYear"))) = NSCalendarUnitYear,
+ NSMonthCalendarUnit __attribute__((availability(macos,introduced=10.4,deprecated=10.10,replacement="NSCalendarUnitMonth"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,replacement="NSCalendarUnitMonth"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,replacement="NSCalendarUnitMonth"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,replacement="NSCalendarUnitMonth"))) = NSCalendarUnitMonth,
+ NSDayCalendarUnit __attribute__((availability(macos,introduced=10.4,deprecated=10.10,replacement="NSCalendarUnitDay"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,replacement="NSCalendarUnitDay"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,replacement="NSCalendarUnitDay"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,replacement="NSCalendarUnitDay"))) = NSCalendarUnitDay,
+ NSHourCalendarUnit __attribute__((availability(macos,introduced=10.4,deprecated=10.10,replacement="NSCalendarUnitHour"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,replacement="NSCalendarUnitHour"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,replacement="NSCalendarUnitHour"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,replacement="NSCalendarUnitHour"))) = NSCalendarUnitHour,
+ NSMinuteCalendarUnit __attribute__((availability(macos,introduced=10.4,deprecated=10.10,replacement="NSCalendarUnitMinute"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,replacement="NSCalendarUnitMinute"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,replacement="NSCalendarUnitMinute"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,replacement="NSCalendarUnitMinute"))) = NSCalendarUnitMinute,
+ NSSecondCalendarUnit __attribute__((availability(macos,introduced=10.4,deprecated=10.10,replacement="NSCalendarUnitSecond"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,replacement="NSCalendarUnitSecond"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,replacement="NSCalendarUnitSecond"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,replacement="NSCalendarUnitSecond"))) = NSCalendarUnitSecond,
+ NSWeekCalendarUnit __attribute__((availability(macos,introduced=10.4,deprecated=10.10,message="NSCalendarUnitWeekOfMonth or NSCalendarUnitWeekOfYear, depending on which you mean"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,message="NSCalendarUnitWeekOfMonth or NSCalendarUnitWeekOfYear, depending on which you mean"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,message="NSCalendarUnitWeekOfMonth or NSCalendarUnitWeekOfYear, depending on which you mean"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,message="NSCalendarUnitWeekOfMonth or NSCalendarUnitWeekOfYear, depending on which you mean"))) = kCFCalendarUnitWeek,
+ NSWeekdayCalendarUnit __attribute__((availability(macos,introduced=10.4,deprecated=10.10,replacement="NSCalendarUnitWeekday"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,replacement="NSCalendarUnitWeekday"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,replacement="NSCalendarUnitWeekday"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,replacement="NSCalendarUnitWeekday"))) = NSCalendarUnitWeekday,
+ NSWeekdayOrdinalCalendarUnit __attribute__((availability(macos,introduced=10.4,deprecated=10.10,replacement="NSCalendarUnitWeekdayOrdinal"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,replacement="NSCalendarUnitWeekdayOrdinal"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,replacement="NSCalendarUnitWeekdayOrdinal"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,replacement="NSCalendarUnitWeekdayOrdinal"))) = NSCalendarUnitWeekdayOrdinal,
+ NSQuarterCalendarUnit __attribute__((availability(macos,introduced=10.6,deprecated=10.10,replacement="NSCalendarUnitQuarter"))) __attribute__((availability(ios,introduced=4.0,deprecated=8.0,replacement="NSCalendarUnitQuarter"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,replacement="NSCalendarUnitQuarter"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,replacement="NSCalendarUnitQuarter"))) = NSCalendarUnitQuarter,
+ NSWeekOfMonthCalendarUnit __attribute__((availability(macos,introduced=10.7,deprecated=10.10,replacement="NSCalendarUnitWeekOfMonth"))) __attribute__((availability(ios,introduced=5.0,deprecated=8.0,replacement="NSCalendarUnitWeekOfMonth"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,replacement="NSCalendarUnitWeekOfMonth"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,replacement="NSCalendarUnitWeekOfMonth"))) = NSCalendarUnitWeekOfMonth,
+ NSWeekOfYearCalendarUnit __attribute__((availability(macos,introduced=10.7,deprecated=10.10,replacement="NSCalendarUnitWeekOfYear"))) __attribute__((availability(ios,introduced=5.0,deprecated=8.0,replacement="NSCalendarUnitWeekOfYear"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,replacement="NSCalendarUnitWeekOfYear"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,replacement="NSCalendarUnitWeekOfYear"))) = NSCalendarUnitWeekOfYear,
+ NSYearForWeekOfYearCalendarUnit __attribute__((availability(macos,introduced=10.7,deprecated=10.10,replacement="NSCalendarUnitYearForWeekOfYear"))) __attribute__((availability(ios,introduced=5.0,deprecated=8.0,replacement="NSCalendarUnitYearForWeekOfYear"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,replacement="NSCalendarUnitYearForWeekOfYear"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,replacement="NSCalendarUnitYearForWeekOfYear"))) = NSCalendarUnitYearForWeekOfYear,
+ NSCalendarCalendarUnit __attribute__((availability(macos,introduced=10.7,deprecated=10.10,replacement="NSCalendarUnitCalendar"))) __attribute__((availability(ios,introduced=4.0,deprecated=8.0,replacement="NSCalendarUnitCalendar"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,replacement="NSCalendarUnitCalendar"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,replacement="NSCalendarUnitCalendar"))) = NSCalendarUnitCalendar,
+ NSTimeZoneCalendarUnit __attribute__((availability(macos,introduced=10.7,deprecated=10.10,replacement="NSCalendarUnitTimeZone"))) __attribute__((availability(ios,introduced=4.0,deprecated=8.0,replacement="NSCalendarUnitTimeZone"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,replacement="NSCalendarUnitTimeZone"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,replacement="NSCalendarUnitTimeZone"))) = NSCalendarUnitTimeZone,
 };
 
 typedef NSUInteger NSCalendarOptions; enum {
@@ -13225,7 +13728,7 @@ typedef NSUInteger NSCalendarOptions; enum {
 };
 
 enum {
- NSWrapCalendarComponents __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use NSCalendarWrapComponents instead"))) = NSCalendarWrapComponents,
+ NSWrapCalendarComponents __attribute__((availability(macos,introduced=10.4,deprecated=10.10,replacement="NSCalendarWrapComponents"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,replacement="NSCalendarWrapComponents"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,replacement="NSCalendarWrapComponents"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,replacement="NSCalendarWrapComponents"))) = NSCalendarWrapComponents,
 };
 
 
@@ -13250,7 +13753,7 @@ struct NSCalendar_IMPL {
 
 // + (nullable NSCalendar *)calendarWithIdentifier:(NSCalendarIdentifier)calendarIdentifierConstant __attribute__((availability(macos,introduced=10.9))) __attribute__((availability(ios,introduced=8.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
-// - (instancetype)init __attribute__((unavailable));
+// - (instancetype)init __attribute__((availability(macos,unavailable))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
 
 // - (nullable id)initWithCalendarIdentifier:(NSCalendarIdentifier)ident __attribute__((objc_designated_initializer));
 
@@ -13467,7 +13970,7 @@ extern "C" NSNotificationName const NSCalendarDayChangedNotification __attribute
 enum {
  NSDateComponentUndefined = 9223372036854775807L,
 
- NSUndefinedDateComponent __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use NSDateComponentUndefined instead"))) = NSDateComponentUndefined
+ NSUndefinedDateComponent __attribute__((availability(macos,introduced=10.4,deprecated=10.10,replacement="NSDateComponentUndefined"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,replacement="NSDateComponentUndefined"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,replacement="NSDateComponentUndefined"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,replacement="NSDateComponentUndefined"))) = NSDateComponentUndefined
 };
 
 
@@ -13502,8 +14005,8 @@ struct NSDateComponents_IMPL {
 // @property (getter=isLeapMonth) BOOL leapMonth __attribute__((availability(macos,introduced=10.8))) __attribute__((availability(ios,introduced=6.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 // @property (nullable, readonly, copy) NSDate *date __attribute__((availability(macos,introduced=10.7))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
-// - (NSInteger)week __attribute__((availability(ios,introduced=2_0,deprecated=7_0,message="" "Use weekOfMonth or weekOfYear, depending on which you mean")));
-// - (void)setWeek:(NSInteger)v __attribute__((availability(ios,introduced=2_0,deprecated=7_0,message="" "Use setWeekOfMonth: or setWeekOfYear:, depending on which you mean")));
+// - (NSInteger)week __attribute__((availability(macos,introduced=10.4,deprecated=10.9,message="Use -weekOfMonth or -weekOfYear, depending on which you mean"))) __attribute__((availability(ios,introduced=2.0,deprecated=7.0,message="Use -weekOfMonth or -weekOfYear, depending on which you mean"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,message="Use -weekOfMonth or -weekOfYear, depending on which you mean"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,message="Use -weekOfMonth or -weekOfYear, depending on which you mean")));
+// - (void)setWeek:(NSInteger)v __attribute__((availability(macos,introduced=10.4,deprecated=10.9,message="Use -setWeekOfMonth: or -setWeekOfYear:, depending on which you mean"))) __attribute__((availability(ios,introduced=2.0,deprecated=7.0,message="Use -setWeekOfMonth: or -setWeekOfYear:, depending on which you mean"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,message="Use -setWeekOfMonth: or -setWeekOfYear:, depending on which you mean"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,message="Use -setWeekOfMonth: or -setWeekOfYear:, depending on which you mean")));
 
 
 
@@ -13571,7 +14074,7 @@ struct NSCharacterSet_IMPL {
 // + (NSCharacterSet *)characterSetWithBitmapRepresentation:(NSData *)data;
 // + (nullable NSCharacterSet *)characterSetWithContentsOfFile:(NSString *)fName;
 
-// - (instancetype) initWithCoder:(NSCoder *)aDecoder __attribute__((objc_designated_initializer));
+// - (instancetype) initWithCoder:(NSCoder *)coder __attribute__((objc_designated_initializer));
 
 // - (BOOL)characterIsMember:(unichar)aCharacter;
 // @property (readonly, copy) NSData *bitmapRepresentation;
@@ -13747,7 +14250,7 @@ struct NSCoder_IMPL {
 
 
 // - (nullable id)decodeObjectOfClass:(Class)aClass forKey:(NSString *)key __attribute__((availability(macos,introduced=10.8))) __attribute__((availability(ios,introduced=6.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
-// - (nullable id)decodeTopLevelObjectOfClass:(Class)aClass forKey:(NSString *)key error:(NSError **)error __attribute__((availability(macos,introduced=10.11))) __attribute__((availability(ios,introduced=9.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(swift, unavailable, message="Use 'decodeTopLevelObjectOfClass(_:,forKey:) throws instead")));
+// - (nullable id)decodeTopLevelObjectOfClass:(Class)aClass forKey:(NSString *)key error:(NSError **)error __attribute__((availability(macos,introduced=10.11))) __attribute__((availability(ios,introduced=9.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(swift, unavailable, message="Use 'decodeTopLevelObjectOfClass(_:,forKey:) throws' instead")));
 
 
 // - (nullable id)decodeObjectOfClasses:(nullable NSSet<Class> *)classes forKey:(NSString *)key __attribute__((availability(macos,introduced=10.8))) __attribute__((availability(ios,introduced=6.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((swift_private));
@@ -13773,7 +14276,7 @@ struct NSCoder_IMPL {
 // @interface NSCoder(NSDeprecated)
 
 
-// - (void)decodeValueOfObjCType:(const char *)type at:(void *)data;
+// - (void)decodeValueOfObjCType:(const char *)type at:(void *)data __attribute__((availability(macos,introduced=10.0,deprecated=100000,replacement="decodeValueOfObjCType:at:size:"))) __attribute__((availability(ios,introduced=2.0,deprecated=100000,replacement="decodeValueOfObjCType:at:size:"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,replacement="decodeValueOfObjCType:at:size:"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,replacement="decodeValueOfObjCType:at:size:")));
 
 /* @end */
 
@@ -13815,23 +14318,23 @@ typedef NSUInteger NSDataReadingOptions; enum {
     NSDataReadingMappedAlways __attribute__((availability(macos,introduced=10.7))) __attribute__((availability(ios,introduced=5.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) = 1UL << 3,
 
 
-    NSDataReadingMapped = NSDataReadingMappedIfSafe,
-    NSMappedRead = NSDataReadingMapped,
-    NSUncachedRead = NSDataReadingUncached
+    NSDataReadingMapped __attribute__((availability(macos,introduced=10.0,deprecated=100000,replacement="NSDataReadingMappedIfSafe"))) __attribute__((availability(ios,introduced=2.0,deprecated=100000,replacement="NSDataReadingMappedIfSafe"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,replacement="NSDataReadingMappedIfSafe"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,replacement="NSDataReadingMappedIfSafe"))) = NSDataReadingMappedIfSafe,
+    NSMappedRead __attribute__((availability(macos,introduced=10.0,deprecated=100000,replacement="NSDataReadingMapped"))) __attribute__((availability(ios,introduced=2.0,deprecated=100000,replacement="NSDataReadingMapped"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,replacement="NSDataReadingMapped"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,replacement="NSDataReadingMapped"))) = NSDataReadingMapped,
+    NSUncachedRead __attribute__((availability(macos,introduced=10.0,deprecated=100000,replacement="NSDataReadingUncached"))) __attribute__((availability(ios,introduced=2.0,deprecated=100000,replacement="NSDataReadingUncached"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,replacement="NSDataReadingUncached"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,replacement="NSDataReadingUncached"))) = NSDataReadingUncached
 };
 
 typedef NSUInteger NSDataWritingOptions; enum {
     NSDataWritingAtomic = 1UL << 0,
     NSDataWritingWithoutOverwriting __attribute__((availability(macos,introduced=10.8))) __attribute__((availability(ios,introduced=6.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) = 1UL << 1,
 
-    NSDataWritingFileProtectionNone __attribute__((availability(ios,introduced=4_0))) = 0x10000000,
-    NSDataWritingFileProtectionComplete __attribute__((availability(ios,introduced=4_0))) = 0x20000000,
-    NSDataWritingFileProtectionCompleteUnlessOpen __attribute__((availability(ios,introduced=5_0))) = 0x30000000,
-    NSDataWritingFileProtectionCompleteUntilFirstUserAuthentication __attribute__((availability(ios,introduced=5_0))) = 0x40000000,
-    NSDataWritingFileProtectionMask __attribute__((availability(ios,introduced=4_0))) = 0xf0000000,
+    NSDataWritingFileProtectionNone __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(macos,unavailable))) = 0x10000000,
+    NSDataWritingFileProtectionComplete __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(macos,unavailable))) = 0x20000000,
+    NSDataWritingFileProtectionCompleteUnlessOpen __attribute__((availability(ios,introduced=5.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(macos,unavailable))) = 0x30000000,
+    NSDataWritingFileProtectionCompleteUntilFirstUserAuthentication __attribute__((availability(ios,introduced=5.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(macos,unavailable))) = 0x40000000,
+    NSDataWritingFileProtectionMask __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(macos,unavailable))) = 0xf0000000,
 
 
-    NSAtomicWrite = NSDataWritingAtomic
+    NSAtomicWrite __attribute__((availability(macos,introduced=10.0,deprecated=100000,replacement="NSDataWritingAtomic"))) __attribute__((availability(ios,introduced=2.0,deprecated=100000,replacement="NSDataWritingAtomic"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,replacement="NSDataWritingAtomic"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,replacement="NSDataWritingAtomic"))) = NSDataWritingAtomic
 };
 
 
@@ -13955,6 +14458,37 @@ struct NSData_IMPL {
 
 
 
+
+typedef NSInteger NSDataCompressionAlgorithm; enum {
+
+
+    NSDataCompressionAlgorithmLZFSE = 0,
+
+
+
+    NSDataCompressionAlgorithmLZ4,
+
+
+
+    NSDataCompressionAlgorithmLZMA,
+
+
+
+    NSDataCompressionAlgorithmZlib,
+
+} __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
+// @interface NSData (NSDataCompression)
+
+
+
+// - (nullable instancetype)decompressedDataUsingAlgorithm:(NSDataCompressionAlgorithm)algorithm error:(NSError **)error __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+// - (nullable instancetype)compressedDataUsingAlgorithm:(NSDataCompressionAlgorithm)algorithm error:(NSError **)error __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
+/* @end */
+
+
+
 // @interface NSData (NSDeprecated)
 
 // - (void)getBytes:(void *)buffer __attribute__((availability(macos,introduced=10.0,deprecated=10.10,message="This method is unsafe because it could potentially cause buffer overruns. Use -getBytes:length: instead."))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,message="This method is unsafe because it could potentially cause buffer overruns. Use -getBytes:length: instead."))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,message="This method is unsafe because it could potentially cause buffer overruns. Use -getBytes:length: instead."))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,message="This method is unsafe because it could potentially cause buffer overruns. Use -getBytes:length: instead.")));
@@ -14012,9 +14546,19 @@ struct NSMutableData_IMPL {
 /* @end */
 
 
+// @interface NSMutableData (NSMutableDataCompression)
 
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=4_0)))
+
+// - (BOOL)decompressUsingAlgorithm:(NSDataCompressionAlgorithm)algorithm error:(NSError **)error __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+// - (BOOL)compressUsingAlgorithm:(NSDataCompressionAlgorithm)algorithm error:(NSError **)error __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
+/* @end */
+
+
+
+
+__attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSPurgeableData
 #define _REWRITER_typedef_NSPurgeableData
@@ -14113,7 +14657,7 @@ struct NSDateInterval_IMPL {
 
 typedef NSString * NSAttributedStringKey __attribute__((swift_wrapper(struct)));
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=3_2)))
+__attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,introduced=3.2))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSAttributedString
 #define _REWRITER_typedef_NSAttributedString
@@ -14158,7 +14702,7 @@ typedef NSUInteger NSAttributedStringEnumerationOptions; enum {
 /* @end */
 
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=3_2)))
+__attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,introduced=3.2))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSMutableAttributedString
 #define _REWRITER_typedef_NSMutableAttributedString
@@ -14482,7 +15026,7 @@ typedef NSUInteger NSDateIntervalFormatterStyle; enum {
 
 
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=8_0)))
+__attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSDateIntervalFormatter
 #define _REWRITER_typedef_NSDateIntervalFormatter
@@ -14640,7 +15184,7 @@ typedef NSInteger NSMassFormatterUnit; enum {
     NSMassFormatterUnitStone = (6 << 8) + 3,
 } __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=8_0)))
+__attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSMassFormatter
 #define _REWRITER_typedef_NSMassFormatter
@@ -14696,7 +15240,7 @@ typedef NSInteger NSLengthFormatterUnit; enum {
     NSLengthFormatterUnitMile = (5 << 8) + 4,
 } __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=8_0)))
+__attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSLengthFormatter
 #define _REWRITER_typedef_NSLengthFormatter
@@ -14748,7 +15292,7 @@ typedef NSInteger NSEnergyFormatterUnit; enum {
     NSEnergyFormatterUnitKilocalorie = (7 << 8) + 2,
 } __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=8_0)))
+__attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSEnergyFormatter
 #define _REWRITER_typedef_NSEnergyFormatter
@@ -14875,8 +15419,8 @@ struct NSUnit_IMPL {
 
 // @property (readonly, copy) NSString *symbol;
 
-// - (instancetype)init __attribute__((unavailable));
-// + (instancetype)new __attribute__((unavailable));
+// - (instancetype)init __attribute__((availability(macos,unavailable))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+// + (instancetype)new __attribute__((availability(macos,unavailable))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
 
 // - (instancetype)initWithSymbol:(NSString *)symbol __attribute__((objc_designated_initializer));
 
@@ -15060,9 +15604,13 @@ struct NSUnitDuration_IMPL {
 
 
 
-@property (class, readonly, copy) NSUnitDuration *seconds;
-@property (class, readonly, copy) NSUnitDuration *minutes;
 @property (class, readonly, copy) NSUnitDuration *hours;
+@property (class, readonly, copy) NSUnitDuration *minutes;
+@property (class, readonly, copy) NSUnitDuration *seconds;
+@property (class, readonly, copy) NSUnitDuration *milliseconds __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(tvos,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0)));
+@property (class, readonly, copy) NSUnitDuration *microseconds __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(tvos,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0)));
+@property (class, readonly, copy) NSUnitDuration *nanoseconds __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(tvos,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0)));
+@property (class, readonly, copy) NSUnitDuration *picoseconds __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(tvos,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0)));
 
 /* @end */
 
@@ -15218,6 +15766,9 @@ struct NSUnitFrequency_IMPL {
 @property (class, readonly, copy) NSUnitFrequency *microhertz;
 @property (class, readonly, copy) NSUnitFrequency *nanohertz;
 
+
+@property (class, readonly, copy) NSUnitFrequency *framesPerSecond __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(tvos,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0)));
+
 /* @end */
 
 
@@ -15240,6 +15791,76 @@ struct NSUnitFuelEfficiency_IMPL {
 @property (class, readonly, copy) NSUnitFuelEfficiency *litersPer100Kilometers;
 @property (class, readonly, copy) NSUnitFuelEfficiency *milesPerImperialGallon;
 @property (class, readonly, copy) NSUnitFuelEfficiency *milesPerGallon;
+
+/* @end */
+
+
+
+
+
+
+
+
+__attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(tvos,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0)))
+__attribute__((swift_name("UnitInformationStorage")))
+
+#ifndef _REWRITER_typedef_NSUnitInformationStorage
+#define _REWRITER_typedef_NSUnitInformationStorage
+typedef struct objc_object NSUnitInformationStorage;
+typedef struct {} _objc_exc_NSUnitInformationStorage;
+#endif
+
+struct NSUnitInformationStorage_IMPL {
+	struct NSDimension_IMPL NSDimension_IVARS;
+};
+
+
+
+@property (readonly, class, copy) NSUnitInformationStorage *bytes;
+
+
+@property (readonly, class, copy) NSUnitInformationStorage *bits;
+@property (readonly, class, copy) NSUnitInformationStorage *nibbles;
+
+
+
+@property (readonly, class, copy) NSUnitInformationStorage *yottabytes;
+@property (readonly, class, copy) NSUnitInformationStorage *zettabytes;
+@property (readonly, class, copy) NSUnitInformationStorage *exabytes;
+@property (readonly, class, copy) NSUnitInformationStorage *petabytes;
+@property (readonly, class, copy) NSUnitInformationStorage *terabytes;
+@property (readonly, class, copy) NSUnitInformationStorage *gigabytes;
+@property (readonly, class, copy) NSUnitInformationStorage *megabytes;
+@property (readonly, class, copy) NSUnitInformationStorage *kilobytes;
+
+@property (readonly, class, copy) NSUnitInformationStorage *yottabits;
+@property (readonly, class, copy) NSUnitInformationStorage *zettabits;
+@property (readonly, class, copy) NSUnitInformationStorage *exabits;
+@property (readonly, class, copy) NSUnitInformationStorage *petabits;
+@property (readonly, class, copy) NSUnitInformationStorage *terabits;
+@property (readonly, class, copy) NSUnitInformationStorage *gigabits;
+@property (readonly, class, copy) NSUnitInformationStorage *megabits;
+@property (readonly, class, copy) NSUnitInformationStorage *kilobits;
+
+
+
+@property (readonly, class, copy) NSUnitInformationStorage *yobibytes;
+@property (readonly, class, copy) NSUnitInformationStorage *zebibytes;
+@property (readonly, class, copy) NSUnitInformationStorage *exbibytes;
+@property (readonly, class, copy) NSUnitInformationStorage *pebibytes;
+@property (readonly, class, copy) NSUnitInformationStorage *tebibytes;
+@property (readonly, class, copy) NSUnitInformationStorage *gibibytes;
+@property (readonly, class, copy) NSUnitInformationStorage *mebibytes;
+@property (readonly, class, copy) NSUnitInformationStorage *kibibytes;
+
+@property (readonly, class, copy) NSUnitInformationStorage *yobibits;
+@property (readonly, class, copy) NSUnitInformationStorage *zebibits;
+@property (readonly, class, copy) NSUnitInformationStorage *exbibits;
+@property (readonly, class, copy) NSUnitInformationStorage *pebibits;
+@property (readonly, class, copy) NSUnitInformationStorage *tebibits;
+@property (readonly, class, copy) NSUnitInformationStorage *gibibits;
+@property (readonly, class, copy) NSUnitInformationStorage *mebibits;
+@property (readonly, class, copy) NSUnitInformationStorage *kibibits;
 
 /* @end */
 
@@ -15505,7 +16126,7 @@ struct NSUnitVolume_IMPL {
 
 #pragma clang assume_nonnull begin
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=10_0)))
+__attribute__((availability(macos,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(watchos,introduced=3.0))) __attribute__((availability(tvos,introduced=10.0)))
 
 #ifndef _REWRITER_typedef_NSMeasurement
 #define _REWRITER_typedef_NSMeasurement
@@ -15523,7 +16144,7 @@ struct NSMeasurement_IMPL {
 // @property (readonly, copy) UnitType unit;
 // @property (readonly) double doubleValue;
 
-// - (instancetype)init __attribute__((unavailable));
+// - (instancetype)init __attribute__((availability(macos,unavailable))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
 // - (instancetype)initWithDoubleValue:(double)doubleValue unit:(UnitType)unit __attribute__((objc_designated_initializer));
 
 
@@ -15819,7 +16440,7 @@ struct NSLocale_IMPL {
 
 // - (instancetype)initWithLocaleIdentifier:(NSString *)string __attribute__((objc_designated_initializer));
 
-// - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder __attribute__((objc_designated_initializer));
+// - (nullable instancetype)initWithCoder:(NSCoder *)coder __attribute__((objc_designated_initializer));
 
 /* @end */
 
@@ -15883,7 +16504,7 @@ struct NSLocale_IMPL {
 
 // + (instancetype)localeWithLocaleIdentifier:(NSString *)ident __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
-// - (instancetype)init __attribute__((unavailable));
+// - (instancetype)init __attribute__((availability(macos,unavailable))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
 
 /* @end */
 
@@ -15944,17 +16565,17 @@ extern "C" NSLocaleKey const NSLocaleQuotationBeginDelimiterKey __attribute__((a
 extern "C" NSLocaleKey const NSLocaleQuotationEndDelimiterKey __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 extern "C" NSLocaleKey const NSLocaleAlternateQuotationBeginDelimiterKey __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 extern "C" NSLocaleKey const NSLocaleAlternateQuotationEndDelimiterKey __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
-extern "C" NSString * const NSGregorianCalendar __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use NSCalendarIdentifierGregorian instead")));
-extern "C" NSString * const NSBuddhistCalendar __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use NSCalendarIdentifierBuddhist instead")));
-extern "C" NSString * const NSChineseCalendar __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use NSCalendarIdentifierChinese instead")));
-extern "C" NSString * const NSHebrewCalendar __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use NSCalendarIdentifierHebrew instead")));
-extern "C" NSString * const NSIslamicCalendar __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use NSCalendarIdentifierIslamic instead")));
-extern "C" NSString * const NSIslamicCivilCalendar __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use NSCalendarIdentifierIslamicCivil instead")));
-extern "C" NSString * const NSJapaneseCalendar __attribute__((availability(ios,introduced=2_0,deprecated=8_0,message="" "Use NSCalendarIdentifierJapanese instead")));
-extern "C" NSString * const NSRepublicOfChinaCalendar __attribute__((availability(ios,introduced=4_0,deprecated=8_0,message="" "Use NSCalendarIdentifierRepublicOfChina instead")));
-extern "C" NSString * const NSPersianCalendar __attribute__((availability(ios,introduced=4_0,deprecated=8_0,message="" "Use NSCalendarIdentifierPersian instead")));
-extern "C" NSString * const NSIndianCalendar __attribute__((availability(ios,introduced=4_0,deprecated=8_0,message="" "Use NSCalendarIdentifierIndian instead")));
-extern "C" NSString * const NSISO8601Calendar __attribute__((availability(ios,introduced=4_0,deprecated=8_0,message="" "Use NSCalendarIdentifierISO8601 instead")));
+extern "C" NSString * const NSGregorianCalendar __attribute__((availability(macos,introduced=10.4,deprecated=10.10,replacement="NSCalendarIdentifierGregorian"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,replacement="NSCalendarIdentifierGregorian"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,replacement="NSCalendarIdentifierGregorian"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,replacement="NSCalendarIdentifierGregorian")));
+extern "C" NSString * const NSBuddhistCalendar __attribute__((availability(macos,introduced=10.4,deprecated=10.10,replacement="NSCalendarIdentifierBuddhist"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,replacement="NSCalendarIdentifierBuddhist"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,replacement="NSCalendarIdentifierBuddhist"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,replacement="NSCalendarIdentifierBuddhist")));
+extern "C" NSString * const NSChineseCalendar __attribute__((availability(macos,introduced=10.4,deprecated=10.10,replacement="NSCalendarIdentifierChinese"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,replacement="NSCalendarIdentifierChinese"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,replacement="NSCalendarIdentifierChinese"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,replacement="NSCalendarIdentifierChinese")));
+extern "C" NSString * const NSHebrewCalendar __attribute__((availability(macos,introduced=10.4,deprecated=10.10,replacement="NSCalendarIdentifierHebrew"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,replacement="NSCalendarIdentifierHebrew"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,replacement="NSCalendarIdentifierHebrew"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,replacement="NSCalendarIdentifierHebrew")));
+extern "C" NSString * const NSIslamicCalendar __attribute__((availability(macos,introduced=10.4,deprecated=10.10,replacement="NSCalendarIdentifierIslamic"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,replacement="NSCalendarIdentifierIslamic"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,replacement="NSCalendarIdentifierIslamic"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,replacement="NSCalendarIdentifierIslamic")));
+extern "C" NSString * const NSIslamicCivilCalendar __attribute__((availability(macos,introduced=10.4,deprecated=10.10,replacement="NSCalendarIdentifierIslamicCivil"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,replacement="NSCalendarIdentifierIslamicCivil"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,replacement="NSCalendarIdentifierIslamicCivil"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,replacement="NSCalendarIdentifierIslamicCivil")));
+extern "C" NSString * const NSJapaneseCalendar __attribute__((availability(macos,introduced=10.4,deprecated=10.10,replacement="NSCalendarIdentifierJapanese"))) __attribute__((availability(ios,introduced=2.0,deprecated=8.0,replacement="NSCalendarIdentifierJapanese"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,replacement="NSCalendarIdentifierJapanese"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,replacement="NSCalendarIdentifierJapanese")));
+extern "C" NSString * const NSRepublicOfChinaCalendar __attribute__((availability(macos,introduced=10.6,deprecated=10.10,replacement="NSCalendarIdentifierRepublicOfChina"))) __attribute__((availability(ios,introduced=4.0,deprecated=8.0,replacement="NSCalendarIdentifierRepublicOfChina"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,replacement="NSCalendarIdentifierRepublicOfChina"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,replacement="NSCalendarIdentifierRepublicOfChina")));
+extern "C" NSString * const NSPersianCalendar __attribute__((availability(macos,introduced=10.6,deprecated=10.10,replacement="NSCalendarIdentifierPersian"))) __attribute__((availability(ios,introduced=4.0,deprecated=8.0,replacement="NSCalendarIdentifierPersian"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,replacement="NSCalendarIdentifierPersian"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,replacement="NSCalendarIdentifierPersian")));
+extern "C" NSString * const NSIndianCalendar __attribute__((availability(macos,introduced=10.6,deprecated=10.10,replacement="NSCalendarIdentifierIndian"))) __attribute__((availability(ios,introduced=4.0,deprecated=8.0,replacement="NSCalendarIdentifierIndian"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,replacement="NSCalendarIdentifierIndian"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,replacement="NSCalendarIdentifierIndian")));
+extern "C" NSString * const NSISO8601Calendar __attribute__((availability(macos,introduced=10.6,deprecated=10.10,replacement="NSCalendarIdentifierISO8601"))) __attribute__((availability(ios,introduced=4.0,deprecated=8.0,replacement="NSCalendarIdentifierISO8601"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,replacement="NSCalendarIdentifierISO8601"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,replacement="NSCalendarIdentifierISO8601")));
 #pragma clang assume_nonnull end
 
 #pragma clang assume_nonnull begin
@@ -16015,7 +16636,7 @@ struct NSMeasurementFormatter_IMPL {
 
 
 #pragma clang assume_nonnull begin
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=9_0)))
+__attribute__((availability(macos,introduced=10.11))) __attribute__((availability(ios,introduced=9.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSPersonNameComponents
 #define _REWRITER_typedef_NSPersonNameComponents
@@ -16092,7 +16713,7 @@ typedef NSUInteger NSPersonNameComponentsFormatterOptions; enum {
 } __attribute__((availability(macos,introduced=10.11))) __attribute__((availability(ios,introduced=9.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=9_0)))
+__attribute__((availability(macos,introduced=10.11))) __attribute__((availability(ios,introduced=9.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSPersonNameComponentsFormatter
 #define _REWRITER_typedef_NSPersonNameComponentsFormatter
@@ -16158,6 +16779,147 @@ extern "C" NSString * const NSPersonNameComponentNickname __attribute__((availab
 
 
 extern "C" NSString * const NSPersonNameComponentDelimiter __attribute__((availability(macos,introduced=10.11))) __attribute__((availability(ios,introduced=9.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
+#pragma clang assume_nonnull end
+
+
+
+
+
+
+
+// @class NSCalendar;
+#ifndef _REWRITER_typedef_NSCalendar
+#define _REWRITER_typedef_NSCalendar
+typedef struct objc_object NSCalendar;
+typedef struct {} _objc_exc_NSCalendar;
+#endif
+
+#ifndef _REWRITER_typedef_NSLocale
+#define _REWRITER_typedef_NSLocale
+typedef struct objc_object NSLocale;
+typedef struct {} _objc_exc_NSLocale;
+#endif
+
+#ifndef _REWRITER_typedef_NSDateComponents
+#define _REWRITER_typedef_NSDateComponents
+typedef struct objc_object NSDateComponents;
+typedef struct {} _objc_exc_NSDateComponents;
+#endif
+
+
+#pragma clang assume_nonnull begin
+
+typedef NSInteger NSRelativeDateTimeFormatterStyle; enum {
+    NSRelativeDateTimeFormatterStyleNumeric = 0,
+    NSRelativeDateTimeFormatterStyleNamed,
+} __attribute__((availability(macosx,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
+typedef NSInteger NSRelativeDateTimeFormatterUnitsStyle; enum {
+    NSRelativeDateTimeFormatterUnitsStyleFull = 0,
+    NSRelativeDateTimeFormatterUnitsStyleSpellOut,
+    NSRelativeDateTimeFormatterUnitsStyleShort,
+    NSRelativeDateTimeFormatterUnitsStyleAbbreviated,
+} __attribute__((availability(macosx,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
+
+
+__attribute__((availability(macosx,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)))
+
+#ifndef _REWRITER_typedef_NSRelativeDateTimeFormatter
+#define _REWRITER_typedef_NSRelativeDateTimeFormatter
+typedef struct objc_object NSRelativeDateTimeFormatter;
+typedef struct {} _objc_exc_NSRelativeDateTimeFormatter;
+#endif
+
+struct NSRelativeDateTimeFormatter_IMPL {
+	struct NSFormatter_IMPL NSFormatter_IVARS;
+};
+
+// @property NSRelativeDateTimeFormatterStyle dateTimeStyle;
+
+
+
+// @property NSRelativeDateTimeFormatterUnitsStyle unitsStyle;
+
+
+
+// @property NSFormattingContext formattingContext;
+
+
+
+// @property (null_resettable, copy) NSCalendar *calendar;
+
+
+
+// @property (null_resettable, copy) NSLocale *locale;
+
+
+
+
+
+// - (NSString *)localizedStringFromDateComponents:(NSDateComponents *)dateComponents;
+
+
+
+// - (NSString *)localizedStringFromTimeInterval:(NSTimeInterval)timeInterval;
+
+
+
+// - (NSString *)localizedStringForDate:(NSDate *)date relativeToDate:(NSDate *)referenceDate;
+
+
+
+// - (nullable NSString *)stringForObjectValue:(nullable id)obj;
+
+/* @end */
+
+#pragma clang assume_nonnull end
+
+
+
+
+
+
+
+
+#pragma clang assume_nonnull begin
+
+
+
+__attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)))
+
+#ifndef _REWRITER_typedef_NSListFormatter
+#define _REWRITER_typedef_NSListFormatter
+typedef struct objc_object NSListFormatter;
+typedef struct {} _objc_exc_NSListFormatter;
+#endif
+
+struct NSListFormatter_IMPL {
+	struct NSFormatter_IMPL NSFormatter_IVARS;
+};
+
+// @property (null_resettable, copy) NSLocale *locale;
+
+
+
+// @property (nullable, copy) NSFormatter *itemFormatter;
+
+
+
+// + (NSString *)localizedStringByJoiningStrings:(NSArray<NSString *> *)strings;
+
+
+
+
+
+// - (nullable NSString *)stringFromItems:(NSArray *)items;
+
+
+
+// - (nullable NSString *)stringForObjectValue:(nullable id)obj;
+
+/* @end */
+
 #pragma clang assume_nonnull end
 
 
@@ -16276,6 +17038,13 @@ typedef struct {} _objc_exc_NSDictionary;
 #pragma clang assume_nonnull begin
 
 
+
+
+
+
+
+
+
 #ifndef _REWRITER_typedef_NSScanner
 #define _REWRITER_typedef_NSScanner
 typedef struct objc_object NSScanner;
@@ -16288,7 +17057,7 @@ struct NSScanner_IMPL {
 
 
 // @property (readonly, copy) NSString *string;
-// @property NSUInteger scanLocation;
+// @property NSUInteger scanLocation ;
 // @property (nullable, copy) NSCharacterSet *charactersToBeSkipped;
 // @property BOOL caseSensitive;
 // @property (nullable, retain) id locale;
@@ -16301,22 +17070,49 @@ struct NSScanner_IMPL {
 // @interface NSScanner (NSExtendedScanner)
 
 
-// - (BOOL)scanInt:(nullable int *)result;
-// - (BOOL)scanInteger:(nullable NSInteger *)result __attribute__((availability(macos,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
+// - (BOOL)scanInt:(nullable int *)result ;
+
+// - (BOOL)scanInteger:(nullable NSInteger *)result __attribute__((availability(macos,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) ;
+
 // - (BOOL)scanLongLong:(nullable long long *)result;
-// - (BOOL)scanUnsignedLongLong:(nullable unsigned long long *)result __attribute__((availability(macos,introduced=10.9))) __attribute__((availability(ios,introduced=7.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
-// - (BOOL)scanFloat:(nullable float *)result;
-// - (BOOL)scanDouble:(nullable double *)result;
-// - (BOOL)scanHexInt:(nullable unsigned *)result;
-// - (BOOL)scanHexLongLong:(nullable unsigned long long *)result __attribute__((availability(macos,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
-// - (BOOL)scanHexFloat:(nullable float *)result __attribute__((availability(macos,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
-// - (BOOL)scanHexDouble:(nullable double *)result __attribute__((availability(macos,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
-// - (BOOL)scanString:(NSString *)string intoString:(NSString * _Nullable * _Nullable)result;
-// - (BOOL)scanCharactersFromSet:(NSCharacterSet *)set intoString:(NSString * _Nullable * _Nullable)result;
+// - (BOOL)scanUnsignedLongLong:(nullable unsigned long long *)result __attribute__((availability(macos,introduced=10.9))) __attribute__((availability(ios,introduced=7.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) ;
 
-// - (BOOL)scanUpToString:(NSString *)string intoString:(NSString * _Nullable * _Nullable)result;
-// - (BOOL)scanUpToCharactersFromSet:(NSCharacterSet *)set intoString:(NSString * _Nullable * _Nullable)result;
+// - (BOOL)scanFloat:(nullable float *)result ;
+
+// - (BOOL)scanDouble:(nullable double *)result ;
+
+#if 0
+- (BOOL)scanHexInt:(nullable unsigned *)result
+                                                                                                                                              ;
+#endif
+
+
+#if 0
+- (BOOL)scanHexLongLong:(nullable unsigned long long *)result __attribute__((availability(macos,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
+                                                                                                                                                   ;
+#endif
+
+
+#if 0
+- (BOOL)scanHexFloat:(nullable float *)result __attribute__((availability(macos,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
+                                                                                                                                                ;
+#endif
+
+
+#if 0
+- (BOOL)scanHexDouble:(nullable double *)result __attribute__((availability(macos,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
+                                                                                                                                                 ;
+#endif
+
+
+// - (BOOL)scanString:(NSString *)string intoString:(NSString * _Nullable * _Nullable)result ;
+
+// - (BOOL)scanCharactersFromSet:(NSCharacterSet *)set intoString:(NSString * _Nullable * _Nullable)result ;
+
+// - (BOOL)scanUpToString:(NSString *)string intoString:(NSString * _Nullable * _Nullable)result ;
+
+// - (BOOL)scanUpToCharactersFromSet:(NSCharacterSet *)set intoString:(NSString * _Nullable * _Nullable)result ;
 
 // @property (getter=isAtEnd, readonly) BOOL atEnd;
 
@@ -16376,6 +17172,8 @@ extern "C" NSExceptionName const NSPortSendException;
 extern "C" NSExceptionName const NSPortReceiveException;
 
 extern "C" NSExceptionName const NSOldStyleException;
+
+extern "C" NSExceptionName const NSInconsistentArchiveException;
 
 
 
@@ -16625,7 +17423,14 @@ struct NSDecimalNumberHandler_IMPL {
 
 // @interface NSScanner (NSDecimalNumberScanning)
 
-// - (BOOL)scanDecimal:(nullable NSDecimal *)dcm;
+#if 0
+- (BOOL)scanDecimal:(nullable NSDecimal *)dcm
+
+
+
+    ;
+#endif
+
 
 /* @end */
 
@@ -16912,21 +17717,62 @@ struct NSFileHandle_IMPL {
 
 // @property (readonly, copy) NSData *availableData;
 
-// - (NSData *)readDataToEndOfFile;
-// - (NSData *)readDataOfLength:(NSUInteger)length;
-
-// - (void)writeData:(NSData *)data;
-
-// @property (readonly) unsigned long long offsetInFile;
-// - (unsigned long long)seekToEndOfFile;
-// - (void)seekToFileOffset:(unsigned long long)offset;
-
-// - (void)truncateFileAtOffset:(unsigned long long)offset;
-// - (void)synchronizeFile;
-// - (void)closeFile;
-
 // - (instancetype)initWithFileDescriptor:(int)fd closeOnDealloc:(BOOL)closeopt __attribute__((objc_designated_initializer));
 // - (nullable instancetype)initWithCoder:(NSCoder *)coder __attribute__((objc_designated_initializer));
+
+#if 0
+- (nullable NSData *)readDataToEndOfFileAndReturnError:(out NSError **)error
+    __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0))) __attribute__((swift_private));
+#endif
+
+
+#if 0
+- (nullable NSData *)readDataUpToLength:(NSUInteger)length error:(out NSError **)error
+    __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0))) __attribute__((swift_private));
+#endif
+
+
+#if 0
+- (BOOL)writeData:(NSData *)data error:(out NSError **)error
+    __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0))) __attribute__((swift_private));
+#endif
+
+
+#if 0
+- (BOOL)getOffset:(out unsigned long long *)offsetInFile error:(out NSError **)error
+    __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0))) __attribute__((swift_private));
+#endif
+
+
+#if 0
+- (BOOL)seekToEndReturningOffset:(out unsigned long long *_Nullable)offsetInFile error:(out NSError **)error
+    __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0))) __attribute__((swift_private));
+#endif
+
+
+#if 0
+- (BOOL)seekToOffset:(unsigned long long)offset error:(out NSError **)error
+    __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+#endif
+
+
+#if 0
+- (BOOL)truncateAtOffset:(unsigned long long)offset error:(out NSError **)error
+    __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+#endif
+
+
+#if 0
+- (BOOL)synchronizeAndReturnError:(out NSError **)error
+    __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+#endif
+
+
+#if 0
+- (BOOL)closeAndReturnError:(out NSError **)error
+    __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+#endif
+
 
 /* @end */
 
@@ -16987,6 +17833,87 @@ extern "C" NSString * const NSFileHandleNotificationMonitorModes __attribute__((
 // - (instancetype)initWithFileDescriptor:(int)fd;
 
 // @property (readonly) int fileDescriptor;
+
+/* @end */
+
+
+// @interface NSFileHandle ( )
+
+
+
+
+#if 0
+- (NSData *)readDataToEndOfFile
+    __attribute__((availability(macos,introduced=10.0,deprecated=100000,replacement="readDataToEndOfFileAndReturnError:"))) __attribute__((availability(ios,introduced=2.0,deprecated=100000,replacement="readDataToEndOfFileAndReturnError:"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,replacement="readDataToEndOfFileAndReturnError:"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,replacement="readDataToEndOfFileAndReturnError:")));
+#endif
+
+
+
+
+#if 0
+- (NSData *)readDataOfLength:(NSUInteger)length
+    __attribute__((availability(macos,introduced=10.0,deprecated=100000,replacement="readDataUpToLength:error:"))) __attribute__((availability(ios,introduced=2.0,deprecated=100000,replacement="readDataUpToLength:error:"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,replacement="readDataUpToLength:error:"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,replacement="readDataUpToLength:error:")));
+#endif
+
+
+
+
+
+#if 0
+- (void)writeData:(NSData *)data
+    __attribute__((availability(macos,introduced=10.0,deprecated=100000,replacement="writeData:error:"))) __attribute__((availability(ios,introduced=2.0,deprecated=100000,replacement="writeData:error:"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,replacement="writeData:error:"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,replacement="writeData:error:")));
+#endif
+
+
+
+
+
+// @property (readonly) unsigned long long offsetInFile
+    __attribute__((availability(macos,introduced=10.0,deprecated=100000,replacement="getOffset:error:"))) __attribute__((availability(ios,introduced=2.0,deprecated=100000,replacement="getOffset:error:"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,replacement="getOffset:error:"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,replacement="getOffset:error:")));
+
+
+
+#if 0
+- (unsigned long long)seekToEndOfFile
+    __attribute__((availability(macos,introduced=10.0,deprecated=100000,replacement="seekToEndReturningOffset:error:"))) __attribute__((availability(ios,introduced=2.0,deprecated=100000,replacement="seekToEndReturningOffset:error:"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,replacement="seekToEndReturningOffset:error:"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,replacement="seekToEndReturningOffset:error:")));
+#endif
+
+
+
+
+#if 0
+- (void)seekToFileOffset:(unsigned long long)offset
+    __attribute__((availability(macos,introduced=10.0,deprecated=100000,replacement="seekToOffset:error:"))) __attribute__((availability(ios,introduced=2.0,deprecated=100000,replacement="seekToOffset:error:"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,replacement="seekToOffset:error:"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,replacement="seekToOffset:error:")));
+#endif
+
+
+
+
+
+#if 0
+- (void)truncateFileAtOffset:(unsigned long long)offset
+    __attribute__((availability(macos,introduced=10.0,deprecated=100000,replacement="truncateAtOffset:error:"))) __attribute__((availability(ios,introduced=2.0,deprecated=100000,replacement="truncateAtOffset:error:"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,replacement="truncateAtOffset:error:"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,replacement="truncateAtOffset:error:")));
+#endif
+
+
+
+
+#if 0
+- (void)synchronizeFile
+    __attribute__((availability(macos,introduced=10.0,deprecated=100000,replacement="synchronizeAndReturnError:"))) __attribute__((availability(ios,introduced=2.0,deprecated=100000,replacement="synchronizeAndReturnError:"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,replacement="synchronizeAndReturnError:"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,replacement="synchronizeAndReturnError:")));
+#endif
+
+
+
+
+#if 0
+- (void)closeFile
+    __attribute__((availability(macos,introduced=10.0,deprecated=100000,replacement="closeAndReturnError:"))) __attribute__((availability(ios,introduced=2.0,deprecated=100000,replacement="closeAndReturnError:"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,replacement="closeAndReturnError:"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,replacement="closeAndReturnError:")));
+#endif
+
+
+
+
 
 /* @end */
 
@@ -17099,7 +18026,7 @@ typedef NSUInteger NSSearchPathDirectory; enum {
     NSPrinterDescriptionDirectory __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) = 20,
     NSSharedPublicDirectory __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) = 21,
     NSPreferencePanesDirectory __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) = 22,
-    NSApplicationScriptsDirectory __attribute__((availability(ios,introduced=NA))) = 23,
+    NSApplicationScriptsDirectory __attribute__((availability(macos,introduced=10.8))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) = 23,
     NSItemReplacementDirectory __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) = 99,
     NSAllApplicationsDirectory = 100,
     NSAllLibrariesDirectory = 101,
@@ -17148,7 +18075,6 @@ typedef struct {} _objc_exc_NSDictionary;
 typedef NSString * NSURLResourceKey __attribute__((swift_wrapper(struct)));
 
 #pragma clang assume_nonnull begin
-
 
 
 #ifndef _REWRITER_typedef_NSURL
@@ -17242,7 +18168,7 @@ struct NSURL_IMPL {
 // @property (nullable, readonly, copy) NSString *password;
 // @property (nullable, readonly, copy) NSString *path;
 // @property (nullable, readonly, copy) NSString *fragment;
-// @property (nullable, readonly, copy) NSString *parameterString;
+// @property (nullable, readonly, copy) NSString *parameterString __attribute__((availability(macosx,introduced=10.2,deprecated=10.15,message="The parameterString method is deprecated. Post deprecation for applications linked with or after the macOS 10.15, and for all iOS, watchOS, and tvOS applications, parameterString will always return nil, and the path method will return the complete path including the semicolon separator and params component if the URL string contains them."))) __attribute__((availability(ios,introduced=2.0,deprecated=13.0,message="The parameterString method is deprecated. Post deprecation for applications linked with or after the macOS 10.15, and for all iOS, watchOS, and tvOS applications, parameterString will always return nil, and the path method will return the complete path including the semicolon separator and params component if the URL string contains them."))) __attribute__((availability(watchos,introduced=2.0,deprecated=6.0,message="The parameterString method is deprecated. Post deprecation for applications linked with or after the macOS 10.15, and for all iOS, watchOS, and tvOS applications, parameterString will always return nil, and the path method will return the complete path including the semicolon separator and params component if the URL string contains them."))) __attribute__((availability(tvos,introduced=9.0,deprecated=13.0,message="The parameterString method is deprecated. Post deprecation for applications linked with or after the macOS 10.15, and for all iOS, watchOS, and tvOS applications, parameterString will always return nil, and the path method will return the complete path including the semicolon separator and params component if the URL string contains them.")));
 // @property (nullable, readonly, copy) NSString *query;
 // @property (nullable, readonly, copy) NSString *relativePath;
 
@@ -17371,13 +18297,13 @@ extern "C" NSURLFileResourceType const NSURLFileResourceTypeSymbolicLink __attri
 extern "C" NSURLFileResourceType const NSURLFileResourceTypeSocket __attribute__((availability(macos,introduced=10.7))) __attribute__((availability(ios,introduced=5.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 extern "C" NSURLFileResourceType const NSURLFileResourceTypeUnknown __attribute__((availability(macos,introduced=10.7))) __attribute__((availability(ios,introduced=5.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
-extern "C" NSURLResourceKey const NSURLThumbnailDictionaryKey __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
-extern "C" NSURLResourceKey const NSURLThumbnailKey __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+extern "C" NSURLResourceKey const NSURLThumbnailDictionaryKey __attribute__((availability(macos,introduced=10.10,deprecated=100000,message="Use the QuickLookThumbnailing framework and extension point instead"))) __attribute__((availability(ios,introduced=8.0,deprecated=100000,message="Use the QuickLookThumbnailing framework and extension point instead"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,message="Use the QuickLookThumbnailing framework and extension point instead"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,message="Use the QuickLookThumbnailing framework and extension point instead")));
+extern "C" NSURLResourceKey const NSURLThumbnailKey __attribute__((availability(macos,introduced=10.10,deprecated=100000,message="Use the QuickLookThumbnailing framework and extension point instead"))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
 
 typedef NSString *NSURLThumbnailDictionaryItem __attribute__((swift_wrapper(struct)));
 
 
-extern "C" NSURLThumbnailDictionaryItem const NSThumbnail1024x1024SizeKey __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
+extern "C" NSURLThumbnailDictionaryItem const NSThumbnail1024x1024SizeKey __attribute__((availability(macos,introduced=10.10,deprecated=100000,message="Use the QuickLookThumbnailing framework and extension point instead"))) __attribute__((availability(ios,introduced=8.0,deprecated=100000,message="Use the QuickLookThumbnailing framework and extension point instead"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,message="Use the QuickLookThumbnailing framework and extension point instead"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,message="Use the QuickLookThumbnailing framework and extension point instead")));
 
 
 
@@ -17471,11 +18397,11 @@ extern "C" NSURLResourceKey const NSURLUbiquitousItemUploadingErrorKey __attribu
 extern "C" NSURLResourceKey const NSURLUbiquitousItemDownloadRequestedKey __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 extern "C" NSURLResourceKey const NSURLUbiquitousItemContainerDisplayNameKey __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
-extern "C" NSURLResourceKey const NSURLUbiquitousItemIsSharedKey __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(watchos,unavailable)));
-extern "C" NSURLResourceKey const NSURLUbiquitousSharedItemCurrentUserRoleKey __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(watchos,unavailable)));
-extern "C" NSURLResourceKey const NSURLUbiquitousSharedItemCurrentUserPermissionsKey __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(watchos,unavailable)));
-extern "C" NSURLResourceKey const NSURLUbiquitousSharedItemOwnerNameComponentsKey __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(watchos,unavailable)));
-extern "C" NSURLResourceKey const NSURLUbiquitousSharedItemMostRecentEditorNameComponentsKey __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(watchos,unavailable)));
+extern "C" NSURLResourceKey const NSURLUbiquitousItemIsSharedKey __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+extern "C" NSURLResourceKey const NSURLUbiquitousSharedItemCurrentUserRoleKey __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+extern "C" NSURLResourceKey const NSURLUbiquitousSharedItemCurrentUserPermissionsKey __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+extern "C" NSURLResourceKey const NSURLUbiquitousSharedItemOwnerNameComponentsKey __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+extern "C" NSURLResourceKey const NSURLUbiquitousSharedItemMostRecentEditorNameComponentsKey __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
 
 typedef NSString * NSURLUbiquitousItemDownloadingStatus __attribute__((swift_wrapper(enum)));
 
@@ -17488,15 +18414,15 @@ typedef NSString * NSURLUbiquitousSharedItemRole __attribute__((swift_wrapper(en
 
 
 
-extern "C" NSURLUbiquitousSharedItemRole const NSURLUbiquitousSharedItemRoleOwner __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(watchos,unavailable)));
-extern "C" NSURLUbiquitousSharedItemRole const NSURLUbiquitousSharedItemRoleParticipant __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(watchos,unavailable)));
+extern "C" NSURLUbiquitousSharedItemRole const NSURLUbiquitousSharedItemRoleOwner __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+extern "C" NSURLUbiquitousSharedItemRole const NSURLUbiquitousSharedItemRoleParticipant __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
 
 typedef NSString * NSURLUbiquitousSharedItemPermissions __attribute__((swift_wrapper(enum)));
 
 
 
-extern "C" NSURLUbiquitousSharedItemPermissions const NSURLUbiquitousSharedItemPermissionsReadOnly __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(watchos,unavailable)));
-extern "C" NSURLUbiquitousSharedItemPermissions const NSURLUbiquitousSharedItemPermissionsReadWrite __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(watchos,unavailable)));
+extern "C" NSURLUbiquitousSharedItemPermissions const NSURLUbiquitousSharedItemPermissionsReadOnly __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+extern "C" NSURLUbiquitousSharedItemPermissions const NSURLUbiquitousSharedItemPermissionsReadWrite __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
 
 
 
@@ -17505,14 +18431,14 @@ typedef NSUInteger NSURLBookmarkCreationOptions; enum {
     NSURLBookmarkCreationPreferFileIDResolution __attribute__((availability(macos,introduced=10.6,deprecated=10.9,message="Not supported"))) __attribute__((availability(ios,introduced=4.0,deprecated=7.0,message="Not supported"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,message="Not supported"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,message="Not supported"))) = ( 1UL << 8 ),
     NSURLBookmarkCreationMinimalBookmark = ( 1UL << 9 ),
     NSURLBookmarkCreationSuitableForBookmarkFile = ( 1UL << 10 ),
-    NSURLBookmarkCreationWithSecurityScope __attribute__((availability(ios,introduced=NA))) = ( 1 << 11 ),
-    NSURLBookmarkCreationSecurityScopeAllowOnlyReadAccess __attribute__((availability(ios,introduced=NA))) = ( 1 << 12 ),
+    NSURLBookmarkCreationWithSecurityScope __attribute__((availability(macos,introduced=10.7))) __attribute__((availability(macCatalyst,introduced=13.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) = ( 1 << 11 ),
+    NSURLBookmarkCreationSecurityScopeAllowOnlyReadAccess __attribute__((availability(macos,introduced=10.7))) __attribute__((availability(macCatalyst,introduced=13.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) = ( 1 << 12 ),
 } __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
 typedef NSUInteger NSURLBookmarkResolutionOptions; enum {
     NSURLBookmarkResolutionWithoutUI = ( 1UL << 8 ),
     NSURLBookmarkResolutionWithoutMounting = ( 1UL << 9 ),
-    NSURLBookmarkResolutionWithSecurityScope __attribute__((availability(ios,introduced=NA))) = ( 1 << 10 )
+    NSURLBookmarkResolutionWithSecurityScope __attribute__((availability(macos,introduced=10.7))) __attribute__((availability(macCatalyst,introduced=13.0))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) = ( 1 << 10 )
 } __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
 typedef NSUInteger NSURLBookmarkFileCreationOptions;
@@ -17570,7 +18496,7 @@ typedef NSUInteger NSURLBookmarkFileCreationOptions;
 
 
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=8_0)))
+__attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 
 #ifndef _REWRITER_typedef_NSURLQueryItem
@@ -17593,7 +18519,7 @@ struct NSURLQueryItem_IMPL {
 
 
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=7_0)))
+__attribute__((availability(macos,introduced=10.9))) __attribute__((availability(ios,introduced=7.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSURLComponents
 #define _REWRITER_typedef_NSURLComponents
@@ -17739,7 +18665,7 @@ struct NSURLComponents_IMPL {
 
 
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=5_0)))
+__attribute__((availability(macos,introduced=10.7))) __attribute__((availability(ios,introduced=5.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSFileSecurity
 #define _REWRITER_typedef_NSFileSecurity
@@ -17751,7 +18677,7 @@ struct NSFileSecurity_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
 };
 
-// - (nullable instancetype) initWithCoder:(NSCoder *)aDecoder __attribute__((objc_designated_initializer));
+// - (nullable instancetype) initWithCoder:(NSCoder *)coder __attribute__((objc_designated_initializer));
 /* @end */
 
 #pragma clang assume_nonnull end
@@ -17848,7 +18774,15 @@ typedef NSUInteger NSDirectoryEnumerationOptions; enum {
 
 
 
-    NSDirectoryEnumerationSkipsHiddenFiles = 1UL << 2
+    NSDirectoryEnumerationSkipsHiddenFiles = 1UL << 2,
+
+
+
+    NSDirectoryEnumerationIncludesDirectoriesPostOrder __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0))) = 1UL << 3,
+
+
+
+    NSDirectoryEnumerationProducesRelativePathURLs __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0))) = 1UL << 4,
 } __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
 typedef NSUInteger NSFileManagerItemReplacementOptions; enum {
@@ -17876,7 +18810,7 @@ typedef NSUInteger NSFileManagerUnmountOptions; enum {
 
 
     NSFileManagerUnmountWithoutUI = 1UL << 1,
-} __attribute__((availability(ios,introduced=NA)));
+} __attribute__((availability(macos,introduced=10.11))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
 
 
 extern "C" NSString *const NSFileManagerUnmountDissentingProcessIdentifierErrorKey __attribute__((availability(macos,introduced=10.11))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
@@ -18219,6 +19153,10 @@ struct NSDirectoryEnumerator_IMPL {
 // @property (nullable, readonly, copy) NSDictionary<NSFileAttributeKey, id> *fileAttributes;
 // @property (nullable, readonly, copy) NSDictionary<NSFileAttributeKey, id> *directoryAttributes;
 
+
+
+// @property (readonly) BOOL isEnumeratingDirectoryPostOrder __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
 // - (void)skipDescendents;
 
 
@@ -18342,7 +19280,7 @@ typedef NSUInteger NSPointerFunctionsOptions; enum {
     NSPointerFunctionsCopyIn __attribute__((availability(macos,introduced=10.5))) __attribute__((availability(ios,introduced=6.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) = (1UL << 16),
 };
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=6_0)))
+__attribute__((availability(macos,introduced=10.5))) __attribute__((availability(ios,introduced=6.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSPointerFunctions
 #define _REWRITER_typedef_NSPointerFunctions
@@ -18417,7 +19355,7 @@ static const NSPointerFunctionsOptions NSHashTableWeakMemory __attribute__((avai
 
 typedef NSUInteger NSHashTableOptions;
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=6_0)))
+__attribute__((availability(macos,introduced=10.5))) __attribute__((availability(ios,introduced=6.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSHashTable
 #define _REWRITER_typedef_NSHashTable
@@ -18560,6 +19498,7 @@ typedef struct {} _objc_exc_NSURL;
 
 
 typedef NSString * NSHTTPCookiePropertyKey __attribute__((swift_wrapper(struct)));
+typedef NSString * NSHTTPCookieStringPolicy __attribute__((swift_wrapper(enum)));
 
 #pragma clang assume_nonnull begin
 
@@ -18642,6 +19581,23 @@ extern "C" NSHTTPCookiePropertyKey const NSHTTPCookieMaximumAge;
 extern "C" NSHTTPCookiePropertyKey const NSHTTPCookiePort;
 
 
+
+
+
+extern "C" NSHTTPCookiePropertyKey const NSHTTPCookieSameSitePolicy __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
+
+
+
+
+extern "C" NSHTTPCookieStringPolicy const NSHTTPCookieSameSiteLax __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
+
+
+
+
+extern "C" NSHTTPCookieStringPolicy const NSHTTPCookieSameSiteStrict __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
 // @class NSHTTPCookieInternal;
 #ifndef _REWRITER_typedef_NSHTTPCookieInternal
 #define _REWRITER_typedef_NSHTTPCookieInternal
@@ -18702,6 +19658,7 @@ struct NSHTTPCookie_IMPL {
 // @property (nullable, readonly, copy) NSString *comment;
 // @property (nullable, readonly, copy) NSURL *commentURL;
 // @property (nullable, readonly, copy) NSArray<NSNumber *> *portList;
+// @property (nullable, readonly, copy) NSHTTPCookieStringPolicy sameSitePolicy __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
 
 /* @end */
 
@@ -18891,129 +19848,11 @@ struct NSIndexPath_IMPL {
 
 // @interface NSIndexPath (NSDeprecated)
 
-// - (void)getIndexes:(NSUInteger *)indexes;
+// - (void)getIndexes:(NSUInteger *)indexes __attribute__((availability(macos,introduced=10.0,deprecated=100000,replacement="getIndexes:range:"))) __attribute__((availability(ios,introduced=2.0,deprecated=100000,replacement="getIndexes:range:"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,replacement="getIndexes:range:"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,replacement="getIndexes:range:")));
 /* @end */
 
 #pragma clang assume_nonnull end
-#pragma clang assume_nonnull begin
 
-
-#ifndef _REWRITER_typedef_NSIndexSet
-#define _REWRITER_typedef_NSIndexSet
-typedef struct objc_object NSIndexSet;
-typedef struct {} _objc_exc_NSIndexSet;
-#endif
-
-struct NSIndexSet_IMPL {
-	struct NSObject_IMPL NSObject_IVARS;
-
-	struct  {
-	NSUInteger _isEmpty : 1;
-	NSUInteger _hasSingleRange : 1;
-	NSUInteger _cacheValid : 1;
-	NSUInteger _reservedArrayBinderController : 29;
-	} _indexSetFlags;
-
-	union  {
-
-	struct  {
-	NSRange _range;
-	} _singleRange;
-
-	struct  {
-	void * _Nonnull _data;
-	void * _Nonnull _reserved;
-	} _multipleRanges;
-	} _internal;
-};
-
-
-// + (instancetype)indexSet;
-// + (instancetype)indexSetWithIndex:(NSUInteger)value;
-// + (instancetype)indexSetWithIndexesInRange:(NSRange)range;
-
-// - (instancetype)initWithIndexesInRange:(NSRange)range __attribute__((objc_designated_initializer));
-// - (instancetype)initWithIndexSet:(NSIndexSet *)indexSet __attribute__((objc_designated_initializer));
-
-// - (instancetype)initWithIndex:(NSUInteger)value;
-
-// - (BOOL)isEqualToIndexSet:(NSIndexSet *)indexSet;
-
-// @property (readonly) NSUInteger count;
-
-
-
-// @property (readonly) NSUInteger firstIndex;
-// @property (readonly) NSUInteger lastIndex;
-// - (NSUInteger)indexGreaterThanIndex:(NSUInteger)value;
-// - (NSUInteger)indexLessThanIndex:(NSUInteger)value;
-// - (NSUInteger)indexGreaterThanOrEqualToIndex:(NSUInteger)value;
-// - (NSUInteger)indexLessThanOrEqualToIndex:(NSUInteger)value;
-
-
-
-// - (NSUInteger)getIndexes:(NSUInteger *)indexBuffer maxCount:(NSUInteger)bufferSize inIndexRange:(nullable NSRangePointer)range;
-
-// - (NSUInteger)countOfIndexesInRange:(NSRange)range __attribute__((availability(macos,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
-
-// - (BOOL)containsIndex:(NSUInteger)value;
-// - (BOOL)containsIndexesInRange:(NSRange)range;
-// - (BOOL)containsIndexes:(NSIndexSet *)indexSet;
-
-// - (BOOL)intersectsIndexesInRange:(NSRange)range;
-
-// - (void)enumerateIndexesUsingBlock:(void (__attribute__((noescape)) ^)(NSUInteger idx, BOOL *stop))block __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
-// - (void)enumerateIndexesWithOptions:(NSEnumerationOptions)opts usingBlock:(void (__attribute__((noescape)) ^)(NSUInteger idx, BOOL *stop))block __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
-// - (void)enumerateIndexesInRange:(NSRange)range options:(NSEnumerationOptions)opts usingBlock:(void (__attribute__((noescape)) ^)(NSUInteger idx, BOOL *stop))block __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
-
-// - (NSUInteger)indexPassingTest:(BOOL (__attribute__((noescape)) ^)(NSUInteger idx, BOOL *stop))predicate __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
-// - (NSUInteger)indexWithOptions:(NSEnumerationOptions)opts passingTest:(BOOL (__attribute__((noescape)) ^)(NSUInteger idx, BOOL *stop))predicate __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
-// - (NSUInteger)indexInRange:(NSRange)range options:(NSEnumerationOptions)opts passingTest:(BOOL (__attribute__((noescape)) ^)(NSUInteger idx, BOOL *stop))predicate __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
-
-// - (NSIndexSet *)indexesPassingTest:(BOOL (__attribute__((noescape)) ^)(NSUInteger idx, BOOL *stop))predicate __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
-// - (NSIndexSet *)indexesWithOptions:(NSEnumerationOptions)opts passingTest:(BOOL (__attribute__((noescape)) ^)(NSUInteger idx, BOOL *stop))predicate __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
-// - (NSIndexSet *)indexesInRange:(NSRange)range options:(NSEnumerationOptions)opts passingTest:(BOOL (__attribute__((noescape)) ^)(NSUInteger idx, BOOL *stop))predicate __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
-
-
-
-
-
-
-// - (void)enumerateRangesUsingBlock:(void (__attribute__((noescape)) ^)(NSRange range, BOOL *stop))block __attribute__((availability(macos,introduced=10.7))) __attribute__((availability(ios,introduced=5.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
-// - (void)enumerateRangesWithOptions:(NSEnumerationOptions)opts usingBlock:(void (__attribute__((noescape)) ^)(NSRange range, BOOL *stop))block __attribute__((availability(macos,introduced=10.7))) __attribute__((availability(ios,introduced=5.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
-// - (void)enumerateRangesInRange:(NSRange)range options:(NSEnumerationOptions)opts usingBlock:(void (__attribute__((noescape)) ^)(NSRange range, BOOL *stop))block __attribute__((availability(macos,introduced=10.7))) __attribute__((availability(ios,introduced=5.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
-
-/* @end */
-
-
-
-#ifndef _REWRITER_typedef_NSMutableIndexSet
-#define _REWRITER_typedef_NSMutableIndexSet
-typedef struct objc_object NSMutableIndexSet;
-typedef struct {} _objc_exc_NSMutableIndexSet;
-#endif
-
-struct NSMutableIndexSet_IMPL {
-	struct NSIndexSet_IMPL NSIndexSet_IVARS;
-	void *_reserved;
-};
-
-
-// - (void)addIndexes:(NSIndexSet *)indexSet;
-// - (void)removeIndexes:(NSIndexSet *)indexSet;
-// - (void)removeAllIndexes;
-// - (void)addIndex:(NSUInteger)value;
-// - (void)removeIndex:(NSUInteger)value;
-// - (void)addIndexesInRange:(NSRange)range;
-// - (void)removeIndexesInRange:(NSRange)range;
-
-
-
-// - (void)shiftIndexesStartingAtIndex:(NSUInteger)index by:(NSInteger)delta;
-
-/* @end */
-
-#pragma clang assume_nonnull end
 
 
 
@@ -19041,12 +19880,6 @@ typedef struct {} _objc_exc_NSInvocation;
 
 struct NSInvocation_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	void *_frame;
-	void *_retdata;
-	id _signature;
-	id _container;
-	uint8_t _retainedArgs;
-	uint8_t _reserved[15];
 };
 
 
@@ -19110,7 +19943,8 @@ typedef struct {} _objc_exc_NSData;
 typedef NSUInteger NSJSONReadingOptions; enum {
     NSJSONReadingMutableContainers = (1UL << 0),
     NSJSONReadingMutableLeaves = (1UL << 1),
-    NSJSONReadingAllowFragments = (1UL << 2)
+    NSJSONReadingFragmentsAllowed = (1UL << 2),
+    NSJSONReadingAllowFragments __attribute__((availability(macos,introduced=10.7,deprecated=100000,replacement="NSJSONReadingFragmentsAllowed"))) __attribute__((availability(ios,introduced=5.0,deprecated=100000,replacement="NSJSONReadingFragmentsAllowed"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,replacement="NSJSONReadingFragmentsAllowed"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,replacement="NSJSONReadingFragmentsAllowed"))) = NSJSONReadingFragmentsAllowed,
 } __attribute__((availability(macos,introduced=10.7))) __attribute__((availability(ios,introduced=5.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
 typedef NSUInteger NSJSONWritingOptions; enum {
@@ -19118,9 +19952,11 @@ typedef NSUInteger NSJSONWritingOptions; enum {
 
 
 
-    NSJSONWritingSortedKeys __attribute__((availability(macos,introduced=10.13))) __attribute__((availability(ios,introduced=11.0))) __attribute__((availability(watchos,introduced=4.0))) __attribute__((availability(tvos,introduced=11.0))) = (1UL << 1)
+    NSJSONWritingSortedKeys __attribute__((availability(macos,introduced=10.13))) __attribute__((availability(ios,introduced=11.0))) __attribute__((availability(watchos,introduced=4.0))) __attribute__((availability(tvos,introduced=11.0))) = (1UL << 1),
+    NSJSONWritingFragmentsAllowed = (1UL << 2),
+    NSJSONWritingWithoutEscapingSlashes __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0))) = (1UL << 3),
 } __attribute__((availability(macos,introduced=10.7))) __attribute__((availability(ios,introduced=5.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=5_0)))
+__attribute__((availability(macos,introduced=10.7))) __attribute__((availability(ios,introduced=5.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSJSONSerialization
 #define _REWRITER_typedef_NSJSONSerialization
@@ -19192,7 +20028,7 @@ typedef struct {} _objc_exc_NSString;
 
 #pragma clang assume_nonnull begin
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=5_0)))
+__attribute__((availability(macos,introduced=10.7))) __attribute__((availability(ios,introduced=5.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSOrderedSet
 #define _REWRITER_typedef_NSOrderedSet
@@ -19210,7 +20046,7 @@ struct NSOrderedSet_IMPL {
 // - (NSUInteger)indexOfObject:(ObjectType)object;
 // - (instancetype)init __attribute__((objc_designated_initializer));
 // - (instancetype)initWithObjects:(const ObjectType _Nonnull [_Nullable])objects count:(NSUInteger)cnt __attribute__((objc_designated_initializer));
-// - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder __attribute__((objc_designated_initializer));
+// - (nullable instancetype)initWithCoder:(NSCoder *)coder __attribute__((objc_designated_initializer));
 
 /* @end */
 
@@ -19298,9 +20134,25 @@ struct NSOrderedSet_IMPL {
 /* @end */
 
 
+__attribute__((availability(macosx,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)))
+__attribute__((availability(swift, unavailable, message="NSOrderedSet diffing methods are not available in Swift, use Collection.difference(from:) instead")))
+// @interface NSOrderedSet<ObjectType> (NSOrderedSetDiffing)
+
+// - (NSOrderedCollectionDifference<ObjectType> *)differenceFromOrderedSet:(NSOrderedSet<ObjectType> *)other withOptions:(NSOrderedCollectionDifferenceCalculationOptions)options usingEquivalenceTest:(BOOL (__attribute__((noescape)) ^)(ObjectType obj1, ObjectType obj2))block;
+
+// - (NSOrderedCollectionDifference<ObjectType> *)differenceFromOrderedSet:(NSOrderedSet<ObjectType> *)other withOptions:(NSOrderedCollectionDifferenceCalculationOptions)options;
 
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=5_0)))
+// - (NSOrderedCollectionDifference<ObjectType> *)differenceFromOrderedSet:(NSOrderedSet<ObjectType> *)other;
+
+// - (nullable NSOrderedSet<ObjectType> *)orderedSetByApplyingDifference:(NSOrderedCollectionDifference<ObjectType> *)difference;
+
+/* @end */
+
+
+
+
+__attribute__((availability(macos,introduced=10.7))) __attribute__((availability(ios,introduced=5.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSMutableOrderedSet
 #define _REWRITER_typedef_NSMutableOrderedSet
@@ -19316,7 +20168,7 @@ struct NSMutableOrderedSet_IMPL {
 // - (void)insertObject:(ObjectType)object atIndex:(NSUInteger)idx;
 // - (void)removeObjectAtIndex:(NSUInteger)idx;
 // - (void)replaceObjectAtIndex:(NSUInteger)idx withObject:(ObjectType)object;
-// - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder __attribute__((objc_designated_initializer));
+// - (nullable instancetype)initWithCoder:(NSCoder *)coder __attribute__((objc_designated_initializer));
 // - (instancetype)init __attribute__((objc_designated_initializer));
 // - (instancetype)initWithCapacity:(NSUInteger)numItems __attribute__((objc_designated_initializer));
 
@@ -19367,6 +20219,15 @@ struct NSMutableOrderedSet_IMPL {
 // @interface NSMutableOrderedSet<ObjectType> (NSMutableOrderedSetCreation)
 
 // + (instancetype)orderedSetWithCapacity:(NSUInteger)numItems;
+
+/* @end */
+
+
+__attribute__((availability(macosx,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)))
+__attribute__((availability(swift, unavailable, message="NSMutableOrderedSet diffing methods are not available in Swift")))
+// @interface NSMutableOrderedSet<ObjectType> (NSMutableOrderedSetDiffing)
+
+// - (void)applyDifference:(NSOrderedCollectionDifference<ObjectType> *)difference;
 
 /* @end */
 
@@ -20138,7 +20999,7 @@ struct NSRecursiveLock_IMPL {
 
 
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=2_0)))
+__attribute__((availability(macos,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSCondition
 #define _REWRITER_typedef_NSCondition
@@ -20198,7 +21059,7 @@ static const NSPointerFunctionsOptions NSMapTableWeakMemory __attribute__((avail
 
 typedef NSUInteger NSMapTableOptions;
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=6_0)))
+__attribute__((availability(macos,introduced=10.5))) __attribute__((availability(ios,introduced=6.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSMapTable
 #define _REWRITER_typedef_NSMapTable
@@ -20335,9 +21196,6 @@ typedef struct {} _objc_exc_NSMethodSignature;
 
 struct NSMethodSignature_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	void *_private;
-	void *_reserved[5];
-	unsigned long _flags;
 };
 
 
@@ -20482,7 +21340,7 @@ typedef struct {} _objc_exc_NSSet;
 
 
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=2_0)))
+__attribute__((availability(macos,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSOperation
 #define _REWRITER_typedef_NSOperation
@@ -20492,11 +21350,7 @@ typedef struct {} _objc_exc_NSOperation;
 
 struct NSOperation_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	id _private;
-	int32_t _private1;
-	int32_t _private1b;
 };
-
 
 // - (void)start;
 // - (void)main;
@@ -20540,7 +21394,7 @@ typedef NSInteger NSOperationQueuePriority; enum {
 
 
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=4_0)))
+__attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSBlockOperation
 #define _REWRITER_typedef_NSBlockOperation
@@ -20550,10 +21404,7 @@ typedef struct {} _objc_exc_NSBlockOperation;
 
 struct NSBlockOperation_IMPL {
 	struct NSOperation_IMPL NSOperation_IVARS;
-	id _private2;
-	void *_reserved2;
 };
-
 
 // + (instancetype)blockOperationWithBlock:(void (^)(void))block;
 
@@ -20564,7 +21415,7 @@ struct NSBlockOperation_IMPL {
 
 
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=2_0)))
+__attribute__((availability(macos,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 __attribute__((availability(swift, unavailable, message="NSInvocation and related APIs not available")))
 
 #ifndef _REWRITER_typedef_NSInvocationOperation
@@ -20575,11 +21426,7 @@ typedef struct {} _objc_exc_NSInvocationOperation;
 
 struct NSInvocationOperation_IMPL {
 	struct NSOperation_IMPL NSOperation_IVARS;
-	id _inv;
-	id _exception;
-	void *_reserved2;
 };
-
 
 // - (nullable instancetype)initWithTarget:(id)target selector:(SEL)sel object:(nullable id)arg;
 // - (instancetype)initWithInvocation:(NSInvocation *)inv __attribute__((objc_designated_initializer));
@@ -20596,7 +21443,7 @@ extern "C" NSExceptionName const NSInvocationOperationCancelledException __attri
 
 static const NSInteger NSOperationQueueDefaultMaxConcurrentOperationCount = -1;
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=2_0)))
+__attribute__((availability(macos,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSOperationQueue
 #define _REWRITER_typedef_NSOperationQueue
@@ -20606,18 +21453,20 @@ typedef struct {} _objc_exc_NSOperationQueue;
 
 struct NSOperationQueue_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	id _private;
-	void *_reserved;
 };
 
+// @property (readonly, strong) NSProgress *progress __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(tvos,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0)));
 
 // - (void)addOperation:(NSOperation *)op;
 // - (void)addOperations:(NSArray<NSOperation *> *)ops waitUntilFinished:(BOOL)wait __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
-
 // - (void)addOperationWithBlock:(void (^)(void))block __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
-// @property (readonly, copy) NSArray<__kindof NSOperation *> *operations;
-// @property (readonly) NSUInteger operationCount __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
+
+
+
+
+
+// - (void)addBarrierBlock:(void (^)(void))barrier __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(tvos,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0)));
 
 // @property NSInteger maxConcurrentOperationCount;
 
@@ -20635,6 +21484,17 @@ struct NSOperationQueue_IMPL {
 
 @property (class, readonly, strong, nullable) NSOperationQueue *currentQueue __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 @property (class, readonly, strong) NSOperationQueue *mainQueue __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
+
+/* @end */
+
+
+// @interface NSOperationQueue (NSDeprecated)
+
+
+
+// @property (readonly, copy) NSArray<__kindof NSOperation *> *operations __attribute__((availability(macos,introduced=10.5,deprecated=100000,message="access to operations is inherently a race condition, it should not be used. For barrier style behaviors please use addBarrierBlock: instead"))) __attribute__((availability(ios,introduced=2.0,deprecated=100000,message="access to operations is inherently a race condition, it should not be used. For barrier style behaviors please use addBarrierBlock: instead"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,message="access to operations is inherently a race condition, it should not be used. For barrier style behaviors please use addBarrierBlock: instead"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,message="access to operations is inherently a race condition, it should not be used. For barrier style behaviors please use addBarrierBlock: instead")));
+
+// @property (readonly) NSUInteger operationCount __attribute__((availability(macos,introduced=10.6,deprecated=100000,replacement="progress.completedUnitCount"))) __attribute__((availability(ios,introduced=4.0,deprecated=100000,replacement="progress.completedUnitCount"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,replacement="progress.completedUnitCount"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,replacement="progress.completedUnitCount")));
 
 /* @end */
 
@@ -20670,7 +21530,7 @@ typedef struct {} _objc_exc_NSDictionary;
 
 
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=4_0)))
+__attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSOrthography
 #define _REWRITER_typedef_NSOrthography
@@ -20687,7 +21547,7 @@ struct NSOrthography_IMPL {
 // @property (readonly, copy) NSString *dominantScript;
 // @property (readonly, copy) NSDictionary<NSString *, NSArray<NSString *> *> *languageMap;
 // - (instancetype)initWithDominantScript:(NSString *)script languageMap:(NSDictionary<NSString *, NSArray<NSString *> *> *)map __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((objc_designated_initializer));
-// - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder __attribute__((objc_designated_initializer));
+// - (nullable instancetype)initWithCoder:(NSCoder *)coder __attribute__((objc_designated_initializer));
 
 /* @end */
 
@@ -20717,7 +21577,7 @@ struct NSOrthography_IMPL {
 #pragma clang assume_nonnull end
 
 #pragma clang assume_nonnull begin
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=6_0)))
+__attribute__((availability(macos,introduced=10.5))) __attribute__((availability(ios,introduced=6.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSPointerArray
 #define _REWRITER_typedef_NSPointerArray
@@ -20912,8 +21772,8 @@ typedef NSUInteger NSMachPortOptions; enum {
     NSMachPortDeallocateReceiveRight = (1UL << 1)
 } __attribute__((availability(macos,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
-// + (NSPort *)portWithMachPort:(uint32_t)machPort options:(NSMachPortOptions)f __attribute__((availability(ios,introduced=2_0)));
-// - (instancetype)initWithMachPort:(uint32_t)machPort options:(NSMachPortOptions)f __attribute__((availability(ios,introduced=2_0))) __attribute__((objc_designated_initializer));
+// + (NSPort *)portWithMachPort:(uint32_t)machPort options:(NSMachPortOptions)f __attribute__((availability(macos,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
+// - (instancetype)initWithMachPort:(uint32_t)machPort options:(NSMachPortOptions)f __attribute__((availability(macos,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((objc_designated_initializer));
 
 // @property (readonly) uint32_t machPort;
 
@@ -21162,6 +22022,13 @@ typedef NSInteger NSProcessInfoThermalState; enum {
 
 extern "C" NSNotificationName const NSProcessInfoThermalStateDidChangeNotification __attribute__((availability(macosx,introduced=10.10.3))) __attribute__((availability(ios,introduced=11.0))) __attribute__((availability(watchos,introduced=4.0))) __attribute__((availability(tvos,introduced=11.0)));
 extern "C" NSNotificationName const NSProcessInfoPowerStateDidChangeNotification __attribute__((availability(ios,introduced=9.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(macos,unavailable)));
+
+// @interface NSProcessInfo (NSProcessInfoPlatform)
+
+// @property (readonly, getter=isMacCatalystApp) BOOL macCatalystApp __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
+/* @end */
+
 #pragma clang assume_nonnull end
 
 
@@ -21211,8 +22078,8 @@ struct NSProxy_IMPL {
 // @property (readonly, copy) NSString *debugDescription;
 // + (BOOL)respondsToSelector:(SEL)aSelector;
 
-// - (BOOL)allowsWeakReference __attribute__((unavailable));
-// - (BOOL)retainWeakReference __attribute__((unavailable));
+// - (BOOL)allowsWeakReference __attribute__((availability(macos,unavailable))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+// - (BOOL)retainWeakReference __attribute__((availability(macos,unavailable))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
 
 
 
@@ -21313,7 +22180,7 @@ enum {
 
 typedef NSString *NSTextCheckingKey __attribute__((swift_wrapper(struct)));
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=4_0)))
+__attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSTextCheckingResult
 #define _REWRITER_typedef_NSTextCheckingResult
@@ -21421,7 +22288,7 @@ typedef NSUInteger NSRegularExpressionOptions; enum {
    NSRegularExpressionUseUnicodeWordBoundaries = 1 << 6
 };
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=4_0)))
+__attribute__((availability(macos,introduced=10.7))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSRegularExpression
 #define _REWRITER_typedef_NSRegularExpression
@@ -21506,7 +22373,7 @@ typedef NSUInteger NSMatchingFlags; enum {
 /* @end */
 
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=4_0)))
+__attribute__((availability(macos,introduced=10.7))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSDataDetector
 #define _REWRITER_typedef_NSDataDetector
@@ -22464,7 +23331,8 @@ struct NSURLCache_IMPL {
 };
 
 @property (class, strong) NSURLCache *sharedURLCache;
-// - (instancetype)initWithMemoryCapacity:(NSUInteger)memoryCapacity diskCapacity:(NSUInteger)diskCapacity diskPath:(nullable NSString *)path;
+// - (instancetype)initWithMemoryCapacity:(NSUInteger)memoryCapacity diskCapacity:(NSUInteger)diskCapacity diskPath:(nullable NSString *)path __attribute__((availability(macos,introduced=10.2,deprecated=100000,replacement="initWithMemoryCapacity:diskCapacity:directoryURL:"))) __attribute__((availability(ios,introduced=2.0,deprecated=100000,replacement="initWithMemoryCapacity:diskCapacity:directoryURL:"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,replacement="initWithMemoryCapacity:diskCapacity:directoryURL:"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,replacement="initWithMemoryCapacity:diskCapacity:directoryURL:"))) __attribute__((availability(macCatalyst,unavailable)));
+// - (instancetype)initWithMemoryCapacity:(NSUInteger)memoryCapacity diskCapacity:(NSUInteger)diskCapacity directoryURL:(nullable NSURL *)directoryURL __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
 // - (nullable NSCachedURLResponse *)cachedResponseForRequest:(NSURLRequest *)request;
 // - (void)storeCachedResponse:(NSCachedURLResponse *)cachedResponse forRequest:(NSURLRequest *)request;
 // - (void)removeCachedResponseForRequest:(NSURLRequest *)request;
@@ -22701,27 +23569,8 @@ extern "C" {
 
 #pragma clang assume_nonnull begin
 typedef struct __attribute__((objc_bridge(id))) __SecCertificate *SecCertificateRef;
-
-
-
-
-
-
-
 typedef struct __attribute__((objc_bridge(id))) __SecIdentity *SecIdentityRef;
-
-
-
-
-
-
 typedef struct __attribute__((objc_bridge(id))) __SecKey *SecKeyRef;
-
-
-
-
-
-
 typedef struct __attribute__((objc_bridge(id))) __SecPolicy *SecPolicyRef;
 
 
@@ -22742,32 +23591,32 @@ typedef struct __attribute__((objc_bridge(id))) __SecKeychain *SecKeychainRef
 
 
 
-typedef struct __attribute__((objc_bridge(id))) __SecKeychainItem *SecKeychainItemRef __attribute__((availability(ios,unavailable)));
+typedef struct __attribute__((objc_bridge(id))) __SecKeychainItem *SecKeychainItemRef __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(macCatalyst,unavailable)));
 
 
 
 
 
-typedef struct __attribute__((objc_bridge(id))) __SecKeychainSearch *SecKeychainSearchRef __attribute__((availability(ios,unavailable)));
+typedef struct __attribute__((objc_bridge(id))) __SecKeychainSearch *SecKeychainSearchRef __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(macCatalyst,unavailable)));
 
 
 
 
 
-typedef OSType SecKeychainAttrType __attribute__((availability(ios,unavailable)));
-struct __attribute__((availability(ios,unavailable))) SecKeychainAttribute
+typedef OSType SecKeychainAttrType __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(macCatalyst,unavailable)));
+struct __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(macCatalyst,unavailable))) SecKeychainAttribute
 {
     SecKeychainAttrType tag;
     UInt32 length;
     void * _Nullable data;
 };
-typedef struct SecKeychainAttribute SecKeychainAttribute __attribute__((availability(ios,unavailable)));
+typedef struct SecKeychainAttribute SecKeychainAttribute __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(macCatalyst,unavailable)));
 
 
 
 
 
-typedef SecKeychainAttribute *SecKeychainAttributePtr __attribute__((availability(ios,unavailable)));
+typedef SecKeychainAttribute *SecKeychainAttributePtr __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(macCatalyst,unavailable)));
 
 
 
@@ -22775,49 +23624,44 @@ typedef SecKeychainAttribute *SecKeychainAttributePtr __attribute__((availabilit
 
 
 
-struct __attribute__((availability(ios,unavailable))) SecKeychainAttributeList
+struct __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(macCatalyst,unavailable))) SecKeychainAttributeList
 {
     UInt32 count;
     SecKeychainAttribute * _Nullable attr;
 };
-typedef struct SecKeychainAttributeList SecKeychainAttributeList __attribute__((availability(ios,unavailable)));
+typedef struct SecKeychainAttributeList SecKeychainAttributeList __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(macCatalyst,unavailable)));
 
 
 
 
 
-typedef UInt32 SecKeychainStatus __attribute__((availability(ios,unavailable)));
+typedef UInt32 SecKeychainStatus __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(macCatalyst,unavailable)));
 
 
 
 
 
-typedef struct __attribute__((objc_bridge(id))) __SecTrustedApplication *SecTrustedApplicationRef __attribute__((availability(ios,unavailable)));
+typedef struct __attribute__((objc_bridge(id))) __SecTrustedApplication *SecTrustedApplicationRef __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(macCatalyst,unavailable)));
 
 
 
 
 
-typedef struct __attribute__((objc_bridge(id))) __SecAccess *SecAccessRef __attribute__((availability(ios,unavailable)));
+typedef struct __attribute__((objc_bridge(id))) __SecAccess *SecAccessRef __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(macCatalyst,unavailable)));
+typedef struct __attribute__((objc_bridge(id))) __SecACL *SecACLRef __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(macCatalyst,unavailable)));
 
 
 
 
 
-typedef struct __attribute__((objc_bridge(id))) __SecTrust *SecACLRef __attribute__((availability(ios,unavailable)));
-
-
-
-
-
-typedef struct __attribute__((objc_bridge(id))) __SecPassword *SecPasswordRef __attribute__((availability(ios,unavailable)));
-struct __attribute__((availability(ios,unavailable))) SecKeychainAttributeInfo
+typedef struct __attribute__((objc_bridge(id))) __SecPassword *SecPasswordRef __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(macCatalyst,unavailable)));
+struct __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(macCatalyst,unavailable))) SecKeychainAttributeInfo
 {
     UInt32 count;
     UInt32 *tag;
     UInt32 * _Nullable format;
 };
-typedef struct SecKeychainAttributeInfo SecKeychainAttributeInfo __attribute__((availability(ios,unavailable)));
+typedef struct SecKeychainAttributeInfo SecKeychainAttributeInfo __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(macCatalyst,unavailable)));
 _Nullable
 CFStringRef SecCopyErrorMessageString(OSStatus status, void * _Nullable reserved)
     __attribute__((availability(ios,introduced=11.3)));
@@ -22826,7 +23670,7 @@ enum
     errSecSuccess = 0,
     errSecUnimplemented = -4,
     errSecDiskFull = -34,
-    errSecDskFull = -34,
+    errSecDskFull __attribute__((deprecated("use errSecDiskFull"))) = errSecDiskFull,
     errSecIO = -36,
     errSecOpWr = -49,
     errSecParam = -50,
@@ -23204,9 +24048,102 @@ enum
     errSecTimestampWaiting = -67896,
     errSecTimestampRevocationWarning = -67897,
     errSecTimestampRevocationNotification = -67898,
+    errSecCertificatePolicyNotAllowed = -67899,
+    errSecCertificateNameNotAllowed = -67900,
+    errSecCertificateValidityPeriodTooLong = -67901,
+};
+enum {
+    errSSLProtocol = -9800,
+    errSSLNegotiation = -9801,
+    errSSLFatalAlert = -9802,
+    errSSLWouldBlock = -9803,
+    errSSLSessionNotFound = -9804,
+    errSSLClosedGraceful = -9805,
+    errSSLClosedAbort = -9806,
+    errSSLXCertChainInvalid = -9807,
+    errSSLBadCert = -9808,
+    errSSLCrypto = -9809,
+    errSSLInternal = -9810,
+    errSSLModuleAttach = -9811,
+    errSSLUnknownRootCert = -9812,
+    errSSLNoRootCert = -9813,
+    errSSLCertExpired = -9814,
+    errSSLCertNotYetValid = -9815,
+    errSSLClosedNoNotify = -9816,
+    errSSLBufferOverflow = -9817,
+    errSSLBadCipherSuite = -9818,
+
+
+    errSSLPeerUnexpectedMsg = -9819,
+    errSSLPeerBadRecordMac = -9820,
+    errSSLPeerDecryptionFail = -9821,
+    errSSLPeerRecordOverflow = -9822,
+    errSSLPeerDecompressFail = -9823,
+    errSSLPeerHandshakeFail = -9824,
+    errSSLPeerBadCert = -9825,
+    errSSLPeerUnsupportedCert = -9826,
+    errSSLPeerCertRevoked = -9827,
+    errSSLPeerCertExpired = -9828,
+    errSSLPeerCertUnknown = -9829,
+    errSSLIllegalParam = -9830,
+    errSSLPeerUnknownCA = -9831,
+    errSSLPeerAccessDenied = -9832,
+    errSSLPeerDecodeError = -9833,
+    errSSLPeerDecryptError = -9834,
+    errSSLPeerExportRestriction = -9835,
+    errSSLPeerProtocolVersion = -9836,
+    errSSLPeerInsufficientSecurity = -9837,
+    errSSLPeerInternalError = -9838,
+    errSSLPeerUserCancelled = -9839,
+    errSSLPeerNoRenegotiation = -9840,
+
+
+    errSSLPeerAuthCompleted = -9841,
+    errSSLClientCertRequested = -9842,
+
+
+    errSSLHostNameMismatch = -9843,
+    errSSLConnectionRefused = -9844,
+    errSSLDecryptionFail = -9845,
+    errSSLBadRecordMac = -9846,
+    errSSLRecordOverflow = -9847,
+    errSSLBadConfiguration = -9848,
+    errSSLUnexpectedRecord = -9849,
+    errSSLWeakPeerEphemeralDHKey = -9850,
+
+
+    errSSLClientHelloReceived = -9851,
+
+
+    errSSLTransportReset = -9852,
+    errSSLNetworkTimeout = -9853,
+
+
+    errSSLConfigurationFailed = -9854,
+
+
+    errSSLUnsupportedExtension = -9855,
+    errSSLUnexpectedMessage = -9856,
+    errSSLDecompressFail = -9857,
+    errSSLHandshakeFail = -9858,
+    errSSLDecodeError = -9859,
+    errSSLInappropriateFallback = -9860,
+    errSSLMissingExtension = -9861,
+    errSSLBadCertificateStatusResponse = -9862,
+    errSSLCertificateRequired = -9863,
+    errSSLUnknownPSKIdentity = -9864,
+    errSSLUnrecognizedName = -9865,
+
+
+    errSSLATSViolation = -9880,
+    errSSLATSMinimumVersionViolation = -9881,
+    errSSLATSCiphersuiteViolation = -9882,
+    errSSLATSMinimumKeySizeViolation = -9883,
+    errSSLATSLeafCertificateHashAlgorithmViolation = -9884,
+    errSSLATSCertificateHashAlgorithmViolation = -9885,
+    errSSLATSCertificateTrustViolation = -9886,
 };
 #pragma clang assume_nonnull end
-
 
 
 
@@ -23255,25 +24192,18 @@ CFDataRef SecCertificateCopyNormalizedIssuerSequence(SecCertificateRef certifica
 _Nullable
 CFDataRef SecCertificateCopyNormalizedSubjectSequence(SecCertificateRef certificate)
     __attribute__((availability(ios,introduced=10.3)));
-
-
-
-
-
-
-
 _Nullable __attribute__((cf_returns_retained))
 SecKeyRef SecCertificateCopyKey(SecCertificateRef certificate)
     __attribute__((availability(macos,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0))) __attribute__((availability(tvos,introduced=12.0)));
 _Nullable
 SecKeyRef SecCertificateCopyPublicKey(SecCertificateRef certificate)
-    __attribute__((availability(ios,introduced=10.3,deprecated=12.0,replacement="SecCertificateCopyKey"))) __attribute__((availability(macos,unavailable)));
+    __attribute__((availability(ios,introduced=10.3,deprecated=12.0,replacement="SecCertificateCopyKey"))) __attribute__((availability(macos,unavailable))) __attribute__((availability(macCatalyst,unavailable)));
 _Nullable
 CFDataRef SecCertificateCopySerialNumberData(SecCertificateRef certificate, CFErrorRef *error)
     __attribute__((availability(ios,introduced=11.0)));
 _Nullable
 CFDataRef SecCertificateCopySerialNumber(SecCertificateRef certificate)
-    __attribute__((availability(ios,introduced=10.3,deprecated=11.0,replacement="SecCertificateCopySerialNumberData"))) __attribute__((availability(macos,unavailable)));
+    __attribute__((availability(ios,introduced=10.3,deprecated=11.0,replacement="SecCertificateCopySerialNumberData"))) __attribute__((availability(macos,unavailable))) __attribute__((availability(macCatalyst,unavailable)));
 #pragma clang assume_nonnull end
 }
 extern "C" {
@@ -23312,20 +24242,21 @@ CFTypeID SecAccessControlGetTypeID(void)
 __attribute__((availability(ios,introduced=8.0)));
 typedef CFOptionFlags SecAccessControlCreateFlags; enum {
     kSecAccessControlUserPresence = 1u << 0,
-    kSecAccessControlBiometryAny __attribute__((availability(ios,introduced=11_3))) = 1u << 1,
+    kSecAccessControlBiometryAny __attribute__((availability(macos,introduced=10.13.4))) __attribute__((availability(ios,introduced=11.3))) = 1u << 1,
     kSecAccessControlTouchIDAny __attribute__((availability(macos,introduced=10.12.1,deprecated=10.13.4,replacement="kSecAccessControlBiometryAny"))) __attribute__((availability(ios,introduced=9.0,deprecated=11.3,replacement="kSecAccessControlBiometryAny"))) = 1u << 1,
-    kSecAccessControlBiometryCurrentSet __attribute__((availability(ios,introduced=11_3))) = 1u << 3,
+    kSecAccessControlBiometryCurrentSet __attribute__((availability(macos,introduced=10.13.4))) __attribute__((availability(ios,introduced=11.3))) = 1u << 3,
     kSecAccessControlTouchIDCurrentSet __attribute__((availability(macos,introduced=10.12.1,deprecated=10.13.4,replacement="kSecAccessControlBiometryCurrentSet"))) __attribute__((availability(ios,introduced=9.0,deprecated=11.3,replacement="kSecAccessControlBiometryCurrentSet"))) = 1u << 3,
-    kSecAccessControlDevicePasscode __attribute__((availability(ios,introduced=9_0))) = 1u << 4,
-    kSecAccessControlOr __attribute__((availability(ios,introduced=9_0))) = 1u << 14,
-    kSecAccessControlAnd __attribute__((availability(ios,introduced=9_0))) = 1u << 15,
-    kSecAccessControlPrivateKeyUsage __attribute__((availability(ios,introduced=9_0))) = 1u << 30,
-    kSecAccessControlApplicationPassword __attribute__((availability(ios,introduced=9_0))) = 1u << 31,
+    kSecAccessControlDevicePasscode __attribute__((availability(macos,introduced=10.11))) __attribute__((availability(ios,introduced=9.0))) = 1u << 4,
+    kSecAccessControlWatch __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=NA))) __attribute__((availability(macCatalyst,introduced=13.0))) = 1u << 5,
+    kSecAccessControlOr __attribute__((availability(macos,introduced=10.12.1))) __attribute__((availability(ios,introduced=9.0))) = 1u << 14,
+    kSecAccessControlAnd __attribute__((availability(macos,introduced=10.12.1))) __attribute__((availability(ios,introduced=9.0))) = 1u << 15,
+    kSecAccessControlPrivateKeyUsage __attribute__((availability(macos,introduced=10.12.1))) __attribute__((availability(ios,introduced=9.0))) = 1u << 30,
+    kSecAccessControlApplicationPassword __attribute__((availability(macos,introduced=10.12.1))) __attribute__((availability(ios,introduced=9.0))) = 1u << 31,
 } __attribute__((availability(ios,introduced=8.0)));
 _Nullable
 SecAccessControlRef SecAccessControlCreateWithFlags(CFAllocatorRef _Nullable allocator, CFTypeRef protection,
                                                     SecAccessControlCreateFlags flags, CFErrorRef *error)
-__attribute__((availability(ios,introduced=8.0)));
+__attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0)));
 #pragma clang assume_nonnull end
 
 
@@ -23459,7 +24390,7 @@ extern const CFStringRef kSecAttrAccessibleWhenUnlocked
 extern const CFStringRef kSecAttrAccessibleAfterFirstUnlock
     __attribute__((availability(macos,introduced=10.9))) __attribute__((availability(ios,introduced=4.0)));
 extern const CFStringRef kSecAttrAccessibleAlways
-    __attribute__((availability(macos,introduced=10.9))) __attribute__((availability(ios,introduced=4.0)));
+    __attribute__((availability(macos,introduced=10.9,deprecated=10.14,message="Use an accessibility level that provides some user protection, such as kSecAttrAccessibleAfterFirstUnlock"))) __attribute__((availability(ios,introduced=4.0,deprecated=12.0,message="Use an accessibility level that provides some user protection, such as kSecAttrAccessibleAfterFirstUnlock")));
 extern const CFStringRef kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly
     __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0)));
 extern const CFStringRef kSecAttrAccessibleWhenUnlockedThisDeviceOnly
@@ -23467,7 +24398,7 @@ extern const CFStringRef kSecAttrAccessibleWhenUnlockedThisDeviceOnly
 extern const CFStringRef kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
     __attribute__((availability(macos,introduced=10.9))) __attribute__((availability(ios,introduced=4.0)));
 extern const CFStringRef kSecAttrAccessibleAlwaysThisDeviceOnly
-    __attribute__((availability(macos,introduced=10.9))) __attribute__((availability(ios,introduced=4.0)));
+    __attribute__((availability(macos,introduced=10.9,deprecated=10.14,message="Use an accessibility level that provides some user protection, such as kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly"))) __attribute__((availability(ios,introduced=4.0,deprecated=12.0,message="Use an accessibility level that provides some user protection, such as kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly")));
 extern const CFStringRef kSecAttrProtocolFTP
     __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=2.0)));
 extern const CFStringRef kSecAttrProtocolFTPAccount
@@ -23633,7 +24564,9 @@ extern const CFStringRef kSecValueRef
 extern const CFStringRef kSecValuePersistentRef
     __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=2.0)));
 extern const CFStringRef kSecUseItemList
-    __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,unavailable))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(watchos,unavailable)));
+    __attribute__((availability(macos,introduced=10.6)))
+    __attribute__((availability(ios,introduced=2.0,deprecated=12.0,message="Not implemented on this platform"))) __attribute__((availability(tvos,introduced=9.0,deprecated=12.0,message="Not implemented on this platform"))) __attribute__((availability(watchos,introduced=1.0,deprecated=5.0,message="Not implemented on this platform")))
+    __attribute__((availability(macCatalyst,unavailable)));
 extern const CFStringRef kSecUseKeychain
     __attribute__((availability(macos,introduced=10.7))) __attribute__((availability(ios,introduced=NA)));
 extern const CFStringRef kSecUseOperationPrompt
@@ -23644,6 +24577,8 @@ extern const CFStringRef kSecUseAuthenticationUI
     __attribute__((availability(macos,introduced=10.11))) __attribute__((availability(ios,introduced=9.0)));
 extern const CFStringRef kSecUseAuthenticationContext
     __attribute__((availability(macos,introduced=10.11))) __attribute__((availability(ios,introduced=9.0)));
+extern const CFStringRef kSecUseDataProtectionKeychain
+    __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0)));
 extern const CFStringRef kSecUseAuthenticationUIAllow
     __attribute__((availability(macos,introduced=10.11))) __attribute__((availability(ios,introduced=9.0)));
 extern const CFStringRef kSecUseAuthenticationUIFail
@@ -24005,9 +24940,9 @@ extern const CFStringRef kSecPolicyAppleIPsec
 
 
 extern const CFStringRef kSecPolicyApplePKINITClient
-    __attribute__((availability(ios,unavailable)));
+    __attribute__((availability(macos,introduced=10.7))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(macCatalyst,unavailable)));
 extern const CFStringRef kSecPolicyApplePKINITServer
-    __attribute__((availability(ios,unavailable)));
+    __attribute__((availability(macos,introduced=10.7))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(macCatalyst,unavailable)));
 extern const CFStringRef kSecPolicyAppleCodeSigning
     __attribute__((availability(ios,introduced=7.0)));
 extern const CFStringRef kSecPolicyMacAppStoreReceipt
@@ -24121,7 +25056,6 @@ OSStatus SecPKCS12Import(CFDataRef pkcs12_data, CFDictionaryRef options, CFArray
 
 
 
-
 }
 extern "C" {
 
@@ -24179,7 +25113,7 @@ OSStatus SecTrustGetNetworkFetchAllowed(SecTrustRef trust,
     Boolean *allowFetch)
     __attribute__((availability(ios,introduced=7.0)));
 OSStatus SecTrustSetAnchorCertificates(SecTrustRef trust,
-    CFArrayRef anchorCertificates)
+    CFArrayRef _Nullable anchorCertificates)
     __attribute__((availability(ios,introduced=2.0)));
 OSStatus SecTrustSetAnchorCertificatesOnly(SecTrustRef trust,
     Boolean anchorCertificatesOnly)
@@ -24192,13 +25126,16 @@ OSStatus SecTrustSetVerifyDate(SecTrustRef trust, CFDateRef verifyDate)
 CFAbsoluteTime SecTrustGetVerifyTime(SecTrustRef trust)
     __attribute__((availability(ios,introduced=2.0)));
 OSStatus SecTrustEvaluate(SecTrustRef trust, SecTrustResultType *result)
-    __attribute__((availability(macos,introduced=10.3,deprecated=100000,replacement="SecTrustEvaluateWithError"))) __attribute__((availability(ios,introduced=2.0,deprecated=100000,replacement="SecTrustEvaluateWithError"))) __attribute__((availability(watchos,introduced=1.0,deprecated=100000,replacement="SecTrustEvaluateWithError"))) __attribute__((availability(tvos,introduced=2.0,deprecated=100000,replacement="SecTrustEvaluateWithError")));
+    __attribute__((availability(macos,introduced=10.3,deprecated=10.15,replacement="SecTrustEvaluateWithError"))) __attribute__((availability(ios,introduced=2.0,deprecated=13.0,replacement="SecTrustEvaluateWithError"))) __attribute__((availability(watchos,introduced=1.0,deprecated=6.0,replacement="SecTrustEvaluateWithError"))) __attribute__((availability(tvos,introduced=2.0,deprecated=13.0,replacement="SecTrustEvaluateWithError")));
 OSStatus SecTrustEvaluateAsync(SecTrustRef trust,
     dispatch_queue_t _Nullable queue, SecTrustCallback result)
-    __attribute__((availability(ios,introduced=7.0)));
+    __attribute__((availability(macos,introduced=10.7,deprecated=10.15,replacement="SecTrustEvaluateAsyncWithError"))) __attribute__((availability(ios,introduced=7.0,deprecated=13.0,replacement="SecTrustEvaluateAsyncWithError"))) __attribute__((availability(watchos,introduced=1.0,deprecated=6.0,replacement="SecTrustEvaluateAsyncWithError"))) __attribute__((availability(tvos,introduced=7.0,deprecated=13.0,replacement="SecTrustEvaluateAsyncWithError")));
 __attribute__((warn_unused_result)) bool
 SecTrustEvaluateWithError(SecTrustRef trust, CFErrorRef _Nullable * _Nullable __attribute__((cf_returns_retained)) error)
     __attribute__((availability(macos,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(tvos,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0)));
+typedef void (*SecTrustWithErrorCallback)(SecTrustRef trustRef, bool result, CFErrorRef _Nullable error);
+OSStatus SecTrustEvaluateAsyncWithError(SecTrustRef trust, dispatch_queue_t queue, SecTrustWithErrorCallback result)
+    __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(tvos,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0)));
 OSStatus SecTrustGetTrustResult(SecTrustRef trust,
     SecTrustResultType *result)
     __attribute__((availability(ios,introduced=7.0)));
@@ -24229,11 +25166,11 @@ OSStatus SecTrustSetSignedCertificateTimestamps(SecTrustRef trust, CFArrayRef _N
 extern "C" {
 
 #pragma clang assume_nonnull begin
-extern const CFStringRef kSecSharedPassword __attribute__((availability(ios,introduced=8.0))) __attribute__((availability(macos,unavailable))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(watchos,unavailable)));
+extern const CFStringRef kSecSharedPassword __attribute__((availability(ios,introduced=8.0))) __attribute__((availability(macos,unavailable))) __attribute__((availability(macCatalyst,unavailable))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(watchos,unavailable)));
 void SecAddSharedWebCredential(CFStringRef fqdn, CFStringRef account, CFStringRef _Nullable password,
-    void (^completionHandler)(CFErrorRef _Nullable error)) __attribute__((availability(ios,introduced=8.0))) __attribute__((availability(macos,unavailable))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(watchos,unavailable)));
+    void (^completionHandler)(CFErrorRef _Nullable error)) __attribute__((availability(ios,introduced=8.0))) __attribute__((availability(macos,unavailable))) __attribute__((availability(macCatalyst,unavailable))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(watchos,unavailable)));
 void SecRequestSharedWebCredential(CFStringRef _Nullable fqdn, CFStringRef _Nullable account,
-    void (^completionHandler)(CFArrayRef _Nullable credentials, CFErrorRef _Nullable error)) __attribute__((availability(ios,introduced=8.0))) __attribute__((availability(macos,unavailable))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(watchos,unavailable)));
+    void (^completionHandler)(CFArrayRef _Nullable credentials, CFErrorRef _Nullable error)) __attribute__((availability(ios,introduced=8.0))) __attribute__((availability(macos,unavailable))) __attribute__((availability(macCatalyst,unavailable))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(watchos,unavailable)));
 
 
 
@@ -24241,7 +25178,7 @@ void SecRequestSharedWebCredential(CFStringRef _Nullable fqdn, CFStringRef _Null
 
 
 _Nullable
-CFStringRef SecCreateSharedWebCredentialPassword(void) __attribute__((availability(ios,introduced=8.0))) __attribute__((availability(macos,unavailable))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(watchos,unavailable)));
+CFStringRef SecCreateSharedWebCredentialPassword(void) __attribute__((availability(ios,introduced=8.0))) __attribute__((availability(macos,unavailable))) __attribute__((availability(macCatalyst,unavailable))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(watchos,unavailable)));
 #pragma clang assume_nonnull end
 
 
@@ -24256,8 +25193,10 @@ __attribute__((visibility("default"))) void sec_release(void *obj);
 }
 // @protocol OS_sec_object <NSObject> /* @end */
  typedef NSObject/*<OS_sec_object>*/ * __attribute__((objc_independent_class)) sec_object_t;
-
 typedef uint16_t SSLCipherSuite;
+
+
+
 
 
 enum
@@ -24332,6 +25271,13 @@ enum
  TLS_ECDH_anon_WITH_3DES_EDE_CBC_SHA = 0xC017,
  TLS_ECDH_anon_WITH_AES_128_CBC_SHA = 0xC018,
  TLS_ECDH_anon_WITH_AES_256_CBC_SHA = 0xC019,
+
+
+    TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA = 0xC035,
+    TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA = 0xC036,
+
+
+    TLS_PSK_WITH_CHACHA20_POLY1305_SHA256 = 0xCCAB,
 
 
 
@@ -24476,135 +25422,6 @@ enum
 
 
 
-extern "C" {
-
-
-#pragma clang assume_nonnull begin
-
-
-
-
-
-
-
-struct SSLContext;
-typedef struct __attribute__((objc_bridge(id))) SSLContext *SSLContextRef;
-
-
-typedef const void * SSLConnectionRef;
-
-
-typedef int SSLProtocol; enum {
-    kSSLProtocolUnknown = 0,
-    kSSLProtocol3 = 2,
-    kTLSProtocol1 = 4,
-    kTLSProtocol11 = 7,
-    kTLSProtocol12 = 8,
-    kDTLSProtocol1 = 9,
-    kTLSProtocol13 = 10,
-
-    kTLSProtocolMaxSupported = 999,
-
-    kSSLProtocol2 = 1,
-    kSSLProtocol3Only = 3,
-    kTLSProtocol1Only = 5,
-    kSSLProtocolAll = 6,
-};
-
-
-typedef int SSLSessionOption; enum {
-
-
-
-
-
-
-
- kSSLSessionOptionBreakOnServerAuth = 0,
-
-
-
-
- kSSLSessionOptionBreakOnCertRequested = 1,
-
-
-
-
-
-
-    kSSLSessionOptionBreakOnClientAuth = 2,
-
-
-
-
-
-    kSSLSessionOptionFalseStart = 3,
-
-
-
-
-
-    kSSLSessionOptionSendOneByteRecord = 4,
-
-
-
-
-    kSSLSessionOptionAllowServerIdentityChange = 5,
-
-
-
-
-    kSSLSessionOptionFallback = 6,
-
-
-
-    kSSLSessionOptionBreakOnClientHello = 7,
-
-
-
-    kSSLSessionOptionAllowRenegotiation = 8,
-
-
-
-    kSSLSessionOptionEnableSessionTickets = 9,
-};
-
-
-typedef int SSLSessionState; enum {
- kSSLIdle,
- kSSLHandshake,
- kSSLConnected,
- kSSLClosed,
- kSSLAborted
-};
-
-
-
-
-
-typedef int SSLClientCertificateState; enum {
-
- kSSLClientCertNone,
-
- kSSLClientCertRequested,
-
-
-
-
-
-
- kSSLClientCertSent,
-
-
-
-
- kSSLClientCertRejected
-};
-
-
-
-
-
 typedef int SSLCiphersuiteGroup; enum {
     kSSLCiphersuiteGroupDefault,
     kSSLCiphersuiteGroupCompatibility,
@@ -24612,584 +25429,113 @@ typedef int SSLCiphersuiteGroup; enum {
     kSSLCiphersuiteGroupATS,
     kSSLCiphersuiteGroupATSCompatibility,
 };
-typedef OSStatus
-(*SSLReadFunc) (SSLConnectionRef connection,
-        void *data,
-
-
-        size_t *dataLength);
-typedef OSStatus
-(*SSLWriteFunc) (SSLConnectionRef connection,
-        const void *data,
-        size_t *dataLength);
-enum {
- errSSLProtocol = -9800,
- errSSLNegotiation = -9801,
- errSSLFatalAlert = -9802,
- errSSLWouldBlock = -9803,
-    errSSLSessionNotFound = -9804,
-    errSSLClosedGraceful = -9805,
-    errSSLClosedAbort = -9806,
-    errSSLXCertChainInvalid = -9807,
-    errSSLBadCert = -9808,
- errSSLCrypto = -9809,
- errSSLInternal = -9810,
- errSSLModuleAttach = -9811,
-    errSSLUnknownRootCert = -9812,
-    errSSLNoRootCert = -9813,
- errSSLCertExpired = -9814,
- errSSLCertNotYetValid = -9815,
- errSSLClosedNoNotify = -9816,
- errSSLBufferOverflow = -9817,
- errSSLBadCipherSuite = -9818,
-
-
- errSSLPeerUnexpectedMsg = -9819,
- errSSLPeerBadRecordMac = -9820,
- errSSLPeerDecryptionFail = -9821,
- errSSLPeerRecordOverflow = -9822,
- errSSLPeerDecompressFail = -9823,
- errSSLPeerHandshakeFail = -9824,
- errSSLPeerBadCert = -9825,
- errSSLPeerUnsupportedCert = -9826,
- errSSLPeerCertRevoked = -9827,
- errSSLPeerCertExpired = -9828,
- errSSLPeerCertUnknown = -9829,
- errSSLIllegalParam = -9830,
- errSSLPeerUnknownCA = -9831,
- errSSLPeerAccessDenied = -9832,
- errSSLPeerDecodeError = -9833,
- errSSLPeerDecryptError = -9834,
- errSSLPeerExportRestriction = -9835,
- errSSLPeerProtocolVersion = -9836,
- errSSLPeerInsufficientSecurity = -9837,
- errSSLPeerInternalError = -9838,
- errSSLPeerUserCancelled = -9839,
- errSSLPeerNoRenegotiation = -9840,
-
-
- errSSLPeerAuthCompleted = -9841,
- errSSLClientCertRequested = -9842,
-
-
- errSSLHostNameMismatch = -9843,
- errSSLConnectionRefused = -9844,
- errSSLDecryptionFail = -9845,
- errSSLBadRecordMac = -9846,
- errSSLRecordOverflow = -9847,
- errSSLBadConfiguration = -9848,
- errSSLUnexpectedRecord = -9849,
-    errSSLWeakPeerEphemeralDHKey = -9850,
-
-
-    errSSLClientHelloReceived = -9851,
-
-
-    errSSLTransportReset = -9852,
-    errSSLNetworkTimeout = -9853,
-
-
-    errSSLConfigurationFailed = -9854,
-
-
-    errSSLUnsupportedExtension = -9855,
-    errSSLUnexpectedMessage = -9856,
-    errSSLDecompressFail = -9857,
-    errSSLHandshakeFail = -9858,
-    errSSLDecodeError = -9859,
-    errSSLInappropriateFallback = -9860,
-    errSSLMissingExtension = -9861,
-    errSSLBadCertificateStatusResponse = -9862,
-    errSSLCertificateRequired = -9863,
-    errSSLUnknownPSKIdentity = -9864,
-    errSSLUnrecognizedName = -9865,
-};
-typedef int SSLProtocolSide; enum
-{
-    kSSLServerSide,
-    kSSLClientSide
-};
-
-typedef int SSLConnectionType; enum
-{
-    kSSLStreamType,
-    kSSLDatagramType
-};
-
-
-
-
-
-
-extern const CFStringRef kSSLSessionConfig_default
-__attribute__((availability(ios,introduced=5.0,deprecated=11.0)));
-
-
-extern const CFStringRef kSSLSessionConfig_ATSv1
-__attribute__((availability(ios,introduced=5.0)));
-
-
-extern const CFStringRef kSSLSessionConfig_ATSv1_noPFS
-__attribute__((availability(ios,introduced=5.0)));
-
-
-extern const CFStringRef kSSLSessionConfig_standard
-__attribute__((availability(ios,introduced=5.0)));
-
-
-extern const CFStringRef kSSLSessionConfig_RC4_fallback
-__attribute__((availability(ios,introduced=5.0,deprecated=11.0)));
-
-
-extern const CFStringRef kSSLSessionConfig_TLSv1_fallback
-__attribute__((availability(ios,introduced=5.0)));
-
-
-extern const CFStringRef kSSLSessionConfig_TLSv1_RC4_fallback
-__attribute__((availability(ios,introduced=5.0,deprecated=11.0)));
-
-
-extern const CFStringRef kSSLSessionConfig_legacy
-__attribute__((availability(ios,introduced=5.0)));
-
-
-extern const CFStringRef kSSLSessionConfig_legacy_DHE
-__attribute__((availability(ios,introduced=5.0)));
-
-
-extern const CFStringRef kSSLSessionConfig_anonymous
-__attribute__((availability(ios,introduced=5.0)));
-
-
-extern const CFStringRef kSSLSessionConfig_3DES_fallback
-__attribute__((availability(ios,introduced=5.0,deprecated=11.0)));
-
-
-extern const CFStringRef kSSLSessionConfig_TLSv1_3DES_fallback
-__attribute__((availability(ios,introduced=5.0,deprecated=11.0)));
-CFTypeID
-SSLContextGetTypeID(void)
- __attribute__((availability(ios,introduced=5.0)));
-
-
-
-
-_Nullable
-SSLContextRef
-SSLCreateContext(CFAllocatorRef _Nullable alloc, SSLProtocolSide protocolSide, SSLConnectionType connectionType)
- __attribute__((availability(ios,introduced=5.0)));
-OSStatus
-SSLGetSessionState (SSLContextRef context,
-        SSLSessionState *state)
- __attribute__((availability(ios,introduced=5.0)));
-
-
-
-
-
-OSStatus
-SSLSetSessionOption (SSLContextRef context,
-        SSLSessionOption option,
-        Boolean value)
- __attribute__((availability(ios,introduced=5.0)));
-
-
-
-
-OSStatus
-SSLGetSessionOption (SSLContextRef context,
-        SSLSessionOption option,
-        Boolean *value)
- __attribute__((availability(ios,introduced=5.0)));
-OSStatus
-SSLSetIOFuncs (SSLContextRef context,
-        SSLReadFunc readFunc,
-        SSLWriteFunc writeFunc)
- __attribute__((availability(ios,introduced=5.0)));
-OSStatus
-SSLSetSessionConfig(SSLContextRef context,
-                    CFStringRef config)
-    __attribute__((availability(ios,introduced=10.0)));
-OSStatus
-SSLSetProtocolVersionMin (SSLContextRef context,
-                           SSLProtocol minVersion)
-    __attribute__((availability(ios,introduced=5.0)));
-
-
-
-
-OSStatus
-SSLGetProtocolVersionMin (SSLContextRef context,
-                           SSLProtocol *minVersion)
-    __attribute__((availability(ios,introduced=5.0)));
-OSStatus
-SSLSetProtocolVersionMax (SSLContextRef context,
-                           SSLProtocol maxVersion)
-    __attribute__((availability(ios,introduced=5.0)));
-
-
-
-
-OSStatus
-SSLGetProtocolVersionMax (SSLContextRef context,
-                           SSLProtocol *maxVersion)
-    __attribute__((availability(ios,introduced=5.0)));
-OSStatus
-SSLSetCertificate (SSLContextRef context,
-        CFArrayRef _Nullable certRefs)
- __attribute__((availability(ios,introduced=5.0)));
-OSStatus
-SSLSetConnection (SSLContextRef context,
-        SSLConnectionRef _Nullable connection)
- __attribute__((availability(ios,introduced=5.0)));
-
-OSStatus
-SSLGetConnection (SSLContextRef context,
-        SSLConnectionRef * _Nonnull __attribute__((cf_returns_not_retained)) connection)
- __attribute__((availability(ios,introduced=5.0)));
-OSStatus
-SSLSetPeerDomainName (SSLContextRef context,
-        const char * _Nullable peerName,
-        size_t peerNameLen)
- __attribute__((availability(ios,introduced=5.0)));
-
-
-
-
-OSStatus
-SSLGetPeerDomainNameLength (SSLContextRef context,
-        size_t *peerNameLen)
- __attribute__((availability(ios,introduced=5.0)));
-
-
-
-
-OSStatus
-SSLGetPeerDomainName (SSLContextRef context,
-        char *peerName,
-        size_t *peerNameLen)
- __attribute__((availability(ios,introduced=5.0)));
-
-
-
-
-
-OSStatus
-SSLCopyRequestedPeerName (SSLContextRef context,
-                             char *peerName,
-                             size_t *peerNameLen)
-    __attribute__((availability(ios,introduced=9.0)));
-
-
-
-
-OSStatus
-SSLCopyRequestedPeerNameLength (SSLContextRef ctx,
-                                 size_t *peerNameLen)
-    __attribute__((availability(ios,introduced=9.0)));
-
-
-
-
-
-
-
-OSStatus
-SSLSetDatagramHelloCookie (SSLContextRef dtlsContext,
-                             const void * _Nullable cookie,
-                             size_t cookieLen)
- __attribute__((availability(ios,introduced=5.0)));
-OSStatus
-SSLSetMaxDatagramRecordSize (SSLContextRef dtlsContext,
-                             size_t maxSize)
- __attribute__((availability(ios,introduced=5.0)));
-
-
-
-
-
-OSStatus
-SSLGetMaxDatagramRecordSize (SSLContextRef dtlsContext,
-                             size_t *maxSize)
- __attribute__((availability(ios,introduced=5.0)));
-
-
-
-
-
-
-
-OSStatus
-SSLGetNegotiatedProtocolVersion (SSLContextRef context,
-          SSLProtocol *protocol)
- __attribute__((availability(ios,introduced=5.0)));
-
-
-
-
-
-
-
-OSStatus
-SSLGetNumberSupportedCiphers (SSLContextRef context,
-         size_t *numCiphers)
- __attribute__((availability(ios,introduced=5.0)));
-
-OSStatus
-SSLGetSupportedCiphers (SSLContextRef context,
-         SSLCipherSuite *ciphers,
-         size_t *numCiphers)
- __attribute__((availability(ios,introduced=5.0)));
-
-
-
-
-
-
-
-OSStatus
-SSLSetEnabledCiphers (SSLContextRef context,
-        const SSLCipherSuite *ciphers,
-        size_t numCiphers)
- __attribute__((availability(ios,introduced=5.0)));
-
-
-
-
-
-
-
-OSStatus
-SSLGetNumberEnabledCiphers (SSLContextRef context,
-        size_t *numCiphers)
- __attribute__((availability(ios,introduced=5.0)));
-
-OSStatus
-SSLGetEnabledCiphers (SSLContextRef context,
-        SSLCipherSuite *ciphers,
-        size_t *numCiphers)
- __attribute__((availability(ios,introduced=5.0)));
-
-
-
-
-
-OSStatus
-SSLSetSessionTicketsEnabled (SSLContextRef context,
-                                 Boolean enabled)
-    __attribute__((availability(ios,introduced=11.0)));
-OSStatus
-SSLCopyPeerTrust (SSLContextRef context,
-        SecTrustRef * _Nonnull __attribute__((cf_returns_retained)) trust)
- __attribute__((availability(ios,introduced=5.0)));
-OSStatus
-SSLSetPeerID (SSLContextRef context,
-        const void * _Nullable peerID,
-        size_t peerIDLen)
- __attribute__((availability(ios,introduced=5.0)));
-
-
-
-
-
-OSStatus
-SSLGetPeerID (SSLContextRef context,
-        const void * _Nullable * _Nonnull peerID,
-        size_t *peerIDLen)
- __attribute__((availability(ios,introduced=5.0)));
-
-
-
-
-
-OSStatus
-SSLGetNegotiatedCipher (SSLContextRef context,
-        SSLCipherSuite *cipherSuite)
- __attribute__((availability(ios,introduced=5.0)));
-OSStatus
-SSLSetALPNProtocols (SSLContextRef context,
-                             CFArrayRef protocols)
-    __attribute__((availability(ios,introduced=11.0)));
-OSStatus
-SSLCopyALPNProtocols (SSLContextRef context,
-                             CFArrayRef _Nullable * _Nonnull protocols)
-    __attribute__((availability(ios,introduced=11.0)));
-
-
-
-
-
-
-
-OSStatus
-SSLSetOCSPResponse (SSLContextRef context,
-                             CFDataRef _Nonnull response)
-__attribute__((availability(ios,introduced=11.0)));
-OSStatus
-SSLSetEncryptionCertificate (SSLContextRef context,
-        CFArrayRef certRefs)
- __attribute__((availability(ios,introduced=5.0,deprecated=9.0)));
-
-
-
-
-
-
-
-typedef int SSLAuthenticate; enum {
- kNeverAuthenticate,
- kAlwaysAuthenticate,
- kTryAuthenticate
-
-};
-
-OSStatus
-SSLSetClientSideAuthenticate (SSLContextRef context,
-         SSLAuthenticate auth)
- __attribute__((availability(ios,introduced=5.0)));
-
-
-
-
-
-OSStatus
-SSLAddDistinguishedName (SSLContextRef context,
-        const void * _Nullable derDN,
-        size_t derDNLen)
- __attribute__((availability(ios,introduced=5.0)));
-OSStatus
-SSLCopyDistinguishedNames (SSLContextRef context,
-        CFArrayRef * _Nonnull __attribute__((cf_returns_retained)) names)
- __attribute__((availability(ios,introduced=5.0)));
-
-
-
-
-
-
-
-OSStatus
-SSLGetClientCertificateState (SSLContextRef context,
-         SSLClientCertificateState *clientState)
- __attribute__((availability(ios,introduced=5.0)));
-OSStatus
-SSLHandshake (SSLContextRef context)
- __attribute__((availability(ios,introduced=5.0)));
-
-
-
-
-
-
-
-OSStatus
-SSLReHandshake (SSLContextRef context)
-    __attribute__((availability(ios,introduced=10.0)));
-
-
-
-
-
-
-
-OSStatus
-SSLWrite (SSLContextRef context,
-        const void * _Nullable data,
-        size_t dataLength,
-        size_t *processed)
- __attribute__((availability(ios,introduced=5.0)));
-
-
-
-
-
-
-OSStatus
-SSLRead (SSLContextRef context,
-        void * data,
-        size_t dataLength,
-        size_t *processed)
- __attribute__((availability(ios,introduced=5.0)));
-
-
-
-
-
-
-OSStatus
-SSLGetBufferedReadSize (SSLContextRef context,
-        size_t *bufSize)
- __attribute__((availability(ios,introduced=5.0)));
-
-
-
-
-
-
-
-OSStatus
-SSLGetDatagramWriteSize (SSLContextRef dtlsContext,
-        size_t *bufSize)
- __attribute__((availability(ios,introduced=5.0)));
-
-
-
-
-OSStatus
-SSLClose (SSLContextRef context)
- __attribute__((availability(ios,introduced=5.0)));
-
-
-
-
-
-OSStatus
-SSLSetError (SSLContextRef context,
-                             OSStatus status)
-    __attribute__((availability(ios,introduced=11.0)));
-#pragma clang assume_nonnull end
-
-
-
-
-}
-
-
-
 // @protocol OS_sec_trust <NSObject> /* @end */
  typedef NSObject/*<OS_sec_trust>*/ * __attribute__((objc_independent_class)) sec_trust_t;
 // @protocol OS_sec_identity <NSObject> /* @end */
  typedef NSObject/*<OS_sec_identity>*/ * __attribute__((objc_independent_class)) sec_identity_t;
 // @protocol OS_sec_certificate <NSObject> /* @end */
  typedef NSObject/*<OS_sec_certificate>*/ * __attribute__((objc_independent_class)) sec_certificate_t;
+typedef uint16_t tls_protocol_version_t; enum {
+    tls_protocol_version_TLSv10 __attribute__((swift_name("TLSv10"))) = 0x0301,
+    tls_protocol_version_TLSv11 __attribute__((swift_name("TLSv11"))) = 0x0302,
+    tls_protocol_version_TLSv12 __attribute__((swift_name("TLSv12"))) = 0x0303,
+    tls_protocol_version_TLSv13 __attribute__((swift_name("TLSv13"))) = 0x0304,
+    tls_protocol_version_DTLSv10 __attribute__((swift_name("DTLSv10"))) = 0xfeff,
+    tls_protocol_version_DTLSv12 __attribute__((swift_name("DTLSv12"))) = 0xfefd,
+};
+typedef uint16_t tls_ciphersuite_t; enum {
+    tls_ciphersuite_RSA_WITH_3DES_EDE_CBC_SHA __attribute__((swift_name("RSA_WITH_3DES_EDE_CBC_SHA"))) = 0x000A,
+    tls_ciphersuite_RSA_WITH_AES_128_CBC_SHA __attribute__((swift_name("RSA_WITH_AES_128_CBC_SHA"))) = 0x002F,
+    tls_ciphersuite_RSA_WITH_AES_256_CBC_SHA __attribute__((swift_name("RSA_WITH_AES_256_CBC_SHA"))) = 0x0035,
+    tls_ciphersuite_RSA_WITH_AES_128_GCM_SHA256 __attribute__((swift_name("RSA_WITH_AES_128_GCM_SHA256"))) = 0x009C,
+    tls_ciphersuite_RSA_WITH_AES_256_GCM_SHA384 __attribute__((swift_name("RSA_WITH_AES_256_GCM_SHA384"))) = 0x009D,
+    tls_ciphersuite_RSA_WITH_AES_128_CBC_SHA256 __attribute__((swift_name("RSA_WITH_AES_128_CBC_SHA256"))) = 0x003C,
+    tls_ciphersuite_RSA_WITH_AES_256_CBC_SHA256 __attribute__((swift_name("RSA_WITH_AES_256_CBC_SHA256"))) = 0x003D,
+    tls_ciphersuite_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA __attribute__((swift_name("ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA"))) = 0xC008,
+    tls_ciphersuite_ECDHE_ECDSA_WITH_AES_128_CBC_SHA __attribute__((swift_name("ECDHE_ECDSA_WITH_AES_128_CBC_SHA"))) = 0xC009,
+    tls_ciphersuite_ECDHE_ECDSA_WITH_AES_256_CBC_SHA __attribute__((swift_name("ECDHE_ECDSA_WITH_AES_256_CBC_SHA"))) = 0xC00A,
+    tls_ciphersuite_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA __attribute__((swift_name("ECDHE_RSA_WITH_3DES_EDE_CBC_SHA"))) = 0xC012,
+    tls_ciphersuite_ECDHE_RSA_WITH_AES_128_CBC_SHA __attribute__((swift_name("ECDHE_RSA_WITH_AES_128_CBC_SHA"))) = 0xC013,
+    tls_ciphersuite_ECDHE_RSA_WITH_AES_256_CBC_SHA __attribute__((swift_name("ECDHE_RSA_WITH_AES_256_CBC_SHA"))) = 0xC014,
+    tls_ciphersuite_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256 __attribute__((swift_name("ECDHE_ECDSA_WITH_AES_128_CBC_SHA256"))) = 0xC023,
+    tls_ciphersuite_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384 __attribute__((swift_name("ECDHE_ECDSA_WITH_AES_256_CBC_SHA384"))) = 0xC024,
+    tls_ciphersuite_ECDHE_RSA_WITH_AES_128_CBC_SHA256 __attribute__((swift_name("ECDHE_RSA_WITH_AES_128_CBC_SHA256"))) = 0xC027,
+    tls_ciphersuite_ECDHE_RSA_WITH_AES_256_CBC_SHA384 __attribute__((swift_name("ECDHE_RSA_WITH_AES_256_CBC_SHA384"))) = 0xC028,
+    tls_ciphersuite_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 __attribute__((swift_name("ECDHE_ECDSA_WITH_AES_128_GCM_SHA256"))) = 0xC02B,
+    tls_ciphersuite_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 __attribute__((swift_name("ECDHE_ECDSA_WITH_AES_256_GCM_SHA384"))) = 0xC02C,
+    tls_ciphersuite_ECDHE_RSA_WITH_AES_128_GCM_SHA256 __attribute__((swift_name("ECDHE_RSA_WITH_AES_128_GCM_SHA256"))) = 0xC02F,
+    tls_ciphersuite_ECDHE_RSA_WITH_AES_256_GCM_SHA384 __attribute__((swift_name("ECDHE_RSA_WITH_AES_256_GCM_SHA384"))) = 0xC030,
+    tls_ciphersuite_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256 __attribute__((swift_name("ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256"))) = 0xCCA8,
+    tls_ciphersuite_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256 __attribute__((swift_name("ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256"))) = 0xCCA9,
+    tls_ciphersuite_AES_128_GCM_SHA256 __attribute__((swift_name("AES_128_GCM_SHA256"))) = 0x1301,
+    tls_ciphersuite_AES_256_GCM_SHA384 __attribute__((swift_name("AES_256_GCM_SHA384"))) = 0x1302,
+    tls_ciphersuite_CHACHA20_POLY1305_SHA256 __attribute__((swift_name("CHACHA20_POLY1305_SHA256"))) = 0x1303,
+};
+typedef uint16_t tls_ciphersuite_group_t; enum {
+    tls_ciphersuite_group_default,
+    tls_ciphersuite_group_compatibility,
+    tls_ciphersuite_group_legacy,
+    tls_ciphersuite_group_ats,
+    tls_ciphersuite_group_ats_compatibility,
+};
 
+
+
+
+
+
+
+typedef int SSLProtocol; enum {
+    kSSLProtocolUnknown __attribute__((availability(ios,introduced=5_0,deprecated=13_0,message="" ))) = 0,
+    kTLSProtocol1 __attribute__((availability(ios,introduced=5_0,deprecated=13_0,message="" ))) = 4,
+    kTLSProtocol11 __attribute__((availability(ios,introduced=5_0,deprecated=13_0,message="" ))) = 7,
+    kTLSProtocol12 __attribute__((availability(ios,introduced=5_0,deprecated=13_0,message="" ))) = 8,
+    kDTLSProtocol1 __attribute__((availability(ios,introduced=5_0,deprecated=13_0,message="" ))) = 9,
+    kTLSProtocol13 __attribute__((availability(ios,introduced=5_0,deprecated=13_0,message="" ))) = 10,
+    kDTLSProtocol12 __attribute__((availability(ios,introduced=5_0,deprecated=13_0,message="" ))) = 11,
+    kTLSProtocolMaxSupported __attribute__((availability(ios,introduced=5_0,deprecated=13_0,message="" ))) = 999,
+    kSSLProtocol2 __attribute__((availability(ios,introduced=5_0,deprecated=13_0,message="" ))) = 1,
+    kSSLProtocol3 __attribute__((availability(ios,introduced=5_0,deprecated=13_0,message="" ))) = 2,
+    kSSLProtocol3Only __attribute__((availability(ios,introduced=5_0,deprecated=13_0,message="" ))) = 3,
+    kTLSProtocol1Only __attribute__((availability(ios,introduced=5_0,deprecated=13_0,message="" ))) = 5,
+    kSSLProtocolAll __attribute__((availability(ios,introduced=5_0,deprecated=13_0,message="" ))) = 6,
+};
+
+extern "C" {
 
 #pragma clang assume_nonnull begin
 __attribute__((availability(macos,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0))) __attribute__((availability(tvos,introduced=12.0)))
 __attribute__((__ns_returns_retained__)) _Nullable sec_trust_t
-sec_trust_create(SecTrustRef _Nonnull trust);
+sec_trust_create(SecTrustRef trust);
 __attribute__((availability(macos,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0))) __attribute__((availability(tvos,introduced=12.0)))
 SecTrustRef
-sec_trust_copy_ref(sec_trust_t _Nonnull trust);
+sec_trust_copy_ref(sec_trust_t trust);
 __attribute__((availability(macos,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0))) __attribute__((availability(tvos,introduced=12.0)))
 __attribute__((__ns_returns_retained__)) _Nullable sec_identity_t
-sec_identity_create(SecIdentityRef _Nonnull identity);
+sec_identity_create(SecIdentityRef identity);
 __attribute__((availability(macos,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0))) __attribute__((availability(tvos,introduced=12.0)))
 __attribute__((__ns_returns_retained__)) _Nullable sec_identity_t
-sec_identity_create_with_certificates(SecIdentityRef _Nonnull identity, CFArrayRef _Nonnull certificates);
+sec_identity_create_with_certificates(SecIdentityRef identity, CFArrayRef certificates);
+__attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)))
+bool
+sec_identity_access_certificates(sec_identity_t identity,
+                                 void (^handler)(sec_certificate_t certificate));
 __attribute__((availability(macos,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0))) __attribute__((availability(tvos,introduced=12.0)))
-SecIdentityRef
-sec_identity_copy_ref(sec_identity_t _Nonnull identity);
+_Nullable SecIdentityRef
+sec_identity_copy_ref(sec_identity_t identity);
 __attribute__((availability(macos,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0))) __attribute__((availability(tvos,introduced=12.0)))
-CFArrayRef
-sec_identity_copy_certificates_ref(sec_identity_t _Nonnull identity);
+_Nullable CFArrayRef
+sec_identity_copy_certificates_ref(sec_identity_t identity);
 __attribute__((availability(macos,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0))) __attribute__((availability(tvos,introduced=12.0)))
 __attribute__((__ns_returns_retained__)) _Nullable sec_certificate_t
-sec_certificate_create(SecCertificateRef _Nonnull certificate);
+sec_certificate_create(SecCertificateRef certificate);
 __attribute__((availability(macos,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0))) __attribute__((availability(tvos,introduced=12.0)))
 SecCertificateRef
-sec_certificate_copy_ref(sec_certificate_t _Nonnull certificate);
+sec_certificate_copy_ref(sec_certificate_t certificate);
 #pragma clang assume_nonnull end
+
+
+}
 // @protocol OS_sec_protocol_metadata <NSObject> /* @end */
  typedef NSObject/*<OS_sec_protocol_metadata>*/ * __attribute__((objc_independent_class)) sec_protocol_metadata_t;
 
@@ -25203,10 +25549,19 @@ sec_protocol_metadata_get_negotiated_protocol(sec_protocol_metadata_t metadata);
 __attribute__((availability(macos,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0))) __attribute__((availability(tvos,introduced=12.0)))
 __attribute__((__ns_returns_retained__)) _Nullable dispatch_data_t
 sec_protocol_metadata_copy_peer_public_key(sec_protocol_metadata_t metadata);
-__attribute__((availability(macos,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0))) __attribute__((availability(tvos,introduced=12.0)))
+__attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)))
+tls_protocol_version_t
+sec_protocol_metadata_get_negotiated_tls_protocol_version(sec_protocol_metadata_t metadata);
+__attribute__((availability(macos,introduced=10.14,deprecated=10.15,replacement="sec_protocol_metadata_get_negotiated_tls_protocol_version"))) __attribute__((availability(ios,introduced=12.0,deprecated=13.0,replacement="sec_protocol_metadata_get_negotiated_tls_protocol_version"))) __attribute__((availability(watchos,introduced=5.0,deprecated=6.0,replacement="sec_protocol_metadata_get_negotiated_tls_protocol_version"))) __attribute__((availability(tvos,introduced=12.0,deprecated=13.0,replacement="sec_protocol_metadata_get_negotiated_tls_protocol_version")))
+
 SSLProtocol
 sec_protocol_metadata_get_negotiated_protocol_version(sec_protocol_metadata_t metadata);
 __attribute__((availability(macos,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0))) __attribute__((availability(tvos,introduced=12.0)))
+tls_ciphersuite_t
+sec_protocol_metadata_get_negotiated_tls_ciphersuite(sec_protocol_metadata_t metadata);
+__attribute__((availability(macos,introduced=10.14,deprecated=10.15,replacement="sec_protocol_metadata_get_negotiated_tls_ciphersuite"))) __attribute__((availability(ios,introduced=12.0,deprecated=13.0,replacement="sec_protocol_metadata_get_negotiated_tls_ciphersuite"))) __attribute__((availability(watchos,introduced=5.0,deprecated=6.0,replacement="sec_protocol_metadata_get_negotiated_tls_ciphersuite"))) __attribute__((availability(tvos,introduced=12.0,deprecated=13.0,replacement="sec_protocol_metadata_get_negotiated_tls_ciphersuite")))
+
+__attribute__((availability(macCatalyst,unavailable)))
 SSLCipherSuite
 sec_protocol_metadata_get_negotiated_ciphersuite(sec_protocol_metadata_t metadata);
 __attribute__((availability(macos,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0))) __attribute__((availability(tvos,introduced=12.0)))
@@ -25228,6 +25583,12 @@ __attribute__((availability(macos,introduced=10.14))) __attribute__((availabilit
 bool
 sec_protocol_metadata_access_distinguished_names(sec_protocol_metadata_t metadata,
                                                  void (^handler)(dispatch_data_t distinguished_name));
+__attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)))
+bool
+sec_protocol_metadata_access_pre_shared_keys(sec_protocol_metadata_t metadata, void (^handler)(dispatch_data_t psk, dispatch_data_t psk_identity));
+__attribute__((availability(macos,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0))) __attribute__((availability(tvos,introduced=12.0)))
+const char * _Nullable
+sec_protocol_metadata_get_server_name(sec_protocol_metadata_t metadata);
 __attribute__((availability(macos,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0))) __attribute__((availability(tvos,introduced=12.0)))
 bool
 sec_protocol_metadata_peers_are_equal(sec_protocol_metadata_t metadataA, sec_protocol_metadata_t metadataB);
@@ -25254,33 +25615,74 @@ sec_protocol_metadata_create_secret_with_context(sec_protocol_metadata_t metadat
 extern "C" {
 
 #pragma clang assume_nonnull begin
+__attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)))
+bool
+sec_protocol_options_are_equal(sec_protocol_options_t optionsA, sec_protocol_options_t optionsB);
 __attribute__((availability(macos,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0))) __attribute__((availability(tvos,introduced=12.0)))
 void
 sec_protocol_options_set_local_identity(sec_protocol_options_t options, sec_identity_t identity);
-__attribute__((availability(macos,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0))) __attribute__((availability(tvos,introduced=12.0)))
+__attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)))
+void
+sec_protocol_options_append_tls_ciphersuite(sec_protocol_options_t options, tls_ciphersuite_t ciphersuite);
+__attribute__((availability(macos,introduced=10.14,deprecated=10.15,message="Use sec_protocol_options_append_tls_ciphersuite"))) __attribute__((availability(ios,introduced=12.0,deprecated=13.0,message="Use sec_protocol_options_append_tls_ciphersuite"))) __attribute__((availability(watchos,introduced=5.0,deprecated=6.0,message="Use sec_protocol_options_append_tls_ciphersuite"))) __attribute__((availability(tvos,introduced=12.0,deprecated=13.0,message="Use sec_protocol_options_append_tls_ciphersuite")))
+__attribute__((availability(macCatalyst,unavailable)))
 void
 sec_protocol_options_add_tls_ciphersuite(sec_protocol_options_t options, SSLCipherSuite ciphersuite);
-__attribute__((availability(macos,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0))) __attribute__((availability(tvos,introduced=12.0)))
+__attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)))
+void
+sec_protocol_options_append_tls_ciphersuite_group(sec_protocol_options_t options, tls_ciphersuite_group_t group);
+__attribute__((availability(macos,introduced=10.14,deprecated=10.15,message="Use sec_protocol_options_append_tls_ciphersuite_group"))) __attribute__((availability(ios,introduced=12.0,deprecated=13.0,message="Use sec_protocol_options_append_tls_ciphersuite_group"))) __attribute__((availability(watchos,introduced=5.0,deprecated=6.0,message="Use sec_protocol_options_append_tls_ciphersuite_group"))) __attribute__((availability(tvos,introduced=12.0,deprecated=13.0,message="Use sec_protocol_options_append_tls_ciphersuite_group")))
+__attribute__((availability(macCatalyst,unavailable)))
 void
 sec_protocol_options_add_tls_ciphersuite_group(sec_protocol_options_t options, SSLCiphersuiteGroup group);
-__attribute__((availability(macos,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0))) __attribute__((availability(tvos,introduced=12.0)))
+__attribute__((availability(macos,introduced=10.14,deprecated=10.15,replacement="sec_protocol_options_set_min_tls_protocol_version"))) __attribute__((availability(ios,introduced=12.0,deprecated=13.0,replacement="sec_protocol_options_set_min_tls_protocol_version"))) __attribute__((availability(watchos,introduced=5.0,deprecated=6.0,replacement="sec_protocol_options_set_min_tls_protocol_version"))) __attribute__((availability(tvos,introduced=12.0,deprecated=13.0,replacement="sec_protocol_options_set_min_tls_protocol_version")))
+
+__attribute__((availability(macCatalyst,unavailable)))
 void
 sec_protocol_options_set_tls_min_version(sec_protocol_options_t options, SSLProtocol version);
-__attribute__((availability(macos,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0))) __attribute__((availability(tvos,introduced=12.0)))
+__attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)))
+void
+sec_protocol_options_set_min_tls_protocol_version(sec_protocol_options_t options, tls_protocol_version_t version);
+__attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)))
+tls_protocol_version_t
+sec_protocol_options_get_default_min_tls_protocol_version(void);
+__attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)))
+tls_protocol_version_t
+sec_protocol_options_get_default_min_dtls_protocol_version(void);
+__attribute__((availability(macos,introduced=10.14,deprecated=10.15,replacement="sec_protocol_options_set_max_tls_protocol_version"))) __attribute__((availability(ios,introduced=12.0,deprecated=13.0,replacement="sec_protocol_options_set_max_tls_protocol_version"))) __attribute__((availability(watchos,introduced=5.0,deprecated=6.0,replacement="sec_protocol_options_set_max_tls_protocol_version"))) __attribute__((availability(tvos,introduced=12.0,deprecated=13.0,replacement="sec_protocol_options_set_max_tls_protocol_version")))
+
+__attribute__((availability(macCatalyst,unavailable)))
 void
 sec_protocol_options_set_tls_max_version(sec_protocol_options_t options, SSLProtocol version);
+__attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)))
+void
+sec_protocol_options_set_max_tls_protocol_version(sec_protocol_options_t options, tls_protocol_version_t version);
+__attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)))
+tls_protocol_version_t
+sec_protocol_options_get_default_max_tls_protocol_version(void);
+__attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)))
+tls_protocol_version_t
+sec_protocol_options_get_default_max_dtls_protocol_version(void);
 __attribute__((availability(macos,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0))) __attribute__((availability(tvos,introduced=12.0)))
 void
 sec_protocol_options_add_tls_application_protocol(sec_protocol_options_t options, const char *application_protocol);
 __attribute__((availability(macos,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0))) __attribute__((availability(tvos,introduced=12.0)))
 void
 sec_protocol_options_set_tls_server_name(sec_protocol_options_t options, const char *server_name);
-__attribute__((availability(macos,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0))) __attribute__((availability(tvos,introduced=12.0)))
+__attribute__((availability(macos,introduced=10.14,deprecated=10.15,message="DHE ciphersuites are no longer supported"))) __attribute__((availability(ios,introduced=12.0,deprecated=13.0,message="DHE ciphersuites are no longer supported"))) __attribute__((availability(watchos,introduced=5.0,deprecated=6.0,message="DHE ciphersuites are no longer supported"))) __attribute__((availability(tvos,introduced=12.0,deprecated=13.0,message="DHE ciphersuites are no longer supported")))
 void
 sec_protocol_options_set_tls_diffie_hellman_parameters(sec_protocol_options_t options, dispatch_data_t params);
 __attribute__((availability(macos,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0))) __attribute__((availability(tvos,introduced=12.0)))
 void
 sec_protocol_options_add_pre_shared_key(sec_protocol_options_t options, dispatch_data_t psk, dispatch_data_t psk_identity);
+__attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)))
+void
+sec_protocol_options_set_tls_pre_shared_key_identity_hint(sec_protocol_options_t options, dispatch_data_t psk_identity_hint);
+typedef void (*sec_protocol_pre_shared_key_selection_complete_t)(dispatch_data_t _Nullable psk_identity);
+typedef void (*sec_protocol_pre_shared_key_selection_t)(sec_protocol_metadata_t metadata, dispatch_data_t _Nullable psk_identity_hint, sec_protocol_pre_shared_key_selection_complete_t complete);
+__attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)))
+void
+sec_protocol_options_set_pre_shared_key_selection_block(sec_protocol_options_t options, sec_protocol_pre_shared_key_selection_t psk_selection_block, dispatch_queue_t psk_selection_queue);
 __attribute__((availability(macos,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0))) __attribute__((availability(tvos,introduced=12.0)))
 void
 sec_protocol_options_set_tls_tickets_enabled(sec_protocol_options_t options, bool tickets_enabled);
@@ -25307,7 +25709,7 @@ void
 sec_protocol_options_set_peer_authentication_required(sec_protocol_options_t options, bool peer_authentication_required);
 typedef void (*sec_protocol_key_update_complete_t)(void);
 typedef void (*sec_protocol_key_update_t)(sec_protocol_metadata_t metadata, sec_protocol_key_update_complete_t complete);
-typedef void (*sec_protocol_challenge_complete_t)(sec_identity_t identity);
+typedef void (*sec_protocol_challenge_complete_t)(sec_identity_t _Nullable identity);
 typedef void (*sec_protocol_challenge_t)(sec_protocol_metadata_t metadata, sec_protocol_challenge_complete_t complete);
 typedef void (*sec_protocol_verify_complete_t)(bool result);
 typedef void (*sec_protocol_verify_t)(sec_protocol_metadata_t metadata, sec_trust_t trust_ref, sec_protocol_verify_complete_t complete);
@@ -26218,10 +26620,6 @@ extern Boolean
 CFNetServiceRegister(CFNetServiceRef theService, CFStreamError * _Nullable error) __attribute__((availability(ios,introduced=NA,deprecated=NA,message="" )));
 extern Boolean
 CFNetServiceResolve(CFNetServiceRef theService, CFStreamError * _Nullable error) __attribute__((availability(ios,introduced=NA,deprecated=NA,message="" )));
-extern _Nullable CFStringRef
-CFNetServiceGetProtocolSpecificInformation(CFNetServiceRef theService) __attribute__((availability(ios,introduced=NA,deprecated=NA,message="" )));
-extern void
-CFNetServiceSetProtocolSpecificInformation(CFNetServiceRef theService, CFStringRef _Nullable theInfo) __attribute__((availability(ios,introduced=NA,deprecated=NA,message="" )));
 
 
 
@@ -26257,11 +26655,16 @@ extern const CFStringRef kCFStreamNetworkServiceTypeVoice __attribute__((availab
 extern const CFStringRef kCFStreamNetworkServiceTypeBackground __attribute__((availability(ios,introduced=5_0)));
 extern const CFStringRef kCFStreamNetworkServiceTypeResponsiveData __attribute__((availability(ios,introduced=6.0)));
 extern const CFStringRef kCFStreamNetworkServiceTypeCallSignaling __attribute__((availability(ios,introduced=10_0)));
+extern const CFStringRef kCFStreamNetworkServiceTypeAVStreaming __attribute__((availability(ios,introduced=6.0)));
+extern const CFStringRef kCFStreamNetworkServiceTypeResponsiveAV __attribute__((availability(ios,introduced=6.0)));
 
 
 extern const CFStringRef kCFStreamNetworkServiceTypeVoIP __attribute__((availability(ios,introduced=4_0,deprecated=9_0,message="" "use PushKit for VoIP control purposes")));
 extern const CFStringRef kCFStreamPropertyNoCellular __attribute__((availability(ios,introduced=5_0)));
 extern const CFStringRef kCFStreamPropertyConnectionIsCellular __attribute__((availability(ios,introduced=6_0)));
+extern const CFStringRef kCFStreamPropertyAllowExpensiveNetworkAccess __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+extern const CFStringRef kCFStreamPropertyConnectionIsExpensive __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+extern const CFStringRef kCFStreamPropertyAllowConstrainedNetworkAccess __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
 extern const CFIndex kCFStreamErrorDomainWinSock __attribute__((availability(ios,introduced=2_0)));
 
 static __inline__ __attribute__((always_inline))
@@ -26513,8 +26916,6 @@ extern CFReadStreamRef
 CFReadStreamCreateForHTTPRequest(CFAllocatorRef _Nullable alloc, CFHTTPMessageRef request) __attribute__((availability(ios,introduced=2_0,deprecated=9_0,message="" "Use NSURLSession API for http requests")));
 extern CFReadStreamRef
 CFReadStreamCreateForStreamedHTTPRequest(CFAllocatorRef _Nullable alloc, CFHTTPMessageRef requestHeaders, CFReadStreamRef requestBody) __attribute__((availability(ios,introduced=2_0,deprecated=9_0,message="" "Use NSURLSession API for http requests")));
-extern void
-CFHTTPReadStreamSetRedirectsAutomatically(CFReadStreamRef httpStream, Boolean shouldAutoRedirect) __attribute__((availability(ios,introduced=NA,deprecated=NA,message="" )));
 #pragma clang assume_nonnull end
 
 
@@ -26839,6 +27240,25 @@ enum
 
 
 
+extern "C" NSErrorUserInfoKey const NSURLErrorNetworkUnavailableReasonKey __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
+
+
+
+
+
+
+typedef NSInteger NSURLErrorNetworkUnavailableReason; enum
+{
+    NSURLErrorNetworkUnavailableReasonCellular = 0,
+    NSURLErrorNetworkUnavailableReasonExpensive = 1,
+    NSURLErrorNetworkUnavailableReasonConstrained = 2,
+} __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
+
+
+
+
 enum
 {
     NSURLErrorUnknown = -1,
@@ -27117,11 +27537,13 @@ typedef NSUInteger NSURLRequestCachePolicy; enum
 typedef NSUInteger NSURLRequestNetworkServiceType; enum
 {
     NSURLNetworkServiceTypeDefault = 0,
-    NSURLNetworkServiceTypeVoIP = 1,
+    NSURLNetworkServiceTypeVoIP __attribute__((availability(macos,introduced=10.7,deprecated=10.15,message="Use PushKit for VoIP control purposes"))) __attribute__((availability(ios,introduced=4.0,deprecated=13.0,message="Use PushKit for VoIP control purposes"))) __attribute__((availability(watchos,introduced=2.0,deprecated=6.0,message="Use PushKit for VoIP control purposes"))) __attribute__((availability(tvos,introduced=9.0,deprecated=13.0,message="Use PushKit for VoIP control purposes"))) = 1,
     NSURLNetworkServiceTypeVideo = 2,
     NSURLNetworkServiceTypeBackground = 3,
     NSURLNetworkServiceTypeVoice = 4,
     NSURLNetworkServiceTypeResponsiveData = 6,
+    NSURLNetworkServiceTypeAVStreaming __attribute__((availability(macosx,introduced=10.9))) __attribute__((availability(ios,introduced=7.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) = 8 ,
+    NSURLNetworkServiceTypeResponsiveAV __attribute__((availability(macosx,introduced=10.9))) __attribute__((availability(ios,introduced=7.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) = 9,
     NSURLNetworkServiceTypeCallSignaling __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(watchos,introduced=3.0))) __attribute__((availability(tvos,introduced=10.0))) = 11,
 };
 
@@ -27178,6 +27600,22 @@ struct NSURLRequest_IMPL {
 
 // @property (readonly) BOOL allowsCellularAccess __attribute__((availability(macos,introduced=10.8))) __attribute__((availability(ios,introduced=6.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
+
+
+
+
+
+
+// @property (readonly) BOOL allowsExpensiveNetworkAccess __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
+
+
+
+
+
+
+// @property (readonly) BOOL allowsConstrainedNetworkAccess __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
 /* @end */
 
 
@@ -27218,6 +27656,22 @@ struct NSMutableURLRequest_IMPL {
 
 
 // @property BOOL allowsCellularAccess __attribute__((availability(macos,introduced=10.8))) __attribute__((availability(ios,introduced=6.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
+
+
+
+
+
+
+
+// @property BOOL allowsExpensiveNetworkAccess __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
+
+
+
+
+
+
+// @property BOOL allowsConstrainedNetworkAccess __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
 
 /* @end */
 
@@ -27367,6 +27821,7 @@ struct NSHTTPURLResponse_IMPL {
 
 // @property (readonly) NSInteger statusCode;
 // @property (readonly, copy) NSDictionary *allHeaderFields;
+// - (nullable NSString *)valueForHTTPHeaderField:(NSString *)field __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
 // + (NSString *)localizedStringForStatusCode:(NSInteger)statusCode;
 
 /* @end */
@@ -27620,7 +28075,7 @@ extern "C" NSValueTransformerName const NSUnarchiveFromDataTransformerName __att
 extern "C" NSValueTransformerName const NSKeyedUnarchiveFromDataTransformerName __attribute__((availability(macos,introduced=10.3,deprecated=10.14,replacement="NSSecureUnarchiveFromDataTransformerName"))) __attribute__((availability(ios,introduced=3.0,deprecated=12.0,replacement="NSSecureUnarchiveFromDataTransformerName"))) __attribute__((availability(watchos,introduced=2.0,deprecated=5.0,replacement="NSSecureUnarchiveFromDataTransformerName"))) __attribute__((availability(tvos,introduced=9.0,deprecated=12.0,replacement="NSSecureUnarchiveFromDataTransformerName")));
 extern "C" NSValueTransformerName const NSSecureUnarchiveFromDataTransformerName __attribute__((availability(macos,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0))) __attribute__((availability(tvos,introduced=12.0)));
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=3_0)))
+__attribute__((availability(macos,introduced=10.3))) __attribute__((availability(ios,introduced=3.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSValueTransformer
 #define _REWRITER_typedef_NSValueTransformer
@@ -28116,12 +28571,6 @@ int audit_session_port(au_asid_t asid, mach_port_name_t *portname);
 
 
 }
-
-
-
-
-
-
 // @class NSMutableDictionary;
 #ifndef _REWRITER_typedef_NSMutableDictionary
 #define _REWRITER_typedef_NSMutableDictionary
@@ -28214,7 +28663,7 @@ typedef NSUInteger NSXPCConnectionOptions; enum {
 } __attribute__((availability(macos,introduced=10.8))) __attribute__((availability(ios,introduced=6.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=6_0)))
+__attribute__((availability(macos,introduced=10.8))) __attribute__((availability(ios,introduced=6.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSXPCConnection
 #define _REWRITER_typedef_NSXPCConnection
@@ -28236,7 +28685,6 @@ struct NSXPCConnection_IMPL {
 	id _importInfo;
 	id _otherInfo;
 	id _reserved1;
-	id _lock;
 	NSXPCInterface *_remoteObjectInterface;
 	NSString *_serviceName;
 	NSXPCListenerEndpoint *_endpoint;
@@ -28297,12 +28745,18 @@ struct NSXPCConnection_IMPL {
 // @property (readonly) uid_t effectiveUserIdentifier;
 // @property (readonly) gid_t effectiveGroupIdentifier;
 
+
+// + (nullable NSXPCConnection *)currentConnection __attribute__((availability(macos,introduced=10.8))) __attribute__((availability(ios,introduced=6.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
+
+
+// - (void)scheduleSendBarrierBlock:(void (^)(void))block __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
 /* @end */
 
 
 
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=6_0)))
+__attribute__((availability(macos,introduced=10.8))) __attribute__((availability(ios,introduced=6.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSXPCListener
 #define _REWRITER_typedef_NSXPCListener
@@ -28333,7 +28787,7 @@ struct NSXPCListener_IMPL {
 // - (instancetype)initWithMachServiceName:(NSString *)name __attribute__((objc_designated_initializer)) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
 
 
-// @property (nullable, assign) id <NSXPCListenerDelegate> delegate;
+// @property (nullable, weak) id <NSXPCListenerDelegate> delegate;
 
 
 // @property (readonly, retain) NSXPCListenerEndpoint *endpoint;
@@ -28361,7 +28815,7 @@ struct NSXPCListener_IMPL {
 
 
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=6_0)))
+__attribute__((availability(macos,introduced=10.8))) __attribute__((availability(ios,introduced=6.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSXPCInterface
 #define _REWRITER_typedef_NSXPCInterface
@@ -28392,13 +28846,18 @@ struct NSXPCInterface_IMPL {
 // - (void)setInterface:(NSXPCInterface *)ifc forSelector:(SEL)sel argumentIndex:(NSUInteger)arg ofReply:(BOOL)ofReply;
 // - (nullable NSXPCInterface *)interfaceForSelector:(SEL)sel argumentIndex:(NSUInteger)arg ofReply:(BOOL)ofReply;
 
+
+
+
+
+
 /* @end */
 
 
 
 
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=6_0)))
+__attribute__((availability(macos,introduced=10.8))) __attribute__((availability(ios,introduced=6.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSXPCListenerEndpoint
 #define _REWRITER_typedef_NSXPCListenerEndpoint
@@ -28410,6 +28869,31 @@ struct NSXPCListenerEndpoint_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
 	void *_internal;
 };
+
+/* @end */
+
+
+
+
+
+__attribute__((availability(macos,introduced=10.8))) __attribute__((availability(ios,introduced=6.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
+
+#ifndef _REWRITER_typedef_NSXPCCoder
+#define _REWRITER_typedef_NSXPCCoder
+typedef struct objc_object NSXPCCoder;
+typedef struct {} _objc_exc_NSXPCCoder;
+#endif
+
+struct NSXPCCoder_IMPL {
+	struct NSCoder_IMPL NSCoder_IVARS;
+	id _userInfo;
+	id _reserved1;
+};
+
+// @property (nullable, retain) id <NSObject> userInfo;
+
+
+// @property (nullable, readonly, strong) NSXPCConnection *connection __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(watchos,introduced=3.0))) __attribute__((availability(tvos,introduced=10.0)));
 
 /* @end */
 
@@ -28439,8 +28923,8 @@ enum {
     NSFileWriteVolumeReadOnlyError __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) = 642,
 
 
-    NSFileManagerUnmountUnknownError __attribute__((availability(ios,introduced=NA))) = 768,
-    NSFileManagerUnmountBusyError __attribute__((availability(ios,introduced=NA))) = 769,
+    NSFileManagerUnmountUnknownError __attribute__((availability(macos,introduced=10.11))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) = 768,
+    NSFileManagerUnmountBusyError __attribute__((availability(macos,introduced=10.11))) __attribute__((availability(ios,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) = 769,
 
 
     NSKeyValueValidationError = 1024,
@@ -28508,9 +28992,9 @@ enum {
     NSBundleErrorMinimum __attribute__((availability(macos,introduced=10.11))) __attribute__((availability(ios,introduced=9.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) = 4992,
     NSBundleErrorMaximum __attribute__((availability(macos,introduced=10.11))) __attribute__((availability(ios,introduced=9.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) = 5119,
 
-    NSBundleOnDemandResourceOutOfSpaceError __attribute__((availability(ios,introduced=9_0))) = 4992,
-    NSBundleOnDemandResourceExceededMaximumSizeError __attribute__((availability(ios,introduced=9_0))) = 4993,
-    NSBundleOnDemandResourceInvalidTagError __attribute__((availability(ios,introduced=9_0))) = 4994,
+    NSBundleOnDemandResourceOutOfSpaceError __attribute__((availability(ios,introduced=9.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(macos,unavailable))) = 4992,
+    NSBundleOnDemandResourceExceededMaximumSizeError __attribute__((availability(ios,introduced=9.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(macos,unavailable))) = 4993,
+    NSBundleOnDemandResourceInvalidTagError __attribute__((availability(ios,introduced=9.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(macos,unavailable))) = 4994,
 
     NSCloudSharingNetworkFailureError __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) = 5120,
     NSCloudSharingQuotaExceededError __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) = 5121,
@@ -28522,7 +29006,14 @@ enum {
     NSCloudSharingErrorMinimum __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) = 5120,
     NSCloudSharingErrorMaximum __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) = 5375,
 
+    NSCompressionFailedError __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0))) = 5376,
+    NSDecompressionFailedError __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0))) = 5377,
+
+    NSCompressionErrorMinimum __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0))) = 5376,
+    NSCompressionErrorMaximum __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0))) = 5503,
+
 };
+
 
 
 
@@ -28563,7 +29054,7 @@ typedef NSInteger NSByteCountFormatterCountStyle; enum {
 };
 
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=6_0)))
+__attribute__((availability(macos,introduced=10.8))) __attribute__((availability(ios,introduced=6.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSByteCountFormatter
 #define _REWRITER_typedef_NSByteCountFormatter
@@ -28593,6 +29084,26 @@ struct NSByteCountFormatter_IMPL {
 
 
 // - (NSString *)stringFromByteCount:(long long)byteCount;
+
+
+
+
+
+// + (NSString *)stringFromMeasurement:(NSMeasurement<NSUnitInformationStorage *> *)measurement countStyle:(NSByteCountFormatterCountStyle)countStyle __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(tvos,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0)));
+
+
+
+
+
+
+// - (NSString *)stringFromMeasurement:(NSMeasurement<NSUnitInformationStorage *> *)measurement __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(tvos,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0)));
+
+
+
+
+
+
+// - (nullable NSString *)stringForObjectValue:(nullable id)obj;
 
 
 
@@ -28647,7 +29158,7 @@ typedef struct {} _objc_exc_NSString;
 
 #pragma clang assume_nonnull begin
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=4_0)))
+__attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSCache
 #define _REWRITER_typedef_NSCache
@@ -28709,7 +29220,7 @@ typedef struct {} _objc_exc_NSString;
 
 
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=3_0)))
+__attribute__((availability(macos,introduced=10.4))) __attribute__((availability(ios,introduced=3.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSPredicate
 #define _REWRITER_typedef_NSPredicate
@@ -28841,7 +29352,7 @@ typedef struct {} _objc_exc_NSExpression;
 
 
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=3_0)))
+__attribute__((availability(macos,introduced=10.4))) __attribute__((availability(ios,introduced=3.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSComparisonPredicate
 #define _REWRITER_typedef_NSComparisonPredicate
@@ -28899,7 +29410,7 @@ typedef NSUInteger NSCompoundPredicateType; enum {
     NSOrPredicateType,
 };
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=3_0)))
+__attribute__((availability(macos,introduced=10.4))) __attribute__((availability(ios,introduced=3.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSCompoundPredicate
 #define _REWRITER_typedef_NSCompoundPredicate
@@ -28964,7 +29475,7 @@ typedef NSUInteger NSDateComponentsFormatterZeroFormattingBehavior; enum {
 
 
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=8_0)))
+__attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSDateComponentsFormatter
 #define _REWRITER_typedef_NSDateComponentsFormatter
@@ -29121,7 +29632,7 @@ typedef NSUInteger NSExpressionType; enum {
 
 };
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=3_0)))
+__attribute__((availability(macos,introduced=10.4))) __attribute__((availability(ios,introduced=3.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSExpression
 #define _REWRITER_typedef_NSExpression
@@ -29194,7 +29705,7 @@ struct NSExpression_IMPL {
 #pragma clang assume_nonnull end
 #pragma clang assume_nonnull begin
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=8_0)))
+__attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSExtensionContext
 #define _REWRITER_typedef_NSExtensionContext
@@ -29239,7 +29750,7 @@ extern "C" NSString * _Null_unspecified const NSExtensionHostDidBecomeActiveNoti
 #pragma clang assume_nonnull end
 #pragma clang assume_nonnull begin
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=8_0)))
+__attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSExtensionItem
 #define _REWRITER_typedef_NSExtensionItem
@@ -29386,7 +29897,7 @@ typedef NSUInteger NSFileCoordinatorWritingOptions; enum {
 };
 
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=8_0)))
+__attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSFileAccessIntent
 #define _REWRITER_typedef_NSFileAccessIntent
@@ -29408,7 +29919,7 @@ struct NSFileAccessIntent_IMPL {
 
 
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=5_0)))
+__attribute__((availability(macos,introduced=10.7))) __attribute__((availability(ios,introduced=5.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSFileCoordinator
 #define _REWRITER_typedef_NSFileCoordinator
@@ -29675,7 +30186,7 @@ typedef NSUInteger NSFileVersionReplacingOptions; enum {
 
 
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=5_0)))
+__attribute__((availability(macos,introduced=10.7))) __attribute__((availability(ios,introduced=5.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSFileVersion
 #define _REWRITER_typedef_NSFileVersion
@@ -29751,7 +30262,7 @@ struct NSFileVersion_IMPL {
 
 
 
-// @property (nullable, readonly, copy) NSPersonNameComponents *originatorNameComponents __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(watchos,unavailable)));
+// @property (nullable, readonly, copy) NSPersonNameComponents *originatorNameComponents __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
 
 
 
@@ -29870,7 +30381,7 @@ typedef NSUInteger NSFileWrapperWritingOptions; enum {
 
 } __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=4_0)))
+__attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,introduced=4.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSFileWrapper
 #define _REWRITER_typedef_NSFileWrapper
@@ -30100,7 +30611,7 @@ typedef NSUInteger NSLinguisticTaggerOptions; enum {
 };
 
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=5_0)))
+__attribute__((availability(macos,introduced=10.7))) __attribute__((availability(ios,introduced=5.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSLinguisticTagger
 #define _REWRITER_typedef_NSLinguisticTagger
@@ -30243,21 +30754,21 @@ extern "C" NSString * const NSMetadataUbiquitousItemIsExternalDocumentKey __attr
 extern "C" NSString * const NSMetadataUbiquitousItemContainerDisplayNameKey __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 extern "C" NSString * const NSMetadataUbiquitousItemURLInLocalContainerKey __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
-extern "C" NSString * const NSMetadataUbiquitousItemIsSharedKey __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(watchos,unavailable)));
-extern "C" NSString * const NSMetadataUbiquitousSharedItemCurrentUserRoleKey __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(watchos,unavailable)));
-extern "C" NSString * const NSMetadataUbiquitousSharedItemCurrentUserPermissionsKey __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(watchos,unavailable)));
-extern "C" NSString * const NSMetadataUbiquitousSharedItemOwnerNameComponentsKey __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(watchos,unavailable)));
-extern "C" NSString * const NSMetadataUbiquitousSharedItemMostRecentEditorNameComponentsKey __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(watchos,unavailable)));
+extern "C" NSString * const NSMetadataUbiquitousItemIsSharedKey __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+extern "C" NSString * const NSMetadataUbiquitousSharedItemCurrentUserRoleKey __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+extern "C" NSString * const NSMetadataUbiquitousSharedItemCurrentUserPermissionsKey __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+extern "C" NSString * const NSMetadataUbiquitousSharedItemOwnerNameComponentsKey __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+extern "C" NSString * const NSMetadataUbiquitousSharedItemMostRecentEditorNameComponentsKey __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
 
 
 
-extern "C" NSString * const NSMetadataUbiquitousSharedItemRoleOwner __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(watchos,unavailable)));
-extern "C" NSString * const NSMetadataUbiquitousSharedItemRoleParticipant __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(watchos,unavailable)));
+extern "C" NSString * const NSMetadataUbiquitousSharedItemRoleOwner __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+extern "C" NSString * const NSMetadataUbiquitousSharedItemRoleParticipant __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
 
 
 
-extern "C" NSString * const NSMetadataUbiquitousSharedItemPermissionsReadOnly __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(watchos,unavailable)));
-extern "C" NSString * const NSMetadataUbiquitousSharedItemPermissionsReadWrite __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(watchos,unavailable)));
+extern "C" NSString * const NSMetadataUbiquitousSharedItemPermissionsReadOnly __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
+extern "C" NSString * const NSMetadataUbiquitousSharedItemPermissionsReadWrite __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
 
 
 
@@ -30495,7 +31006,7 @@ typedef struct {} _objc_exc_NSMetadataQueryResultGroup;
 
 #pragma clang assume_nonnull begin
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=5_0)))
+__attribute__((availability(macos,introduced=10.4))) __attribute__((availability(ios,introduced=5.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSMetadataQuery
 #define _REWRITER_typedef_NSMetadataQuery
@@ -30599,7 +31110,7 @@ extern "C" NSString * const NSMetadataQueryUbiquitousDataScope __attribute__((av
 extern "C" NSString * const NSMetadataQueryAccessibleUbiquitousExternalDocumentsScope __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=5_0)))
+__attribute__((availability(macos,introduced=10.4))) __attribute__((availability(ios,introduced=5.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSMetadataItem
 #define _REWRITER_typedef_NSMetadataItem
@@ -30624,7 +31135,7 @@ struct NSMetadataItem_IMPL {
 /* @end */
 
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=5_0)))
+__attribute__((availability(macos,introduced=10.4))) __attribute__((availability(ios,introduced=5.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSMetadataQueryAttributeValueTuple
 #define _REWRITER_typedef_NSMetadataQueryAttributeValueTuple
@@ -30648,7 +31159,7 @@ struct NSMetadataQueryAttributeValueTuple_IMPL {
 /* @end */
 
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=5_0)))
+__attribute__((availability(macos,introduced=10.4))) __attribute__((availability(ios,introduced=5.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSMetadataQueryResultGroup
 #define _REWRITER_typedef_NSMetadataQueryResultGroup
@@ -31074,7 +31585,7 @@ typedef struct {} _objc_exc_NSString;
 
 #pragma clang assume_nonnull begin
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=5_0))) __attribute__((availability(watchos,unavailable)))
+__attribute__((availability(macos,introduced=10.7))) __attribute__((availability(ios,introduced=5.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,unavailable)))
 
 #ifndef _REWRITER_typedef_NSUbiquitousKeyValueStore
 #define _REWRITER_typedef_NSUbiquitousKeyValueStore
@@ -31153,7 +31664,7 @@ typedef struct {} _objc_exc_NSString;
 
 static const NSUInteger NSUndoCloseGroupingRunLoopOrdering = 350000;
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=3_0)))
+__attribute__((availability(macos,introduced=10.0))) __attribute__((availability(ios,introduced=3.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSUndoManager
 #define _REWRITER_typedef_NSUndoManager
@@ -31301,6 +31812,414 @@ extern "C" NSNotificationName const NSUndoManagerWillCloseUndoGroupNotification 
 
 extern "C" NSNotificationName const NSUndoManagerDidCloseUndoGroupNotification __attribute__((availability(macos,introduced=10.7))) __attribute__((availability(ios,introduced=5.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 #pragma clang assume_nonnull end
+extern "C" {
+
+
+#pragma clang assume_nonnull begin
+struct SSLContext;
+typedef struct __attribute__((objc_bridge(id))) SSLContext *SSLContextRef;
+
+
+typedef const void *SSLConnectionRef;
+
+
+typedef int SSLSessionOption; enum {
+
+
+
+
+
+
+
+ kSSLSessionOptionBreakOnServerAuth __attribute__((availability(ios,introduced=2_0,deprecated=13_0,message="" ))) = 0,
+
+
+
+
+ kSSLSessionOptionBreakOnCertRequested __attribute__((availability(ios,introduced=2_0,deprecated=13_0,message="" ))) = 1,
+
+
+
+
+
+
+    kSSLSessionOptionBreakOnClientAuth __attribute__((availability(ios,introduced=2_0,deprecated=13_0,message="" ))) = 2,
+
+
+
+
+
+    kSSLSessionOptionFalseStart __attribute__((availability(ios,introduced=2_0,deprecated=13_0,message="" ))) = 3,
+
+
+
+
+
+    kSSLSessionOptionSendOneByteRecord __attribute__((availability(ios,introduced=2_0,deprecated=13_0,message="" ))) = 4,
+
+
+
+
+    kSSLSessionOptionAllowServerIdentityChange __attribute__((availability(ios,introduced=2_0,deprecated=13_0,message="" ))) = 5,
+
+
+
+
+    kSSLSessionOptionFallback __attribute__((availability(ios,introduced=2_0,deprecated=13_0,message="" ))) = 6,
+
+
+
+    kSSLSessionOptionBreakOnClientHello __attribute__((availability(ios,introduced=2_0,deprecated=13_0,message="" ))) = 7,
+
+
+
+    kSSLSessionOptionAllowRenegotiation __attribute__((availability(ios,introduced=2_0,deprecated=13_0,message="" ))) = 8,
+
+
+
+    kSSLSessionOptionEnableSessionTickets __attribute__((availability(ios,introduced=2_0,deprecated=13_0,message="" ))) = 9,
+};
+
+
+typedef int SSLSessionState; enum {
+ kSSLIdle __attribute__((availability(ios,introduced=2_0,deprecated=13_0,message="" ))),
+ kSSLHandshake __attribute__((availability(ios,introduced=2_0,deprecated=13_0,message="" ))),
+ kSSLConnected __attribute__((availability(ios,introduced=2_0,deprecated=13_0,message="" ))),
+ kSSLClosed __attribute__((availability(ios,introduced=2_0,deprecated=13_0,message="" ))),
+ kSSLAborted __attribute__((availability(ios,introduced=2_0,deprecated=13_0,message="" )))
+};
+
+
+
+
+
+typedef int SSLClientCertificateState; enum {
+
+ kSSLClientCertNone __attribute__((availability(ios,introduced=2_0,deprecated=13_0,message="" ))),
+
+ kSSLClientCertRequested __attribute__((availability(ios,introduced=2_0,deprecated=13_0,message="" ))),
+
+
+
+
+
+
+ kSSLClientCertSent __attribute__((availability(ios,introduced=2_0,deprecated=13_0,message="" ))),
+
+
+
+
+ kSSLClientCertRejected __attribute__((availability(ios,introduced=2_0,deprecated=13_0,message="" )))
+};
+typedef OSStatus
+(*SSLReadFunc) (SSLConnectionRef connection,
+        void *data,
+
+
+        size_t *dataLength);
+typedef OSStatus
+(*SSLWriteFunc) (SSLConnectionRef connection,
+        const void *data,
+        size_t *dataLength);
+typedef int SSLProtocolSide; enum
+{
+    kSSLServerSide __attribute__((availability(ios,introduced=2_0,deprecated=13_0,message="" ))),
+    kSSLClientSide __attribute__((availability(ios,introduced=2_0,deprecated=13_0,message="" )))
+};
+
+typedef int SSLConnectionType; enum
+{
+    kSSLStreamType __attribute__((availability(ios,introduced=2_0,deprecated=13_0,message="" ))),
+    kSSLDatagramType __attribute__((availability(ios,introduced=2_0,deprecated=13_0,message="" )))
+};
+
+
+
+
+
+
+extern const CFStringRef kSSLSessionConfig_default
+__attribute__((availability(macos,introduced=10.2,deprecated=10.13,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=11.0,message="No longer supported. Use Network.framework.")));
+
+
+extern const CFStringRef kSSLSessionConfig_ATSv1
+__attribute__((availability(macos,introduced=10.2,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+
+
+extern const CFStringRef kSSLSessionConfig_ATSv1_noPFS
+__attribute__((availability(macos,introduced=10.2,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+
+
+extern const CFStringRef kSSLSessionConfig_standard
+__attribute__((availability(macos,introduced=10.2,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+
+
+extern const CFStringRef kSSLSessionConfig_RC4_fallback
+__attribute__((availability(macos,introduced=10.2,deprecated=10.13,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=11.0,message="No longer supported. Use Network.framework.")));
+
+
+extern const CFStringRef kSSLSessionConfig_TLSv1_fallback
+__attribute__((availability(macos,introduced=10.2,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+
+
+extern const CFStringRef kSSLSessionConfig_TLSv1_RC4_fallback
+__attribute__((availability(macos,introduced=10.2,deprecated=10.13,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=11.0,message="No longer supported. Use Network.framework.")));
+
+
+extern const CFStringRef kSSLSessionConfig_legacy
+__attribute__((availability(macos,introduced=10.2,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+
+
+extern const CFStringRef kSSLSessionConfig_legacy_DHE
+__attribute__((availability(macos,introduced=10.2,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+
+
+extern const CFStringRef kSSLSessionConfig_anonymous
+__attribute__((availability(macos,introduced=10.2,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+
+
+extern const CFStringRef kSSLSessionConfig_3DES_fallback
+__attribute__((availability(macos,introduced=10.2,deprecated=10.13,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=11.0,message="No longer supported. Use Network.framework.")));
+
+
+extern const CFStringRef kSSLSessionConfig_TLSv1_3DES_fallback
+__attribute__((availability(macos,introduced=10.2,deprecated=10.13,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=11.0,message="No longer supported. Use Network.framework.")));
+CFTypeID
+SSLContextGetTypeID(void)
+    __attribute__((availability(macos,introduced=10.8,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+_Nullable
+SSLContextRef
+SSLCreateContext(CFAllocatorRef _Nullable alloc, SSLProtocolSide protocolSide, SSLConnectionType connectionType)
+ __attribute__((availability(macos,introduced=10.8,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLGetSessionState (SSLContextRef context,
+        SSLSessionState *state)
+ __attribute__((availability(macos,introduced=10.2,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLSetSessionOption (SSLContextRef context,
+        SSLSessionOption option,
+        Boolean value)
+    __attribute__((availability(macos,introduced=10.6,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLGetSessionOption (SSLContextRef context,
+        SSLSessionOption option,
+        Boolean *value)
+    __attribute__((availability(macos,introduced=10.6,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLSetIOFuncs (SSLContextRef context,
+        SSLReadFunc readFunc,
+        SSLWriteFunc writeFunc)
+ __attribute__((availability(macos,introduced=10.2,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLSetSessionConfig(SSLContextRef context,
+                    CFStringRef config)
+    __attribute__((availability(macos,introduced=10.12,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=10.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLSetProtocolVersionMin (SSLContextRef context,
+                           SSLProtocol minVersion)
+    __attribute__((availability(macos,introduced=10.8,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLGetProtocolVersionMin (SSLContextRef context,
+                           SSLProtocol *minVersion)
+    __attribute__((availability(macos,introduced=10.8,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLSetProtocolVersionMax (SSLContextRef context,
+                           SSLProtocol maxVersion)
+    __attribute__((availability(macos,introduced=10.8,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLGetProtocolVersionMax (SSLContextRef context,
+                           SSLProtocol *maxVersion)
+    __attribute__((availability(macos,introduced=10.8,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLSetCertificate (SSLContextRef context,
+        CFArrayRef _Nullable certRefs)
+    __attribute__((availability(macos,introduced=10.2,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLSetConnection (SSLContextRef context,
+        SSLConnectionRef _Nullable connection)
+ __attribute__((availability(macos,introduced=10.2,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLGetConnection (SSLContextRef context,
+        SSLConnectionRef * _Nonnull __attribute__((cf_returns_not_retained)) connection)
+ __attribute__((availability(macos,introduced=10.2,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLSetPeerDomainName (SSLContextRef context,
+        const char * _Nullable peerName,
+        size_t peerNameLen)
+ __attribute__((availability(macos,introduced=10.2,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLGetPeerDomainNameLength (SSLContextRef context,
+        size_t *peerNameLen)
+ __attribute__((availability(macos,introduced=10.2,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLGetPeerDomainName (SSLContextRef context,
+        char *peerName,
+        size_t *peerNameLen)
+ __attribute__((availability(macos,introduced=10.2,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLCopyRequestedPeerNameLength (SSLContextRef ctx,
+                                 size_t *peerNameLen)
+    __attribute__((availability(macos,introduced=10.11,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=9.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLCopyRequestedPeerName (SSLContextRef context,
+                             char *peerName,
+                             size_t *peerNameLen)
+    __attribute__((availability(macos,introduced=10.11,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=9.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLSetDatagramHelloCookie (SSLContextRef dtlsContext,
+                             const void * _Nullable cookie,
+                             size_t cookieLen)
+    __attribute__((availability(macos,introduced=10.8,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLSetMaxDatagramRecordSize (SSLContextRef dtlsContext,
+                             size_t maxSize)
+ __attribute__((availability(macos,introduced=10.8,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLGetMaxDatagramRecordSize (SSLContextRef dtlsContext,
+                             size_t *maxSize)
+ __attribute__((availability(macos,introduced=10.8,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLGetNegotiatedProtocolVersion (SSLContextRef context,
+          SSLProtocol *protocol)
+ __attribute__((availability(macos,introduced=10.2,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLGetNumberSupportedCiphers (SSLContextRef context,
+         size_t *numCiphers)
+ __attribute__((availability(macos,introduced=10.2,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLGetSupportedCiphers (SSLContextRef context,
+         SSLCipherSuite *ciphers,
+         size_t *numCiphers)
+ __attribute__((availability(macos,introduced=10.2,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLGetNumberEnabledCiphers (SSLContextRef context,
+                                size_t *numCiphers)
+__attribute__((availability(macos,introduced=10.2,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLSetEnabledCiphers (SSLContextRef context,
+        const SSLCipherSuite *ciphers,
+        size_t numCiphers)
+ __attribute__((availability(macos,introduced=10.2,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLGetEnabledCiphers (SSLContextRef context,
+        SSLCipherSuite *ciphers,
+        size_t *numCiphers)
+ __attribute__((availability(macos,introduced=10.2,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLSetSessionTicketsEnabled (SSLContextRef context,
+                                 Boolean enabled)
+    __attribute__((availability(macos,introduced=10.13,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=11.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLCopyPeerTrust (SSLContextRef context,
+        SecTrustRef * _Nonnull __attribute__((cf_returns_retained)) trust)
+    __attribute__((availability(macos,introduced=10.6,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLSetPeerID (SSLContextRef context,
+        const void * _Nullable peerID,
+        size_t peerIDLen)
+ __attribute__((availability(macos,introduced=10.2,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLGetPeerID (SSLContextRef context,
+        const void * _Nullable * _Nonnull peerID,
+        size_t *peerIDLen)
+ __attribute__((availability(macos,introduced=10.2,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLGetNegotiatedCipher (SSLContextRef context,
+        SSLCipherSuite *cipherSuite)
+ __attribute__((availability(macos,introduced=10.2,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLSetALPNProtocols (SSLContextRef context,
+                             CFArrayRef protocols)
+    __attribute__((availability(macos,introduced=10.13,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=11.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLCopyALPNProtocols (SSLContextRef context,
+                             CFArrayRef _Nullable * _Nonnull protocols)
+    __attribute__((availability(macos,introduced=10.13,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=11.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLSetOCSPResponse (SSLContextRef context,
+                             CFDataRef _Nonnull response)
+    __attribute__((availability(macos,introduced=10.13,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=11.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLSetEncryptionCertificate (SSLContextRef context,
+        CFArrayRef certRefs)
+    __attribute__((availability(macos,introduced=10.2,deprecated=10.11,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=9.0,message="No longer supported. Use Network.framework.")));
+
+
+
+
+
+
+typedef int SSLAuthenticate; enum {
+ kNeverAuthenticate,
+ kAlwaysAuthenticate,
+ kTryAuthenticate
+};
+OSStatus
+SSLSetClientSideAuthenticate (SSLContextRef context,
+         SSLAuthenticate auth)
+ __attribute__((availability(macos,introduced=10.2,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLAddDistinguishedName (SSLContextRef context,
+        const void * _Nullable derDN,
+        size_t derDNLen)
+    __attribute__((availability(macos,introduced=10.4,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLCopyDistinguishedNames (SSLContextRef context,
+        CFArrayRef * _Nonnull __attribute__((cf_returns_retained)) names)
+    __attribute__((availability(macos,introduced=10.5,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLGetClientCertificateState (SSLContextRef context,
+         SSLClientCertificateState *clientState)
+    __attribute__((availability(macos,introduced=10.3,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLHandshake (SSLContextRef context)
+    __attribute__((availability(macos,introduced=10.2,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLReHandshake (SSLContextRef context)
+    __attribute__((availability(macos,introduced=10.12,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=10.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLWrite (SSLContextRef context,
+        const void * _Nullable data,
+        size_t dataLength,
+        size_t *processed)
+    __attribute__((availability(macos,introduced=10.2,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLRead (SSLContextRef context,
+        void * data,
+        size_t dataLength,
+        size_t *processed)
+    __attribute__((availability(macos,introduced=10.2,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLGetBufferedReadSize (SSLContextRef context,
+        size_t *bufferSize)
+ __attribute__((availability(macos,introduced=10.2,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLGetDatagramWriteSize (SSLContextRef dtlsContext,
+        size_t *bufSize)
+    __attribute__((availability(macos,introduced=10.8,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+
+
+
+
+
+
+
+OSStatus
+SSLClose (SSLContextRef context)
+ __attribute__((availability(macos,introduced=10.2,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=5.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+OSStatus
+SSLSetError (SSLContextRef context,
+                             OSStatus status)
+    __attribute__((availability(macos,introduced=10.13,deprecated=10.15,message="No longer supported. Use Network.framework."))) __attribute__((availability(ios,introduced=11.0,deprecated=13.0,message="No longer supported. Use Network.framework.")));
+#pragma clang assume_nonnull end
+
+
+
+
+
+
+}
+
 // @class NSString;
 #ifndef _REWRITER_typedef_NSString
 #define _REWRITER_typedef_NSString
@@ -31491,6 +32410,14 @@ typedef struct objc_object NSURLSessionStreamTask;
 typedef struct {} _objc_exc_NSURLSessionStreamTask;
 #endif
 
+// @class NSURLSessionWebSocketTask;
+#ifndef _REWRITER_typedef_NSURLSessionWebSocketTask
+#define _REWRITER_typedef_NSURLSessionWebSocketTask
+typedef struct objc_object NSURLSessionWebSocketTask;
+typedef struct {} _objc_exc_NSURLSessionWebSocketTask;
+#endif
+
+
 // @class NSURLSessionConfiguration;
 #ifndef _REWRITER_typedef_NSURLSessionConfiguration
 #define _REWRITER_typedef_NSURLSessionConfiguration
@@ -31516,9 +32443,12 @@ typedef struct {} _objc_exc_NSDateInterval;
 
 
 #pragma clang assume_nonnull begin
-extern "C" const int64_t NSURLSessionTransferSizeUnknown __attribute__((availability(ios,introduced=7_0)));
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=7_0)))
+
+
+extern "C" const int64_t NSURLSessionTransferSizeUnknown __attribute__((availability(macos,introduced=10.9))) __attribute__((availability(ios,introduced=7.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
+
+__attribute__((availability(macos,introduced=10.9))) __attribute__((availability(ios,introduced=7.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSURLSession
 #define _REWRITER_typedef_NSURLSession
@@ -31595,12 +32525,32 @@ struct NSURLSession_IMPL {
 
 
 
-// - (NSURLSessionStreamTask *)streamTaskWithHostName:(NSString *)hostname port:(NSInteger)port __attribute__((availability(macos,introduced=10.11))) __attribute__((availability(ios,introduced=9.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,unavailable)));
+// - (NSURLSessionStreamTask *)streamTaskWithHostName:(NSString *)hostname port:(NSInteger)port __attribute__((availability(macos,introduced=10.11))) __attribute__((availability(ios,introduced=9.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
 
 
 
 // - (NSURLSessionStreamTask *)streamTaskWithNetService:(NSNetService *)service __attribute__((availability(macos,introduced=10.11))) __attribute__((availability(ios,introduced=9.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,unavailable)));
+
+
+
+// - (NSURLSessionWebSocketTask *)webSocketTaskWithURL:(NSURL *)url __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
+
+
+
+
+// - (NSURLSessionWebSocketTask *)webSocketTaskWithURL:(NSURL *)url protocols:(NSArray<NSString *>*)protocols __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
+
+
+
+
+// - (NSURLSessionWebSocketTask *)webSocketTaskWithRequest:(NSURLRequest *)request __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
+
+// - (instancetype)init __attribute__((availability(macos,introduced=10.9,deprecated=10.15,message="Please use +[NSURLSession sessionWithConfiguration:] or other class methods to create instances"))) __attribute__((availability(ios,introduced=7.0,deprecated=13.0,message="Please use +[NSURLSession sessionWithConfiguration:] or other class methods to create instances"))) __attribute__((availability(watchos,introduced=2.0,deprecated=6.0,message="Please use +[NSURLSession sessionWithConfiguration:] or other class methods to create instances"))) __attribute__((availability(tvos,introduced=9.0,deprecated=13.0,message="Please use +[NSURLSession sessionWithConfiguration:] or other class methods to create instances")));
+// + (instancetype)new __attribute__((availability(macos,introduced=10.9,deprecated=10.15,message="Please use +[NSURLSession sessionWithConfiguration:] or other class methods to create instances"))) __attribute__((availability(ios,introduced=7.0,deprecated=13.0,message="Please use +[NSURLSession sessionWithConfiguration:] or other class methods to create instances"))) __attribute__((availability(watchos,introduced=2.0,deprecated=6.0,message="Please use +[NSURLSession sessionWithConfiguration:] or other class methods to create instances"))) __attribute__((availability(tvos,introduced=9.0,deprecated=13.0,message="Please use +[NSURLSession sessionWithConfiguration:] or other class methods to create instances")));
 
 /* @end */
 
@@ -31632,13 +32582,13 @@ typedef NSInteger NSURLSessionTaskState; enum {
     NSURLSessionTaskStateSuspended = 1,
     NSURLSessionTaskStateCanceling = 2,
     NSURLSessionTaskStateCompleted = 3,
-} __attribute__((availability(ios,introduced=7_0)));
+} __attribute__((availability(macos,introduced=10.9))) __attribute__((availability(ios,introduced=7.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
 
 
 
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=7_0)))
+__attribute__((availability(macos,introduced=10.9))) __attribute__((availability(ios,introduced=7.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSURLSessionTask
 #define _REWRITER_typedef_NSURLSessionTask
@@ -31709,6 +32659,10 @@ struct NSURLSessionTask_IMPL {
 // - (void)resume;
 // @property float priority __attribute__((availability(macos,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
+
+// - (instancetype)init __attribute__((availability(macos,introduced=10.9,deprecated=10.15,message="Not supported"))) __attribute__((availability(ios,introduced=7.0,deprecated=13.0,message="Not supported"))) __attribute__((availability(watchos,introduced=2.0,deprecated=6.0,message="Not supported"))) __attribute__((availability(tvos,introduced=9.0,deprecated=13.0,message="Not supported")));
+// + (instancetype)new __attribute__((availability(macos,introduced=10.9,deprecated=10.15,message="Not supported"))) __attribute__((availability(ios,introduced=7.0,deprecated=13.0,message="Not supported"))) __attribute__((availability(watchos,introduced=2.0,deprecated=6.0,message="Not supported"))) __attribute__((availability(tvos,introduced=9.0,deprecated=13.0,message="Not supported")));
+
 /* @end */
 
 
@@ -31732,6 +32686,10 @@ struct NSURLSessionDataTask_IMPL {
 	struct NSURLSessionTask_IMPL NSURLSessionTask_IVARS;
 };
 
+
+// - (instancetype)init __attribute__((availability(macos,introduced=10.9,deprecated=10.15,message="Please use -[NSURLSession dataTaskWithRequest:] or other NSURLSession methods to create instances"))) __attribute__((availability(ios,introduced=7.0,deprecated=13.0,message="Please use -[NSURLSession dataTaskWithRequest:] or other NSURLSession methods to create instances"))) __attribute__((availability(watchos,introduced=2.0,deprecated=6.0,message="Please use -[NSURLSession dataTaskWithRequest:] or other NSURLSession methods to create instances"))) __attribute__((availability(tvos,introduced=9.0,deprecated=13.0,message="Please use -[NSURLSession dataTaskWithRequest:] or other NSURLSession methods to create instances")));
+// + (instancetype)new __attribute__((availability(macos,introduced=10.9,deprecated=10.15,message="Please use -[NSURLSession dataTaskWithRequest:] or other NSURLSession methods to create instances"))) __attribute__((availability(ios,introduced=7.0,deprecated=13.0,message="Please use -[NSURLSession dataTaskWithRequest:] or other NSURLSession methods to create instances"))) __attribute__((availability(watchos,introduced=2.0,deprecated=6.0,message="Please use -[NSURLSession dataTaskWithRequest:] or other NSURLSession methods to create instances"))) __attribute__((availability(tvos,introduced=9.0,deprecated=13.0,message="Please use -[NSURLSession dataTaskWithRequest:] or other NSURLSession methods to create instances")));
+
 /* @end */
 
 
@@ -31751,6 +32709,10 @@ typedef struct {} _objc_exc_NSURLSessionUploadTask;
 struct NSURLSessionUploadTask_IMPL {
 	struct NSURLSessionDataTask_IMPL NSURLSessionDataTask_IVARS;
 };
+
+
+// - (instancetype)init __attribute__((availability(macos,introduced=10.9,deprecated=10.15,message="Please use -[NSURLSession uploadTaskWithStreamedRequest:] or other NSURLSession methods to create instances"))) __attribute__((availability(ios,introduced=7.0,deprecated=13.0,message="Please use -[NSURLSession uploadTaskWithStreamedRequest:] or other NSURLSession methods to create instances"))) __attribute__((availability(watchos,introduced=2.0,deprecated=6.0,message="Please use -[NSURLSession uploadTaskWithStreamedRequest:] or other NSURLSession methods to create instances"))) __attribute__((availability(tvos,introduced=9.0,deprecated=13.0,message="Please use -[NSURLSession uploadTaskWithStreamedRequest:] or other NSURLSession methods to create instances")));
+// + (instancetype)new __attribute__((availability(macos,introduced=10.9,deprecated=10.15,message="Please use -[NSURLSession uploadTaskWithStreamedRequest:] or other NSURLSession methods to create instances"))) __attribute__((availability(ios,introduced=7.0,deprecated=13.0,message="Please use -[NSURLSession uploadTaskWithStreamedRequest:] or other NSURLSession methods to create instances"))) __attribute__((availability(watchos,introduced=2.0,deprecated=6.0,message="Please use -[NSURLSession uploadTaskWithStreamedRequest:] or other NSURLSession methods to create instances"))) __attribute__((availability(tvos,introduced=9.0,deprecated=13.0,message="Please use -[NSURLSession uploadTaskWithStreamedRequest:] or other NSURLSession methods to create instances")));
 
 /* @end */
 
@@ -31772,9 +32734,13 @@ struct NSURLSessionDownloadTask_IMPL {
 
 // - (void)cancelByProducingResumeData:(void (^)(NSData * _Nullable resumeData))completionHandler;
 
+
+// - (instancetype)init __attribute__((availability(macos,introduced=10.9,deprecated=10.15,message="Please use -[NSURLSession downloadTaskWithRequest:] or other NSURLSession methods to create instances"))) __attribute__((availability(ios,introduced=7.0,deprecated=13.0,message="Please use -[NSURLSession downloadTaskWithRequest:] or other NSURLSession methods to create instances"))) __attribute__((availability(watchos,introduced=2.0,deprecated=6.0,message="Please use -[NSURLSession downloadTaskWithRequest:] or other NSURLSession methods to create instances"))) __attribute__((availability(tvos,introduced=9.0,deprecated=13.0,message="Please use -[NSURLSession downloadTaskWithRequest:] or other NSURLSession methods to create instances")));
+// + (instancetype)new __attribute__((availability(macos,introduced=10.9,deprecated=10.15,message="Please use -[NSURLSession downloadTaskWithRequest:] or other NSURLSession methods to create instances"))) __attribute__((availability(ios,introduced=7.0,deprecated=13.0,message="Please use -[NSURLSession downloadTaskWithRequest:] or other NSURLSession methods to create instances"))) __attribute__((availability(watchos,introduced=2.0,deprecated=6.0,message="Please use -[NSURLSession downloadTaskWithRequest:] or other NSURLSession methods to create instances"))) __attribute__((availability(tvos,introduced=9.0,deprecated=13.0,message="Please use -[NSURLSession downloadTaskWithRequest:] or other NSURLSession methods to create instances")));
+
 /* @end */
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=9_0)))
+__attribute__((availability(macos,introduced=10.11))) __attribute__((availability(ios,introduced=9.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSURLSessionStreamTask
 #define _REWRITER_typedef_NSURLSessionStreamTask
@@ -31834,7 +32800,121 @@ struct NSURLSessionStreamTask_IMPL {
 
 
 
-// - (void)stopSecureConnection;
+
+
+// - (void)stopSecureConnection __attribute__((availability(macos,introduced=10.9,deprecated=10.15,message="TLS cannot be disabled once it is enabled"))) __attribute__((availability(ios,introduced=7.0,deprecated=13.0,message="TLS cannot be disabled once it is enabled"))) __attribute__((availability(watchos,introduced=2.0,deprecated=6.0,message="TLS cannot be disabled once it is enabled"))) __attribute__((availability(tvos,introduced=9.0,deprecated=13.0,message="TLS cannot be disabled once it is enabled")));
+
+
+// - (instancetype)init __attribute__((availability(macos,introduced=10.9,deprecated=10.15,message="Please use -[NSURLSession streamTaskWithHostName:port:] or other NSURLSession methods to create instances"))) __attribute__((availability(ios,introduced=7.0,deprecated=13.0,message="Please use -[NSURLSession streamTaskWithHostName:port:] or other NSURLSession methods to create instances"))) __attribute__((availability(watchos,introduced=2.0,deprecated=6.0,message="Please use -[NSURLSession streamTaskWithHostName:port:] or other NSURLSession methods to create instances"))) __attribute__((availability(tvos,introduced=9.0,deprecated=13.0,message="Please use -[NSURLSession streamTaskWithHostName:port:] or other NSURLSession methods to create instances")));
+// + (instancetype)new __attribute__((availability(macos,introduced=10.9,deprecated=10.15,message="Please use -[NSURLSession streamTaskWithHostName:port:] or other NSURLSession methods to create instances"))) __attribute__((availability(ios,introduced=7.0,deprecated=13.0,message="Please use -[NSURLSession streamTaskWithHostName:port:] or other NSURLSession methods to create instances"))) __attribute__((availability(watchos,introduced=2.0,deprecated=6.0,message="Please use -[NSURLSession streamTaskWithHostName:port:] or other NSURLSession methods to create instances"))) __attribute__((availability(tvos,introduced=9.0,deprecated=13.0,message="Please use -[NSURLSession streamTaskWithHostName:port:] or other NSURLSession methods to create instances")));
+
+/* @end */
+
+
+typedef NSInteger NSURLSessionWebSocketMessageType; enum {
+    NSURLSessionWebSocketMessageTypeData = 0,
+    NSURLSessionWebSocketMessageTypeString = 1,
+} __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
+
+
+
+
+__attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)))
+
+#ifndef _REWRITER_typedef_NSURLSessionWebSocketMessage
+#define _REWRITER_typedef_NSURLSessionWebSocketMessage
+typedef struct objc_object NSURLSessionWebSocketMessage;
+typedef struct {} _objc_exc_NSURLSessionWebSocketMessage;
+#endif
+
+struct NSURLSessionWebSocketMessage_IMPL {
+	struct NSObject_IMPL NSObject_IVARS;
+};
+
+
+
+
+// - (instancetype)initWithData:(NSData *)data __attribute__((objc_designated_initializer));
+
+
+
+// - (instancetype)initWithString:(NSString *)string __attribute__((objc_designated_initializer));
+
+// @property (readonly) NSURLSessionWebSocketMessageType type;
+// @property (nullable, readonly, copy) NSData *data;
+// @property (nullable, readonly, copy) NSString *string;
+
+
+// - (instancetype)init __attribute__((unavailable));
+// + (instancetype)new __attribute__((unavailable));
+
+/* @end */
+
+
+
+
+typedef NSInteger NSURLSessionWebSocketCloseCode; enum
+{
+    NSURLSessionWebSocketCloseCodeInvalid = 0,
+    NSURLSessionWebSocketCloseCodeNormalClosure = 1000,
+    NSURLSessionWebSocketCloseCodeGoingAway = 1001,
+    NSURLSessionWebSocketCloseCodeProtocolError = 1002,
+    NSURLSessionWebSocketCloseCodeUnsupportedData = 1003,
+    NSURLSessionWebSocketCloseCodeNoStatusReceived = 1005,
+    NSURLSessionWebSocketCloseCodeAbnormalClosure = 1006,
+    NSURLSessionWebSocketCloseCodeInvalidFramePayloadData = 1007,
+    NSURLSessionWebSocketCloseCodePolicyViolation = 1008,
+    NSURLSessionWebSocketCloseCodeMessageTooBig = 1009,
+    NSURLSessionWebSocketCloseCodeMandatoryExtensionMissing = 1010,
+    NSURLSessionWebSocketCloseCodeInternalServerError = 1011,
+    NSURLSessionWebSocketCloseCodeTLSHandshakeFailure = 1015,
+} __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+__attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)))
+
+#ifndef _REWRITER_typedef_NSURLSessionWebSocketTask
+#define _REWRITER_typedef_NSURLSessionWebSocketTask
+typedef struct objc_object NSURLSessionWebSocketTask;
+typedef struct {} _objc_exc_NSURLSessionWebSocketTask;
+#endif
+
+struct NSURLSessionWebSocketTask_IMPL {
+	struct NSURLSessionTask_IMPL NSURLSessionTask_IVARS;
+};
+
+
+
+
+
+
+
+// - (void)sendMessage:(NSURLSessionWebSocketMessage *)message completionHandler:(void (^)(NSError * _Nullable error))completionHandler;
+
+
+
+
+
+// - (void)receiveMessageWithCompletionHandler:(void (^)(NSURLSessionWebSocketMessage* _Nullable message, NSError * _Nullable error))completionHandler;
+
+
+
+
+
+
+// - (void)sendPingWithPongReceiveHandler:(void (^)(NSError* _Nullable error))pongReceiveHandler;
+
+
+
+
+// - (void)cancelWithCloseCode:(NSURLSessionWebSocketCloseCode)closeCode reason:(NSData * _Nullable)reason;
+
+// @property NSInteger maximumMessageSize;
+// @property (readonly) NSURLSessionWebSocketCloseCode closeCode;
+// @property (nullable, readonly, copy) NSData *closeReason;
+
+
+// - (instancetype)init __attribute__((unavailable));
+// + (instancetype)new __attribute__((unavailable));
 
 /* @end */
 
@@ -31845,7 +32925,7 @@ typedef NSInteger NSURLSessionMultipathServiceType; enum
     NSURLSessionMultipathServiceTypeInteractive = 2,
     NSURLSessionMultipathServiceTypeAggregate = 3
 } __attribute__((availability(ios,introduced=11.0))) __attribute__((availability(macos,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable))) __attribute__((swift_name("URLSessionConfiguration.MultipathServiceType")));
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=7_0)))
+__attribute__((availability(macos,introduced=10.9))) __attribute__((availability(ios,introduced=7.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSURLSessionConfiguration
 #define _REWRITER_typedef_NSURLSessionConfiguration
@@ -31880,6 +32960,12 @@ struct NSURLSessionConfiguration_IMPL {
 
 
 // @property BOOL allowsCellularAccess;
+
+
+// @property BOOL allowsExpensiveNetworkAccess __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
+
+// @property BOOL allowsConstrainedNetworkAccess __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
 // @property BOOL waitsForConnectivity __attribute__((availability(macos,introduced=10.13))) __attribute__((availability(ios,introduced=11.0))) __attribute__((availability(watchos,introduced=4.0))) __attribute__((availability(tvos,introduced=11.0)));
 
 
@@ -31902,10 +32988,16 @@ struct NSURLSessionConfiguration_IMPL {
 // @property (nullable, copy) NSDictionary *connectionProxyDictionary;
 
 
-// @property SSLProtocol TLSMinimumSupportedProtocol;
+// @property SSLProtocol TLSMinimumSupportedProtocol __attribute__((availability(macos,introduced=10.9,deprecated=100000,replacement="TLSMinimumSupportedProtocolVersion"))) __attribute__((availability(ios,introduced=7.0,deprecated=100000,replacement="TLSMinimumSupportedProtocolVersion"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,replacement="TLSMinimumSupportedProtocolVersion"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,replacement="TLSMinimumSupportedProtocolVersion")));
 
 
-// @property SSLProtocol TLSMaximumSupportedProtocol;
+// @property SSLProtocol TLSMaximumSupportedProtocol __attribute__((availability(macos,introduced=10.9,deprecated=100000,replacement="TLSMaximumSupportedProtocolVersion"))) __attribute__((availability(ios,introduced=7.0,deprecated=100000,replacement="TLSMaximumSupportedProtocolVersion"))) __attribute__((availability(watchos,introduced=2.0,deprecated=100000,replacement="TLSMaximumSupportedProtocolVersion"))) __attribute__((availability(tvos,introduced=9.0,deprecated=100000,replacement="TLSMaximumSupportedProtocolVersion")));
+
+
+// @property tls_protocol_version_t TLSMinimumSupportedProtocolVersion __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
+
+// @property tls_protocol_version_t TLSMaximumSupportedProtocolVersion __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
 
 
 // @property BOOL HTTPShouldUsePipelining;
@@ -31941,6 +33033,10 @@ struct NSURLSessionConfiguration_IMPL {
 
 // @property NSURLSessionMultipathServiceType multipathServiceType __attribute__((availability(ios,introduced=11.0))) __attribute__((availability(macos,unavailable))) __attribute__((availability(watchos,unavailable))) __attribute__((availability(tvos,unavailable)));
 
+
+// - (instancetype)init __attribute__((availability(macos,introduced=10.9,deprecated=10.15,message="Please use NSURLSessionConfiguration.defaultSessionConfiguration or other class methods to create instances"))) __attribute__((availability(ios,introduced=7.0,deprecated=13.0,message="Please use NSURLSessionConfiguration.defaultSessionConfiguration or other class methods to create instances"))) __attribute__((availability(watchos,introduced=2.0,deprecated=6.0,message="Please use NSURLSessionConfiguration.defaultSessionConfiguration or other class methods to create instances"))) __attribute__((availability(tvos,introduced=9.0,deprecated=13.0,message="Please use NSURLSessionConfiguration.defaultSessionConfiguration or other class methods to create instances")));
+// + (instancetype)new __attribute__((availability(macos,introduced=10.9,deprecated=10.15,message="Please use NSURLSessionConfiguration.defaultSessionConfiguration or other class methods to create instances"))) __attribute__((availability(ios,introduced=7.0,deprecated=13.0,message="Please use NSURLSessionConfiguration.defaultSessionConfiguration or other class methods to create instances"))) __attribute__((availability(watchos,introduced=2.0,deprecated=6.0,message="Please use NSURLSessionConfiguration.defaultSessionConfiguration or other class methods to create instances"))) __attribute__((availability(tvos,introduced=9.0,deprecated=13.0,message="Please use NSURLSessionConfiguration.defaultSessionConfiguration or other class methods to create instances")));
+
 /* @end */
 
 
@@ -31958,7 +33054,7 @@ typedef NSInteger NSURLSessionAuthChallengeDisposition; enum {
     NSURLSessionAuthChallengePerformDefaultHandling = 1,
     NSURLSessionAuthChallengeCancelAuthenticationChallenge = 2,
     NSURLSessionAuthChallengeRejectProtectionSpace = 3,
-} __attribute__((availability(ios,introduced=7_0)));
+} __attribute__((availability(macos,introduced=10.9))) __attribute__((availability(ios,introduced=7.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
 
 typedef NSInteger NSURLSessionResponseDisposition; enum {
@@ -31966,7 +33062,7 @@ typedef NSInteger NSURLSessionResponseDisposition; enum {
     NSURLSessionResponseAllow = 1,
     NSURLSessionResponseBecomeDownload = 2,
     NSURLSessionResponseBecomeStream __attribute__((availability(macos,introduced=10.11))) __attribute__((availability(ios,introduced=9.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) = 3,
-} __attribute__((availability(ios,introduced=7_0)));
+} __attribute__((availability(macos,introduced=10.9))) __attribute__((availability(ios,introduced=7.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 // @protocol NSURLSessionDelegate <NSObject>
 /* @optional */
 
@@ -32190,11 +33286,29 @@ typedef NSInteger NSURLSessionResponseDisposition; enum {
 /* @end */
 
 
+__attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)))
+// @protocol NSURLSessionWebSocketDelegate <NSURLSessionTaskDelegate>
+/* @optional */
 
-extern "C" NSString * const NSURLSessionDownloadTaskResumeData __attribute__((availability(ios,introduced=7_0)));
+
+
+
+// - (void)URLSession:(NSURLSession *)session webSocketTask:(NSURLSessionWebSocketTask *)webSocketTask didOpenWithProtocol:(NSString * _Nullable) protocol;
+
+
+
+
+
+// - (void)URLSession:(NSURLSession *)session webSocketTask:(NSURLSessionWebSocketTask *)webSocketTask didCloseWithCode:(NSURLSessionWebSocketCloseCode)closeCode reason:(NSData * _Nullable)reason;
+
+/* @end */
+
+
+
+extern "C" NSString * const NSURLSessionDownloadTaskResumeData __attribute__((availability(macos,introduced=10.9))) __attribute__((availability(ios,introduced=7.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
 
 // @interface NSURLSessionConfiguration (NSURLSessionDeprecated)
-// + (NSURLSessionConfiguration *)backgroundSessionConfiguration:(NSString *)identifier __attribute__((availability(ios,introduced=7_0,deprecated=8_0,message="" "Please use backgroundSessionConfigurationWithIdentifier: instead")));
+// + (NSURLSessionConfiguration *)backgroundSessionConfiguration:(NSString *)identifier __attribute__((availability(macos,introduced=10.9,deprecated=10.10,replacement="-backgroundSessionConfigurationWithIdentifier:"))) __attribute__((availability(ios,introduced=7.0,deprecated=8.0,replacement="-backgroundSessionConfigurationWithIdentifier:"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,replacement="-backgroundSessionConfigurationWithIdentifier:"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,replacement="-backgroundSessionConfigurationWithIdentifier:")));
 /* @end */
 
 
@@ -32308,8 +33422,66 @@ struct NSURLSessionTaskTransactionMetrics_IMPL {
 // @property (assign, readonly) NSURLSessionTaskMetricsResourceFetchType resourceFetchType;
 
 
-// -(instancetype)init;
 
+
+// @property (readonly) int64_t countOfRequestHeaderBytesSent __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
+
+
+
+
+// @property (readonly) int64_t countOfRequestBodyBytesSent __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
+
+
+
+// @property (readonly) int64_t countOfRequestBodyBytesBeforeEncoding __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
+
+
+
+// @property (readonly) int64_t countOfResponseHeaderBytesReceived __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
+
+
+
+
+// @property (readonly) int64_t countOfResponseBodyBytesReceived __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
+
+
+
+// @property (readonly) int64_t countOfResponseBodyBytesAfterDecoding __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+// @property (nullable, copy, readonly) NSString *localAddress __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+// @property (nullable, copy, readonly) NSNumber *localPort __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+// @property (nullable, copy, readonly) NSString *remoteAddress __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+// @property (nullable, copy, readonly) NSNumber *remotePort __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+// @property (nullable, copy, readonly) NSNumber *negotiatedTLSProtocolVersion __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+// @property (nullable, copy, readonly) NSNumber *negotiatedTLSCipherSuite __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
+
+
+
+// @property (readonly, getter=isCellular) BOOL cellular __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
+
+
+
+// @property (readonly, getter=isExpensive) BOOL expensive __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
+
+
+
+// @property (readonly, getter=isConstrained) BOOL constrained __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
+
+
+
+// @property (readonly, getter=isMultipath) BOOL multipath __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
+
+// - (instancetype)init __attribute__((availability(macos,introduced=10.12,deprecated=10.15,message="Not supported"))) __attribute__((availability(ios,introduced=10.0,deprecated=13.0,message="Not supported"))) __attribute__((availability(watchos,introduced=3.0,deprecated=6.0,message="Not supported"))) __attribute__((availability(tvos,introduced=10.0,deprecated=13.0,message="Not supported")));
+// + (instancetype)new __attribute__((availability(macos,introduced=10.12,deprecated=10.15,message="Not supported"))) __attribute__((availability(ios,introduced=10.0,deprecated=13.0,message="Not supported"))) __attribute__((availability(watchos,introduced=3.0,deprecated=6.0,message="Not supported"))) __attribute__((availability(tvos,introduced=10.0,deprecated=13.0,message="Not supported")));
 
 /* @end */
 
@@ -32345,7 +33517,9 @@ struct NSURLSessionTaskMetrics_IMPL {
 
 // @property (assign, readonly) NSUInteger redirectCount;
 
-// -(instancetype)init;
+
+// - (instancetype)init __attribute__((availability(macos,introduced=10.12,deprecated=10.15,message="Not supported"))) __attribute__((availability(ios,introduced=10.0,deprecated=13.0,message="Not supported"))) __attribute__((availability(watchos,introduced=3.0,deprecated=6.0,message="Not supported"))) __attribute__((availability(tvos,introduced=10.0,deprecated=13.0,message="Not supported")));
+// + (instancetype)new __attribute__((availability(macos,introduced=10.12,deprecated=10.15,message="Not supported"))) __attribute__((availability(ios,introduced=10.0,deprecated=13.0,message="Not supported"))) __attribute__((availability(watchos,introduced=3.0,deprecated=6.0,message="Not supported"))) __attribute__((availability(tvos,introduced=10.0,deprecated=13.0,message="Not supported")));
 
 /* @end */
 
@@ -32481,6 +33655,11 @@ struct NSUserActivity_IMPL {
 
 
 
+
+// @property (nullable, copy) NSString* targetContentIdentifier __attribute__((availability(macos,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0))) __attribute__((availability(tvos,introduced=13.0)));
+
+
+
 // - (void)becomeCurrent;
 
 
@@ -32505,10 +33684,10 @@ struct NSUserActivity_IMPL {
 
 // @property (getter=isEligibleForPrediction) BOOL eligibleForPrediction __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0))) __attribute__((availability(macos,unavailable))) __attribute__((availability(tvos,unavailable)));
 
-// @property (copy, nullable) NSUserActivityPersistentIdentifier persistentIdentifier __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0))) __attribute__((availability(macos,unavailable))) __attribute__((availability(tvos,unavailable)));
+// @property (copy, nullable) NSUserActivityPersistentIdentifier persistentIdentifier __attribute__((availability(macos,introduced=15.0))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0))) __attribute__((availability(tvos,unavailable)));
 
-// +(void) deleteSavedUserActivitiesWithPersistentIdentifiers:(NSArray<NSUserActivityPersistentIdentifier>*) persistentIdentifiers completionHandler:(void(^)(void))handler __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0))) __attribute__((availability(macos,unavailable))) __attribute__((availability(tvos,unavailable)));
-// +(void) deleteAllSavedUserActivitiesWithCompletionHandler:(void(^)(void))handler __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0))) __attribute__((availability(macos,unavailable))) __attribute__((availability(tvos,unavailable)));
+// +(void) deleteSavedUserActivitiesWithPersistentIdentifiers:(NSArray<NSUserActivityPersistentIdentifier>*) persistentIdentifiers completionHandler:(void(^)(void))handler __attribute__((availability(macos,introduced=15.0))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0))) __attribute__((availability(tvos,unavailable)));
+// +(void) deleteAllSavedUserActivitiesWithCompletionHandler:(void(^)(void))handler __attribute__((availability(macos,introduced=15.0))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0))) __attribute__((availability(tvos,unavailable)));
 
 /* @end */
 
@@ -32583,7 +33762,7 @@ void uuid_unparse_upper(const uuid_t uu, uuid_string_t out);
 
 #pragma clang assume_nonnull begin
 
-__attribute__((visibility("default"))) __attribute__((availability(ios,introduced=6_0)))
+__attribute__((availability(macos,introduced=10.8))) __attribute__((availability(ios,introduced=6.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)))
 
 #ifndef _REWRITER_typedef_NSUUID
 #define _REWRITER_typedef_NSUUID
@@ -32617,8 +33796,2497 @@ struct NSUUID_IMPL {
 /* @end */
 
 #pragma clang assume_nonnull end
-#pragma clang assume_nonnull begin
+struct vm_statistics {
+ natural_t free_count;
+ natural_t active_count;
+ natural_t inactive_count;
+ natural_t wire_count;
+ natural_t zero_fill_count;
+ natural_t reactivations;
+ natural_t pageins;
+ natural_t pageouts;
+ natural_t faults;
+ natural_t cow_faults;
+ natural_t lookups;
+ natural_t hits;
 
+
+ natural_t purgeable_count;
+ natural_t purges;
+ natural_t speculative_count;
+};
+
+
+typedef struct vm_statistics *vm_statistics_t;
+typedef struct vm_statistics vm_statistics_data_t;
+struct vm_statistics64 {
+ natural_t free_count;
+ natural_t active_count;
+ natural_t inactive_count;
+ natural_t wire_count;
+ uint64_t zero_fill_count;
+ uint64_t reactivations;
+ uint64_t pageins;
+ uint64_t pageouts;
+ uint64_t faults;
+ uint64_t cow_faults;
+ uint64_t lookups;
+ uint64_t hits;
+ uint64_t purges;
+ natural_t purgeable_count;
+
+
+
+
+
+
+ natural_t speculative_count;
+
+
+ uint64_t decompressions;
+ uint64_t compressions;
+ uint64_t swapins;
+ uint64_t swapouts;
+ natural_t compressor_page_count;
+ natural_t throttled_count;
+ natural_t external_page_count;
+ natural_t internal_page_count;
+ uint64_t total_uncompressed_pages_in_compressor;
+} __attribute__((aligned(8)));
+
+typedef struct vm_statistics64 *vm_statistics64_t;
+typedef struct vm_statistics64 vm_statistics64_data_t;
+struct vm_extmod_statistics {
+ int64_t task_for_pid_count;
+ int64_t task_for_pid_caller_count;
+ int64_t thread_creation_count;
+ int64_t thread_creation_caller_count;
+ int64_t thread_set_state_count;
+ int64_t thread_set_state_caller_count;
+} __attribute__((aligned(8)));
+
+typedef struct vm_extmod_statistics *vm_extmod_statistics_t;
+typedef struct vm_extmod_statistics vm_extmod_statistics_data_t;
+
+typedef struct vm_purgeable_stat {
+ uint64_t count;
+ uint64_t size;
+}vm_purgeable_stat_t;
+
+struct vm_purgeable_info {
+ vm_purgeable_stat_t fifo_data[8];
+ vm_purgeable_stat_t obsolete_data;
+ vm_purgeable_stat_t lifo_data[8];
+};
+
+typedef struct vm_purgeable_info *vm_purgeable_info_t;
+enum virtual_memory_guard_exception_codes {
+ kGUARD_EXC_DEALLOC_GAP = 1u << 0
+};
+typedef integer_t cpu_type_t;
+typedef integer_t cpu_subtype_t;
+typedef integer_t cpu_threadtype_t;
+
+
+
+
+
+
+
+
+typedef integer_t *host_info_t;
+typedef integer_t *host_info64_t;
+
+
+typedef integer_t host_info_data_t[(1024)];
+
+
+typedef char kernel_version_t[(512)];
+
+
+typedef char kernel_boot_info_t[(4096)];
+
+
+
+
+
+typedef integer_t host_flavor_t;
+struct host_can_has_debugger_info {
+ boolean_t can_has_debugger;
+};
+typedef struct host_can_has_debugger_info host_can_has_debugger_info_data_t;
+typedef struct host_can_has_debugger_info *host_can_has_debugger_info_t;
+
+
+
+#pragma pack(push, 4)
+
+struct host_basic_info {
+ integer_t max_cpus;
+ integer_t avail_cpus;
+ natural_t memory_size;
+ cpu_type_t cpu_type;
+ cpu_subtype_t cpu_subtype;
+ cpu_threadtype_t cpu_threadtype;
+ integer_t physical_cpu;
+ integer_t physical_cpu_max;
+ integer_t logical_cpu;
+ integer_t logical_cpu_max;
+ uint64_t max_mem;
+};
+
+#pragma pack(pop)
+
+typedef struct host_basic_info host_basic_info_data_t;
+typedef struct host_basic_info *host_basic_info_t;
+
+
+
+struct host_sched_info {
+ integer_t min_timeout;
+ integer_t min_quantum;
+};
+
+typedef struct host_sched_info host_sched_info_data_t;
+typedef struct host_sched_info *host_sched_info_t;
+
+
+
+struct kernel_resource_sizes {
+ natural_t task;
+ natural_t thread;
+ natural_t port;
+ natural_t memory_region;
+ natural_t memory_object;
+};
+
+typedef struct kernel_resource_sizes kernel_resource_sizes_data_t;
+typedef struct kernel_resource_sizes *kernel_resource_sizes_t;
+
+
+
+struct host_priority_info {
+ integer_t kernel_priority;
+ integer_t system_priority;
+ integer_t server_priority;
+ integer_t user_priority;
+ integer_t depress_priority;
+ integer_t idle_priority;
+ integer_t minimum_priority;
+ integer_t maximum_priority;
+};
+
+typedef struct host_priority_info host_priority_info_data_t;
+typedef struct host_priority_info *host_priority_info_t;
+struct host_load_info {
+ integer_t avenrun[3];
+ integer_t mach_factor[3];
+};
+
+typedef struct host_load_info host_load_info_data_t;
+typedef struct host_load_info *host_load_info_t;
+
+
+
+typedef struct vm_purgeable_info host_purgable_info_data_t;
+typedef struct vm_purgeable_info *host_purgable_info_t;
+struct host_cpu_load_info {
+ natural_t cpu_ticks[4];
+};
+
+typedef struct host_cpu_load_info host_cpu_load_info_data_t;
+typedef struct host_cpu_load_info *host_cpu_load_info_t;
+
+
+
+struct host_preferred_user_arch {
+ cpu_type_t cpu_type;
+ cpu_subtype_t cpu_subtype;
+};
+
+typedef struct host_preferred_user_arch host_preferred_user_arch_data_t;
+typedef struct host_preferred_user_arch *host_preferred_user_arch_t;
+
+
+typedef int vm_prot_t;
+typedef unsigned vm_sync_t;
+typedef vm_offset_t pointer_t;
+typedef vm_offset_t vm_address_t;
+
+
+
+
+
+
+
+typedef uint64_t addr64_t;
+typedef uint32_t reg64_t;
+
+
+
+
+
+
+typedef uint32_t ppnum_t;
+
+
+
+
+typedef mach_port_t vm_map_t;
+typedef uint64_t vm_object_offset_t;
+typedef uint64_t vm_object_size_t;
+
+
+
+
+typedef mach_port_t upl_t;
+typedef mach_port_t vm_named_entry_t;
+
+
+
+
+
+
+typedef unsigned long long memory_object_offset_t;
+typedef unsigned long long memory_object_size_t;
+typedef natural_t memory_object_cluster_size_t;
+typedef natural_t * memory_object_fault_info_t;
+
+typedef unsigned long long vm_object_id_t;
+
+
+
+
+
+
+
+typedef mach_port_t memory_object_t;
+typedef mach_port_t memory_object_control_t;
+
+
+typedef memory_object_t *memory_object_array_t;
+
+
+
+
+typedef mach_port_t memory_object_name_t;
+
+
+
+typedef mach_port_t memory_object_default_t;
+typedef int memory_object_copy_strategy_t;
+typedef int memory_object_return_t;
+typedef int *memory_object_info_t;
+typedef int memory_object_flavor_t;
+typedef int memory_object_info_data_t[(1024)];
+
+
+
+
+
+
+
+struct memory_object_perf_info {
+ memory_object_cluster_size_t cluster_size;
+ boolean_t may_cache;
+};
+
+struct memory_object_attr_info {
+ memory_object_copy_strategy_t copy_strategy;
+ memory_object_cluster_size_t cluster_size;
+ boolean_t may_cache_object;
+ boolean_t temporary;
+};
+
+struct memory_object_behave_info {
+ memory_object_copy_strategy_t copy_strategy;
+ boolean_t temporary;
+ boolean_t invalidate;
+ boolean_t silent_overwrite;
+ boolean_t advisory_pageout;
+};
+
+
+typedef struct memory_object_behave_info *memory_object_behave_info_t;
+typedef struct memory_object_behave_info memory_object_behave_info_data_t;
+
+typedef struct memory_object_perf_info *memory_object_perf_info_t;
+typedef struct memory_object_perf_info memory_object_perf_info_data_t;
+
+typedef struct memory_object_attr_info *memory_object_attr_info_t;
+typedef struct memory_object_attr_info memory_object_attr_info_data_t;
+
+struct arm_state_hdr {
+ uint32_t flavor;
+ uint32_t count;
+};
+typedef struct arm_state_hdr arm_state_hdr_t;
+
+typedef struct __darwin_arm_thread_state arm_thread_state_t;
+typedef struct __darwin_arm_thread_state arm_thread_state32_t;
+typedef struct __darwin_arm_thread_state64 arm_thread_state64_t;
+struct arm_unified_thread_state {
+ arm_state_hdr_t ash;
+ union {
+  arm_thread_state32_t ts_32;
+  arm_thread_state64_t ts_64;
+ } uts;
+};
+
+
+typedef struct arm_unified_thread_state arm_unified_thread_state_t;
+typedef struct __darwin_arm_vfp_state arm_vfp_state_t;
+typedef struct __darwin_arm_neon_state arm_neon_state_t;
+typedef struct __darwin_arm_neon_state arm_neon_state32_t;
+typedef struct __darwin_arm_neon_state64 arm_neon_state64_t;
+
+typedef struct __darwin_arm_amx_state_v1 arm_amx_state_v1_t;
+
+typedef struct __darwin_arm_exception_state arm_exception_state_t;
+typedef struct __darwin_arm_exception_state arm_exception_state32_t;
+typedef struct __darwin_arm_exception_state64 arm_exception_state64_t;
+
+typedef struct __darwin_arm_debug_state32 arm_debug_state32_t;
+typedef struct __darwin_arm_debug_state64 arm_debug_state64_t;
+
+typedef struct __arm_pagein_state arm_pagein_state_t;
+typedef struct arm_legacy_debug_state arm_debug_state_t;
+struct arm_amx_state {
+ arm_state_hdr_t ash;
+ union {
+  arm_amx_state_v1_t as_v1;
+ } uas;
+};
+
+typedef struct arm_amx_state arm_amx_state_t;
+
+
+
+
+
+typedef natural_t *thread_state_t;
+
+
+typedef natural_t thread_state_data_t[(1296)];
+
+
+
+
+
+
+
+typedef int thread_state_flavor_t;
+typedef thread_state_flavor_t *thread_state_flavor_array_t;
+
+
+
+
+
+typedef int exception_type_t;
+typedef integer_t exception_data_type_t;
+typedef int64_t mach_exception_data_type_t;
+typedef int exception_behavior_t;
+typedef exception_data_type_t *exception_data_t;
+typedef mach_exception_data_type_t *mach_exception_data_t;
+typedef unsigned int exception_mask_t;
+typedef exception_mask_t *exception_mask_array_t;
+typedef exception_behavior_t *exception_behavior_array_t;
+typedef thread_state_flavor_t *exception_flavor_array_t;
+typedef mach_port_t *exception_port_array_t;
+typedef mach_exception_data_type_t mach_exception_code_t;
+typedef mach_exception_data_type_t mach_exception_subcode_t;
+
+typedef mach_port_t mach_voucher_t;
+
+
+typedef mach_port_name_t mach_voucher_name_t;
+
+
+typedef mach_voucher_name_t *mach_voucher_name_array_t;
+
+
+
+
+
+
+typedef mach_voucher_t ipc_voucher_t;
+
+
+
+
+
+
+
+typedef uint32_t mach_voucher_selector_t;
+typedef uint32_t mach_voucher_attr_key_t;
+typedef mach_voucher_attr_key_t *mach_voucher_attr_key_array_t;
+typedef uint8_t *mach_voucher_attr_content_t;
+typedef uint32_t mach_voucher_attr_content_size_t;
+
+
+
+
+
+typedef uint32_t mach_voucher_attr_command_t;
+typedef uint32_t mach_voucher_attr_recipe_command_t;
+typedef mach_voucher_attr_recipe_command_t *mach_voucher_attr_recipe_command_array_t;
+#pragma pack(push, 1)
+
+typedef struct mach_voucher_attr_recipe_data {
+ mach_voucher_attr_key_t key;
+ mach_voucher_attr_recipe_command_t command;
+ mach_voucher_name_t previous_voucher;
+ mach_voucher_attr_content_size_t content_size;
+ uint8_t content[];
+} mach_voucher_attr_recipe_data_t;
+typedef mach_voucher_attr_recipe_data_t *mach_voucher_attr_recipe_t;
+typedef mach_msg_type_number_t mach_voucher_attr_recipe_size_t;
+
+
+typedef uint8_t *mach_voucher_attr_raw_recipe_t;
+typedef mach_voucher_attr_raw_recipe_t mach_voucher_attr_raw_recipe_array_t;
+typedef mach_msg_type_number_t mach_voucher_attr_raw_recipe_size_t;
+typedef mach_msg_type_number_t mach_voucher_attr_raw_recipe_array_size_t;
+
+
+
+
+#pragma pack(pop)
+typedef mach_port_t mach_voucher_attr_manager_t;
+typedef mach_port_t mach_voucher_attr_control_t;
+
+
+
+
+
+
+
+typedef mach_port_t ipc_voucher_attr_manager_t;
+typedef mach_port_t ipc_voucher_attr_control_t;
+typedef uint64_t mach_voucher_attr_value_handle_t;
+typedef mach_voucher_attr_value_handle_t *mach_voucher_attr_value_handle_array_t;
+
+typedef mach_msg_type_number_t mach_voucher_attr_value_handle_array_size_t;
+
+
+typedef uint32_t mach_voucher_attr_value_reference_t;
+typedef uint32_t mach_voucher_attr_value_flags_t;
+
+
+
+
+typedef uint32_t mach_voucher_attr_control_flags_t;
+typedef uint32_t mach_voucher_attr_importance_refs;
+struct processor_cpu_stat {
+ uint32_t irq_ex_cnt;
+ uint32_t ipi_cnt;
+ uint32_t timer_cnt;
+ uint32_t undef_ex_cnt;
+ uint32_t unaligned_cnt;
+ uint32_t vfp_cnt;
+ uint32_t vfp_shortv_cnt;
+ uint32_t data_ex_cnt;
+ uint32_t instr_ex_cnt;
+};
+
+typedef struct processor_cpu_stat processor_cpu_stat_data_t;
+typedef struct processor_cpu_stat *processor_cpu_stat_t;
+
+
+
+struct processor_cpu_stat64 {
+ uint64_t irq_ex_cnt;
+ uint64_t ipi_cnt;
+ uint64_t timer_cnt;
+ uint64_t undef_ex_cnt;
+ uint64_t unaligned_cnt;
+ uint64_t vfp_cnt;
+ uint64_t vfp_shortv_cnt;
+ uint64_t data_ex_cnt;
+ uint64_t instr_ex_cnt;
+ uint64_t pmi_cnt;
+} __attribute__((packed, aligned(4)));
+
+typedef struct processor_cpu_stat64 processor_cpu_stat64_data_t;
+typedef struct processor_cpu_stat64 *processor_cpu_stat64_t;
+
+
+
+
+typedef integer_t *processor_info_t;
+typedef integer_t *processor_info_array_t;
+
+
+typedef integer_t processor_info_data_t[(1024)];
+
+
+typedef integer_t *processor_set_info_t;
+
+
+typedef integer_t processor_set_info_data_t[(1024)];
+
+
+
+
+typedef int processor_flavor_t;
+
+
+
+
+
+struct processor_basic_info {
+ cpu_type_t cpu_type;
+ cpu_subtype_t cpu_subtype;
+ boolean_t running;
+ int slot_num;
+ boolean_t is_master;
+};
+
+typedef struct processor_basic_info processor_basic_info_data_t;
+typedef struct processor_basic_info *processor_basic_info_t;
+
+
+
+struct processor_cpu_load_info {
+ unsigned int cpu_ticks[4];
+};
+
+typedef struct processor_cpu_load_info processor_cpu_load_info_data_t;
+typedef struct processor_cpu_load_info *processor_cpu_load_info_t;
+typedef int processor_set_flavor_t;
+
+
+struct processor_set_basic_info {
+ int processor_count;
+ int default_policy;
+};
+
+typedef struct processor_set_basic_info processor_set_basic_info_data_t;
+typedef struct processor_set_basic_info *processor_set_basic_info_t;
+
+
+
+
+
+struct processor_set_load_info {
+ int task_count;
+ int thread_count;
+ integer_t load_average;
+ integer_t mach_factor;
+};
+
+typedef struct processor_set_load_info processor_set_load_info_data_t;
+typedef struct processor_set_load_info *processor_set_load_info_t;
+typedef int policy_t;
+typedef integer_t *policy_info_t;
+typedef integer_t *policy_base_t;
+typedef integer_t *policy_limit_t;
+struct policy_timeshare_base {
+ integer_t base_priority;
+};
+struct policy_timeshare_limit {
+ integer_t max_priority;
+};
+struct policy_timeshare_info {
+ integer_t max_priority;
+ integer_t base_priority;
+ integer_t cur_priority;
+ boolean_t depressed;
+ integer_t depress_priority;
+};
+
+typedef struct policy_timeshare_base *policy_timeshare_base_t;
+typedef struct policy_timeshare_limit *policy_timeshare_limit_t;
+typedef struct policy_timeshare_info *policy_timeshare_info_t;
+
+typedef struct policy_timeshare_base policy_timeshare_base_data_t;
+typedef struct policy_timeshare_limit policy_timeshare_limit_data_t;
+typedef struct policy_timeshare_info policy_timeshare_info_data_t;
+struct policy_rr_base {
+ integer_t base_priority;
+ integer_t quantum;
+};
+struct policy_rr_limit {
+ integer_t max_priority;
+};
+struct policy_rr_info {
+ integer_t max_priority;
+ integer_t base_priority;
+ integer_t quantum;
+ boolean_t depressed;
+ integer_t depress_priority;
+};
+
+typedef struct policy_rr_base *policy_rr_base_t;
+typedef struct policy_rr_limit *policy_rr_limit_t;
+typedef struct policy_rr_info *policy_rr_info_t;
+
+typedef struct policy_rr_base policy_rr_base_data_t;
+typedef struct policy_rr_limit policy_rr_limit_data_t;
+typedef struct policy_rr_info policy_rr_info_data_t;
+struct policy_fifo_base {
+ integer_t base_priority;
+};
+struct policy_fifo_limit {
+ integer_t max_priority;
+};
+struct policy_fifo_info {
+ integer_t max_priority;
+ integer_t base_priority;
+ boolean_t depressed;
+ integer_t depress_priority;
+};
+
+typedef struct policy_fifo_base *policy_fifo_base_t;
+typedef struct policy_fifo_limit *policy_fifo_limit_t;
+typedef struct policy_fifo_info *policy_fifo_info_t;
+
+typedef struct policy_fifo_base policy_fifo_base_data_t;
+typedef struct policy_fifo_limit policy_fifo_limit_data_t;
+typedef struct policy_fifo_info policy_fifo_info_data_t;
+struct policy_bases {
+ policy_timeshare_base_data_t ts;
+ policy_rr_base_data_t rr;
+ policy_fifo_base_data_t fifo;
+};
+
+struct policy_limits {
+ policy_timeshare_limit_data_t ts;
+ policy_rr_limit_data_t rr;
+ policy_fifo_limit_data_t fifo;
+};
+
+struct policy_infos {
+ policy_timeshare_info_data_t ts;
+ policy_rr_info_data_t rr;
+ policy_fifo_info_data_t fifo;
+};
+
+typedef struct policy_bases policy_base_data_t;
+typedef struct policy_limits policy_limit_data_t;
+typedef struct policy_infos policy_info_data_t;
+
+
+
+
+
+
+
+
+typedef natural_t task_flavor_t;
+typedef integer_t *task_info_t;
+
+
+
+typedef integer_t task_info_data_t[(1024)];
+
+
+
+
+
+#pragma pack(push, 4)
+
+
+
+
+
+struct task_basic_info_32 {
+ integer_t suspend_count;
+ natural_t virtual_size;
+ natural_t resident_size;
+ time_value_t user_time;
+
+ time_value_t system_time;
+
+ policy_t policy;
+};
+typedef struct task_basic_info_32 task_basic_info_32_data_t;
+typedef struct task_basic_info_32 *task_basic_info_32_t;
+
+
+
+
+struct task_basic_info_64 {
+ integer_t suspend_count;
+
+ mach_vm_size_t virtual_size;
+ mach_vm_size_t resident_size;
+
+
+
+
+ time_value_t user_time;
+
+ time_value_t system_time;
+
+ policy_t policy;
+};
+typedef struct task_basic_info_64 task_basic_info_64_data_t;
+typedef struct task_basic_info_64 *task_basic_info_64_t;
+struct task_basic_info {
+ integer_t suspend_count;
+ vm_size_t virtual_size;
+ vm_size_t resident_size;
+ time_value_t user_time;
+
+ time_value_t system_time;
+
+ policy_t policy;
+};
+
+typedef struct task_basic_info task_basic_info_data_t;
+typedef struct task_basic_info *task_basic_info_t;
+struct task_events_info {
+ integer_t faults;
+ integer_t pageins;
+ integer_t cow_faults;
+ integer_t messages_sent;
+ integer_t messages_received;
+ integer_t syscalls_mach;
+ integer_t syscalls_unix;
+ integer_t csw;
+};
+typedef struct task_events_info task_events_info_data_t;
+typedef struct task_events_info *task_events_info_t;
+
+
+
+
+
+
+struct task_thread_times_info {
+ time_value_t user_time;
+
+ time_value_t system_time;
+
+};
+
+typedef struct task_thread_times_info task_thread_times_info_data_t;
+typedef struct task_thread_times_info *task_thread_times_info_t;
+
+
+
+
+
+struct task_absolutetime_info {
+ uint64_t total_user;
+ uint64_t total_system;
+ uint64_t threads_user;
+ uint64_t threads_system;
+};
+
+typedef struct task_absolutetime_info task_absolutetime_info_data_t;
+typedef struct task_absolutetime_info *task_absolutetime_info_t;
+
+
+
+
+
+struct task_kernelmemory_info {
+ uint64_t total_palloc;
+ uint64_t total_pfree;
+ uint64_t total_salloc;
+ uint64_t total_sfree;
+};
+
+typedef struct task_kernelmemory_info task_kernelmemory_info_data_t;
+typedef struct task_kernelmemory_info *task_kernelmemory_info_t;
+struct task_affinity_tag_info {
+ integer_t set_count;
+ integer_t min;
+ integer_t max;
+ integer_t task_count;
+};
+typedef struct task_affinity_tag_info task_affinity_tag_info_data_t;
+typedef struct task_affinity_tag_info *task_affinity_tag_info_t;
+
+
+
+
+
+struct task_dyld_info {
+ mach_vm_address_t all_image_info_addr;
+ mach_vm_size_t all_image_info_size;
+ integer_t all_image_info_format;
+};
+typedef struct task_dyld_info task_dyld_info_data_t;
+typedef struct task_dyld_info *task_dyld_info_t;
+struct task_basic_info_64_2 {
+ integer_t suspend_count;
+ mach_vm_size_t virtual_size;
+ mach_vm_size_t resident_size;
+ time_value_t user_time;
+
+ time_value_t system_time;
+
+ policy_t policy;
+};
+typedef struct task_basic_info_64_2 task_basic_info_64_2_data_t;
+typedef struct task_basic_info_64_2 *task_basic_info_64_2_t;
+
+
+
+
+
+
+struct task_extmod_info {
+ unsigned char task_uuid[16];
+ vm_extmod_statistics_data_t extmod_statistics;
+};
+typedef struct task_extmod_info task_extmod_info_data_t;
+typedef struct task_extmod_info *task_extmod_info_t;
+
+
+
+
+
+struct mach_task_basic_info {
+ mach_vm_size_t virtual_size;
+ mach_vm_size_t resident_size;
+ mach_vm_size_t resident_size_max;
+ time_value_t user_time;
+
+ time_value_t system_time;
+
+ policy_t policy;
+ integer_t suspend_count;
+};
+typedef struct mach_task_basic_info mach_task_basic_info_data_t;
+typedef struct mach_task_basic_info *mach_task_basic_info_t;
+
+
+
+
+
+
+struct task_power_info {
+ uint64_t total_user;
+ uint64_t total_system;
+ uint64_t task_interrupt_wakeups;
+ uint64_t task_platform_idle_wakeups;
+ uint64_t task_timer_wakeups_bin_1;
+ uint64_t task_timer_wakeups_bin_2;
+};
+
+typedef struct task_power_info task_power_info_data_t;
+typedef struct task_power_info *task_power_info_t;
+
+
+
+
+
+
+
+struct task_vm_info {
+ mach_vm_size_t virtual_size;
+ integer_t region_count;
+ integer_t page_size;
+ mach_vm_size_t resident_size;
+ mach_vm_size_t resident_size_peak;
+
+ mach_vm_size_t device;
+ mach_vm_size_t device_peak;
+ mach_vm_size_t internal;
+ mach_vm_size_t internal_peak;
+ mach_vm_size_t external;
+ mach_vm_size_t external_peak;
+ mach_vm_size_t reusable;
+ mach_vm_size_t reusable_peak;
+ mach_vm_size_t purgeable_volatile_pmap;
+ mach_vm_size_t purgeable_volatile_resident;
+ mach_vm_size_t purgeable_volatile_virtual;
+ mach_vm_size_t compressed;
+ mach_vm_size_t compressed_peak;
+ mach_vm_size_t compressed_lifetime;
+
+
+ mach_vm_size_t phys_footprint;
+
+
+ mach_vm_address_t min_address;
+ mach_vm_address_t max_address;
+
+
+ int64_t ledger_phys_footprint_peak;
+ int64_t ledger_purgeable_nonvolatile;
+ int64_t ledger_purgeable_novolatile_compressed;
+ int64_t ledger_purgeable_volatile;
+ int64_t ledger_purgeable_volatile_compressed;
+ int64_t ledger_tag_network_nonvolatile;
+ int64_t ledger_tag_network_nonvolatile_compressed;
+ int64_t ledger_tag_network_volatile;
+ int64_t ledger_tag_network_volatile_compressed;
+ int64_t ledger_tag_media_footprint;
+ int64_t ledger_tag_media_footprint_compressed;
+ int64_t ledger_tag_media_nofootprint;
+ int64_t ledger_tag_media_nofootprint_compressed;
+ int64_t ledger_tag_graphics_footprint;
+ int64_t ledger_tag_graphics_footprint_compressed;
+ int64_t ledger_tag_graphics_nofootprint;
+ int64_t ledger_tag_graphics_nofootprint_compressed;
+ int64_t ledger_tag_neural_footprint;
+ int64_t ledger_tag_neural_footprint_compressed;
+ int64_t ledger_tag_neural_nofootprint;
+ int64_t ledger_tag_neural_nofootprint_compressed;
+
+
+ uint64_t limit_bytes_remaining;
+
+
+ integer_t decompressions;
+};
+typedef struct task_vm_info task_vm_info_data_t;
+typedef struct task_vm_info *task_vm_info_t;
+typedef struct vm_purgeable_info task_purgable_info_t;
+
+
+
+struct task_trace_memory_info {
+ uint64_t user_memory_address;
+ uint64_t buffer_size;
+ uint64_t mailbox_array_size;
+};
+typedef struct task_trace_memory_info task_trace_memory_info_data_t;
+typedef struct task_trace_memory_info * task_trace_memory_info_t;
+
+
+
+
+struct task_wait_state_info {
+ uint64_t total_wait_state_time;
+ uint64_t total_wait_sfi_state_time;
+ uint32_t _reserved[4];
+};
+typedef struct task_wait_state_info task_wait_state_info_data_t;
+typedef struct task_wait_state_info * task_wait_state_info_t;
+
+
+
+
+
+typedef struct {
+ uint64_t task_gpu_utilisation;
+ uint64_t task_gpu_stat_reserved0;
+ uint64_t task_gpu_stat_reserved1;
+ uint64_t task_gpu_stat_reserved2;
+} gpu_energy_data;
+
+typedef gpu_energy_data *gpu_energy_data_t;
+struct task_power_info_v2 {
+ task_power_info_data_t cpu_energy;
+ gpu_energy_data gpu_energy;
+
+ uint64_t task_energy;
+
+ uint64_t task_ptime;
+ uint64_t task_pset_switches;
+};
+
+typedef struct task_power_info_v2 task_power_info_v2_data_t;
+typedef struct task_power_info_v2 *task_power_info_v2_t;
+struct task_flags_info {
+ uint32_t flags;
+};
+typedef struct task_flags_info task_flags_info_data_t;
+typedef struct task_flags_info * task_flags_info_t;
+typedef uint32_t task_exc_guard_behavior_t;
+#pragma pack(pop)
+typedef natural_t task_inspect_flavor_t;
+
+enum task_inspect_flavor {
+ TASK_INSPECT_BASIC_COUNTS = 1,
+};
+
+struct task_inspect_basic_counts {
+ uint64_t instructions;
+ uint64_t cycles;
+};
+
+
+typedef struct task_inspect_basic_counts task_inspect_basic_counts_data_t;
+typedef struct task_inspect_basic_counts *task_inspect_basic_counts_t;
+
+typedef integer_t *task_inspect_info_t;
+typedef natural_t task_policy_flavor_t;
+typedef integer_t *task_policy_t;
+enum task_role {
+ TASK_RENICED = -1,
+ TASK_UNSPECIFIED = 0,
+ TASK_FOREGROUND_APPLICATION = 1,
+ TASK_BACKGROUND_APPLICATION = 2,
+ TASK_CONTROL_APPLICATION = 3,
+ TASK_GRAPHICS_SERVER = 4,
+ TASK_THROTTLE_APPLICATION = 5,
+ TASK_NONUI_APPLICATION = 6,
+ TASK_DEFAULT_APPLICATION = 7,
+ TASK_DARWINBG_APPLICATION = 8,
+};
+
+typedef integer_t task_role_t;
+
+struct task_category_policy {
+ task_role_t role;
+};
+
+typedef struct task_category_policy task_category_policy_data_t;
+typedef struct task_category_policy *task_category_policy_t;
+
+
+
+
+
+enum task_latency_qos {
+ LATENCY_QOS_TIER_UNSPECIFIED = 0x0,
+ LATENCY_QOS_TIER_0 = ((0xFF << 16) | 1),
+ LATENCY_QOS_TIER_1 = ((0xFF << 16) | 2),
+ LATENCY_QOS_TIER_2 = ((0xFF << 16) | 3),
+ LATENCY_QOS_TIER_3 = ((0xFF << 16) | 4),
+ LATENCY_QOS_TIER_4 = ((0xFF << 16) | 5),
+ LATENCY_QOS_TIER_5 = ((0xFF << 16) | 6)
+};
+typedef integer_t task_latency_qos_t;
+enum task_throughput_qos {
+ THROUGHPUT_QOS_TIER_UNSPECIFIED = 0x0,
+ THROUGHPUT_QOS_TIER_0 = ((0xFE << 16) | 1),
+ THROUGHPUT_QOS_TIER_1 = ((0xFE << 16) | 2),
+ THROUGHPUT_QOS_TIER_2 = ((0xFE << 16) | 3),
+ THROUGHPUT_QOS_TIER_3 = ((0xFE << 16) | 4),
+ THROUGHPUT_QOS_TIER_4 = ((0xFE << 16) | 5),
+ THROUGHPUT_QOS_TIER_5 = ((0xFE << 16) | 6),
+};
+
+
+
+
+typedef integer_t task_throughput_qos_t;
+
+struct task_qos_policy {
+ task_latency_qos_t task_latency_qos_tier;
+ task_throughput_qos_t task_throughput_qos_tier;
+};
+
+typedef struct task_qos_policy *task_qos_policy_t;
+typedef int task_special_port_t;
+typedef natural_t thread_flavor_t;
+typedef integer_t *thread_info_t;
+
+
+typedef integer_t thread_info_data_t[(32)];
+
+
+
+
+
+
+struct thread_basic_info {
+ time_value_t user_time;
+ time_value_t system_time;
+ integer_t cpu_usage;
+ policy_t policy;
+ integer_t run_state;
+ integer_t flags;
+ integer_t suspend_count;
+ integer_t sleep_time;
+
+};
+
+typedef struct thread_basic_info thread_basic_info_data_t;
+typedef struct thread_basic_info *thread_basic_info_t;
+
+
+
+
+
+struct thread_identifier_info {
+ uint64_t thread_id;
+ uint64_t thread_handle;
+ uint64_t dispatch_qaddr;
+};
+
+typedef struct thread_identifier_info thread_identifier_info_data_t;
+typedef struct thread_identifier_info *thread_identifier_info_t;
+struct thread_extended_info {
+ uint64_t pth_user_time;
+ uint64_t pth_system_time;
+ int32_t pth_cpu_usage;
+ int32_t pth_policy;
+ int32_t pth_run_state;
+ int32_t pth_flags;
+ int32_t pth_sleep_time;
+ int32_t pth_curpri;
+ int32_t pth_priority;
+ int32_t pth_maxpriority;
+ char pth_name[64];
+};
+typedef struct thread_extended_info thread_extended_info_data_t;
+typedef struct thread_extended_info * thread_extended_info_t;
+struct io_stat_entry {
+ uint64_t count;
+ uint64_t size;
+};
+
+struct io_stat_info {
+ struct io_stat_entry disk_reads;
+ struct io_stat_entry io_priority[4];
+ struct io_stat_entry paging;
+ struct io_stat_entry metadata;
+ struct io_stat_entry total_io;
+};
+
+typedef struct io_stat_info *io_stat_info_t;
+typedef natural_t thread_policy_flavor_t;
+typedef integer_t *thread_policy_t;
+struct thread_standard_policy {
+ natural_t no_data;
+};
+
+typedef struct thread_standard_policy thread_standard_policy_data_t;
+typedef struct thread_standard_policy *thread_standard_policy_t;
+struct thread_extended_policy {
+ boolean_t timeshare;
+};
+
+typedef struct thread_extended_policy thread_extended_policy_data_t;
+typedef struct thread_extended_policy *thread_extended_policy_t;
+struct thread_time_constraint_policy {
+ uint32_t period;
+ uint32_t computation;
+ uint32_t constraint;
+ boolean_t preemptible;
+};
+
+typedef struct thread_time_constraint_policy thread_time_constraint_policy_data_t;
+
+typedef struct thread_time_constraint_policy *thread_time_constraint_policy_t;
+struct thread_precedence_policy {
+ integer_t importance;
+};
+
+typedef struct thread_precedence_policy thread_precedence_policy_data_t;
+typedef struct thread_precedence_policy *thread_precedence_policy_t;
+struct thread_affinity_policy {
+ integer_t affinity_tag;
+};
+
+
+
+typedef struct thread_affinity_policy thread_affinity_policy_data_t;
+typedef struct thread_affinity_policy *thread_affinity_policy_t;
+struct thread_background_policy {
+ integer_t priority;
+};
+
+
+
+typedef struct thread_background_policy thread_background_policy_data_t;
+typedef struct thread_background_policy *thread_background_policy_t;
+
+
+
+
+
+
+typedef integer_t thread_latency_qos_t;
+
+struct thread_latency_qos_policy {
+ thread_latency_qos_t thread_latency_qos_tier;
+};
+
+typedef struct thread_latency_qos_policy thread_latency_qos_policy_data_t;
+typedef struct thread_latency_qos_policy *thread_latency_qos_policy_t;
+
+
+
+
+
+typedef integer_t thread_throughput_qos_t;
+
+struct thread_throughput_qos_policy {
+ thread_throughput_qos_t thread_throughput_qos_tier;
+};
+
+typedef struct thread_throughput_qos_policy thread_throughput_qos_policy_data_t;
+typedef struct thread_throughput_qos_policy *thread_throughput_qos_policy_t;
+
+
+
+typedef unsigned int vm_machine_attribute_t;
+typedef int vm_machine_attribute_val_t;
+typedef unsigned int vm_inherit_t;
+typedef int vm_purgable_t;
+typedef int vm_behavior_t;
+
+
+
+
+
+
+extern "C" {
+
+
+
+
+
+extern vm_size_t vm_page_size;
+extern vm_size_t vm_page_mask;
+extern int vm_page_shift;
+extern vm_size_t vm_kernel_page_size __attribute__((availability(ios,introduced=7.0)));
+extern vm_size_t vm_kernel_page_mask __attribute__((availability(ios,introduced=7.0)));
+extern int vm_kernel_page_shift __attribute__((availability(ios,introduced=7.0)));
+
+
+
+
+}
+
+
+
+
+
+#pragma pack(push, 4)
+
+
+
+
+typedef uint32_t vm32_object_id_t;
+typedef int *vm_region_info_t;
+typedef int *vm_region_info_64_t;
+typedef int *vm_region_recurse_info_t;
+typedef int *vm_region_recurse_info_64_t;
+typedef int vm_region_flavor_t;
+typedef int vm_region_info_data_t[(1024)];
+
+
+struct vm_region_basic_info_64 {
+ vm_prot_t protection;
+ vm_prot_t max_protection;
+ vm_inherit_t inheritance;
+ boolean_t shared;
+ boolean_t reserved;
+ memory_object_offset_t offset;
+ vm_behavior_t behavior;
+ unsigned short user_wired_count;
+};
+typedef struct vm_region_basic_info_64 *vm_region_basic_info_64_t;
+typedef struct vm_region_basic_info_64 vm_region_basic_info_data_64_t;
+struct vm_region_basic_info {
+ vm_prot_t protection;
+ vm_prot_t max_protection;
+ vm_inherit_t inheritance;
+ boolean_t shared;
+ boolean_t reserved;
+ uint32_t offset;
+ vm_behavior_t behavior;
+ unsigned short user_wired_count;
+};
+
+typedef struct vm_region_basic_info *vm_region_basic_info_t;
+typedef struct vm_region_basic_info vm_region_basic_info_data_t;
+struct vm_region_extended_info {
+ vm_prot_t protection;
+ unsigned int user_tag;
+ unsigned int pages_resident;
+ unsigned int pages_shared_now_private;
+ unsigned int pages_swapped_out;
+ unsigned int pages_dirtied;
+ unsigned int ref_count;
+ unsigned short shadow_depth;
+ unsigned char external_pager;
+ unsigned char share_mode;
+ unsigned int pages_reusable;
+};
+typedef struct vm_region_extended_info *vm_region_extended_info_t;
+typedef struct vm_region_extended_info vm_region_extended_info_data_t;
+struct vm_region_top_info {
+ unsigned int obj_id;
+ unsigned int ref_count;
+ unsigned int private_pages_resident;
+ unsigned int shared_pages_resident;
+ unsigned char share_mode;
+};
+
+typedef struct vm_region_top_info *vm_region_top_info_t;
+typedef struct vm_region_top_info vm_region_top_info_data_t;
+struct vm_region_submap_info {
+ vm_prot_t protection;
+ vm_prot_t max_protection;
+ vm_inherit_t inheritance;
+ uint32_t offset;
+ unsigned int user_tag;
+ unsigned int pages_resident;
+ unsigned int pages_shared_now_private;
+ unsigned int pages_swapped_out;
+ unsigned int pages_dirtied;
+ unsigned int ref_count;
+ unsigned short shadow_depth;
+ unsigned char external_pager;
+ unsigned char share_mode;
+ boolean_t is_submap;
+ vm_behavior_t behavior;
+ vm32_object_id_t object_id;
+ unsigned short user_wired_count;
+};
+
+typedef struct vm_region_submap_info *vm_region_submap_info_t;
+typedef struct vm_region_submap_info vm_region_submap_info_data_t;
+
+
+
+
+
+struct vm_region_submap_info_64 {
+ vm_prot_t protection;
+ vm_prot_t max_protection;
+ vm_inherit_t inheritance;
+ memory_object_offset_t offset;
+ unsigned int user_tag;
+ unsigned int pages_resident;
+ unsigned int pages_shared_now_private;
+ unsigned int pages_swapped_out;
+ unsigned int pages_dirtied;
+ unsigned int ref_count;
+ unsigned short shadow_depth;
+ unsigned char external_pager;
+ unsigned char share_mode;
+ boolean_t is_submap;
+ vm_behavior_t behavior;
+ vm32_object_id_t object_id;
+ unsigned short user_wired_count;
+ unsigned int pages_reusable;
+ vm_object_id_t object_id_full;
+};
+
+typedef struct vm_region_submap_info_64 *vm_region_submap_info_64_t;
+typedef struct vm_region_submap_info_64 vm_region_submap_info_data_64_t;
+struct vm_region_submap_short_info_64 {
+ vm_prot_t protection;
+ vm_prot_t max_protection;
+ vm_inherit_t inheritance;
+ memory_object_offset_t offset;
+ unsigned int user_tag;
+ unsigned int ref_count;
+ unsigned short shadow_depth;
+ unsigned char external_pager;
+ unsigned char share_mode;
+ boolean_t is_submap;
+ vm_behavior_t behavior;
+ vm32_object_id_t object_id;
+ unsigned short user_wired_count;
+};
+
+typedef struct vm_region_submap_short_info_64 *vm_region_submap_short_info_64_t;
+typedef struct vm_region_submap_short_info_64 vm_region_submap_short_info_data_64_t;
+
+
+
+
+
+struct mach_vm_read_entry {
+ mach_vm_address_t address;
+ mach_vm_size_t size;
+};
+
+struct vm_read_entry {
+ vm_address_t address;
+ vm_size_t size;
+};
+typedef struct mach_vm_read_entry mach_vm_read_entry_t[(256)];
+typedef struct vm_read_entry vm_read_entry_t[(256)];
+
+
+
+
+#pragma pack(pop)
+
+
+
+typedef int *vm_page_info_t;
+typedef int vm_page_info_data_t[];
+typedef int vm_page_info_flavor_t;
+
+
+struct vm_page_info_basic {
+ int disposition;
+ int ref_count;
+ vm_object_id_t object_id;
+ memory_object_offset_t offset;
+ int depth;
+ int __pad;
+};
+typedef struct vm_page_info_basic *vm_page_info_basic_t;
+typedef struct vm_page_info_basic vm_page_info_basic_data_t;
+
+
+
+extern "C" {
+typedef int kmod_t;
+
+struct kmod_info;
+typedef kern_return_t kmod_start_func_t(struct kmod_info * ki, void * data);
+typedef kern_return_t kmod_stop_func_t(struct kmod_info * ki, void * data);
+#pragma pack(push, 4)
+
+
+typedef struct kmod_reference {
+ struct kmod_reference * next;
+ struct kmod_info * info;
+} kmod_reference_t;
+typedef struct kmod_info {
+ struct kmod_info * next;
+ int32_t info_version;
+ uint32_t id;
+ char name[64];
+ char version[64];
+ int32_t reference_count;
+ kmod_reference_t * reference_list;
+ vm_address_t address;
+ vm_size_t size;
+ vm_size_t hdr_size;
+ kmod_start_func_t * start;
+ kmod_stop_func_t * stop;
+} kmod_info_t;
+
+
+
+typedef struct kmod_info_32_v1 {
+ uint32_t next_addr;
+ int32_t info_version;
+ uint32_t id;
+ uint8_t name[64];
+ uint8_t version[64];
+ int32_t reference_count;
+ uint32_t reference_list_addr;
+ uint32_t address;
+ uint32_t size;
+ uint32_t hdr_size;
+ uint32_t start_addr;
+ uint32_t stop_addr;
+} kmod_info_32_v1_t;
+
+
+
+typedef struct kmod_info_64_v1 {
+ uint64_t next_addr;
+ int32_t info_version;
+ uint32_t id;
+ uint8_t name[64];
+ uint8_t version[64];
+ int32_t reference_count;
+ uint64_t reference_list_addr;
+ uint64_t address;
+ uint64_t size;
+ uint64_t hdr_size;
+ uint64_t start_addr;
+ uint64_t stop_addr;
+} kmod_info_64_v1_t;
+
+#pragma pack(pop)
+typedef void * kmod_args_t;
+typedef int kmod_control_flavor_t;
+typedef kmod_info_t * kmod_info_array_t;
+
+}
+typedef struct fsid { int32_t val[2]; } fsid_t;
+
+typedef struct fsobj_id {
+ u_int32_t fid_objno;
+ u_int32_t fid_generation;
+} fsobj_id_t;
+
+
+
+
+
+
+struct dyld_kernel_image_info {
+ uuid_t uuid;
+ fsobj_id_t fsobjid;
+ fsid_t fsid;
+ uint64_t load_addr;
+};
+
+struct dyld_kernel_process_info {
+ struct dyld_kernel_image_info cache_image_info;
+ uint64_t timestamp;
+ uint32_t imageCount;
+ uint32_t initialImageCount;
+ uint8_t dyldState;
+ boolean_t no_cache;
+ boolean_t private_cache;
+};
+
+
+
+typedef struct dyld_kernel_image_info dyld_kernel_image_info_t;
+typedef struct dyld_kernel_process_info dyld_kernel_process_info_t;
+typedef dyld_kernel_image_info_t *dyld_kernel_image_info_array_t;
+
+
+
+
+
+
+typedef mach_port_t task_t;
+typedef mach_port_t task_name_t;
+typedef mach_port_t task_inspect_t;
+typedef mach_port_t task_suspension_token_t;
+typedef mach_port_t thread_t;
+typedef mach_port_t thread_act_t;
+typedef mach_port_t thread_inspect_t;
+typedef mach_port_t ipc_space_t;
+typedef mach_port_t ipc_space_inspect_t;
+typedef mach_port_t coalition_t;
+typedef mach_port_t host_t;
+typedef mach_port_t host_priv_t;
+typedef mach_port_t host_security_t;
+typedef mach_port_t processor_t;
+typedef mach_port_t processor_set_t;
+typedef mach_port_t processor_set_control_t;
+typedef mach_port_t semaphore_t;
+typedef mach_port_t lock_set_t;
+typedef mach_port_t ledger_t;
+typedef mach_port_t alarm_t;
+typedef mach_port_t clock_serv_t;
+typedef mach_port_t clock_ctrl_t;
+
+typedef mach_port_t arcade_register_t;
+
+
+
+
+
+
+typedef processor_set_t processor_set_name_t;
+
+
+
+
+typedef mach_port_t clock_reply_t;
+typedef mach_port_t bootstrap_t;
+typedef mach_port_t mem_entry_name_port_t;
+typedef mach_port_t exception_handler_t;
+typedef exception_handler_t *exception_handler_array_t;
+typedef mach_port_t vm_task_entry_t;
+typedef mach_port_t io_master_t;
+typedef mach_port_t UNDServerRef;
+typedef task_t *task_array_t;
+typedef thread_t *thread_array_t;
+typedef processor_set_t *processor_set_array_t;
+typedef processor_set_t *processor_set_name_array_t;
+typedef processor_t *processor_array_t;
+typedef thread_act_t *thread_act_array_t;
+typedef ledger_t *ledger_array_t;
+
+
+
+
+
+
+
+typedef task_t task_port_t;
+typedef task_array_t task_port_array_t;
+typedef thread_t thread_port_t;
+typedef thread_array_t thread_port_array_t;
+typedef ipc_space_t ipc_space_port_t;
+typedef host_t host_name_t;
+typedef host_t host_name_port_t;
+typedef processor_set_t processor_set_port_t;
+typedef processor_set_t processor_set_name_port_t;
+typedef processor_set_array_t processor_set_name_port_array_t;
+typedef processor_set_t processor_set_control_port_t;
+typedef processor_t processor_port_t;
+typedef processor_array_t processor_port_array_t;
+typedef thread_act_t thread_act_port_t;
+typedef thread_act_array_t thread_act_port_array_t;
+typedef semaphore_t semaphore_port_t;
+typedef lock_set_t lock_set_port_t;
+typedef ledger_t ledger_port_t;
+typedef ledger_array_t ledger_port_array_t;
+typedef alarm_t alarm_port_t;
+typedef clock_serv_t clock_serv_port_t;
+typedef clock_ctrl_t clock_ctrl_port_t;
+typedef exception_handler_t exception_port_t;
+typedef exception_handler_array_t exception_port_arrary_t;
+typedef char vfs_path_t[4096];
+typedef char nspace_path_t[1024];
+typedef natural_t ledger_item_t;
+
+
+typedef int64_t ledger_amount_t;
+
+
+typedef mach_vm_offset_t *emulation_vector_t;
+typedef char *user_subsystem_t;
+
+typedef char *labelstr_t;
+extern "C" {
+
+
+typedef struct _malloc_zone_t {
+
+
+    void *reserved1;
+    void *reserved2;
+    size_t (* size)(struct _malloc_zone_t *zone, const void *ptr);
+    void *(* malloc)(struct _malloc_zone_t *zone, size_t size);
+    void *(* calloc)(struct _malloc_zone_t *zone, size_t num_items, size_t size);
+    void *(* valloc)(struct _malloc_zone_t *zone, size_t size);
+    void (* free)(struct _malloc_zone_t *zone, void *ptr);
+    void *(* realloc)(struct _malloc_zone_t *zone, void *ptr, size_t size);
+    void (* destroy)(struct _malloc_zone_t *zone);
+    const char *zone_name;
+
+
+    unsigned (* batch_malloc)(struct _malloc_zone_t *zone, size_t size, void **results, unsigned num_requested);
+    void (* batch_free)(struct _malloc_zone_t *zone, void **to_be_freed, unsigned num_to_be_freed);
+
+    struct malloc_introspection_t * introspect;
+    unsigned version;
+
+
+    void *(* memalign)(struct _malloc_zone_t *zone, size_t alignment, size_t size);
+
+
+    void (* free_definite_size)(struct _malloc_zone_t *zone, void *ptr, size_t size);
+
+
+    size_t (* pressure_relief)(struct _malloc_zone_t *zone, size_t goal);
+
+
+
+
+
+
+    boolean_t (* claimed_address)(struct _malloc_zone_t *zone, void *ptr);
+} malloc_zone_t;
+
+
+
+extern malloc_zone_t *malloc_default_zone(void);
+
+
+extern malloc_zone_t *malloc_create_zone(vm_size_t start_size, unsigned flags);
+
+
+extern void malloc_destroy_zone(malloc_zone_t *zone);
+
+
+
+
+extern void *malloc_zone_malloc(malloc_zone_t *zone, size_t size) __attribute__((alloc_size(2)));
+
+
+extern void *malloc_zone_calloc(malloc_zone_t *zone, size_t num_items, size_t size) __attribute__((alloc_size(2,3)));
+
+
+extern void *malloc_zone_valloc(malloc_zone_t *zone, size_t size) __attribute__((alloc_size(2)));
+
+
+extern void malloc_zone_free(malloc_zone_t *zone, void *ptr);
+
+
+extern void *malloc_zone_realloc(malloc_zone_t *zone, void *ptr, size_t size) __attribute__((alloc_size(3)));
+
+
+extern malloc_zone_t *malloc_zone_from_ptr(const void *ptr);
+
+
+
+extern size_t malloc_size(const void *ptr);
+
+
+extern size_t malloc_good_size(size_t size);
+
+
+extern void *malloc_zone_memalign(malloc_zone_t *zone, size_t alignment, size_t size) __attribute__((alloc_size(3))) __attribute__((availability(ios,introduced=3.0)));
+extern unsigned malloc_zone_batch_malloc(malloc_zone_t *zone, size_t size, void **results, unsigned num_requested);
+
+
+extern void malloc_zone_batch_free(malloc_zone_t *zone, void **to_be_freed, unsigned num);
+
+
+
+
+extern malloc_zone_t *malloc_default_purgeable_zone(void) __attribute__((availability(ios,introduced=3.0)));
+
+
+extern void malloc_make_purgeable(void *ptr) __attribute__((availability(ios,introduced=3.0)));
+
+
+extern int malloc_make_nonpurgeable(void *ptr) __attribute__((availability(ios,introduced=3.0)));
+
+
+
+
+
+
+extern void malloc_zone_register(malloc_zone_t *zone);
+
+
+
+
+
+extern void malloc_zone_unregister(malloc_zone_t *zone);
+
+
+
+extern void malloc_set_zone_name(malloc_zone_t *zone, const char *name);
+
+
+extern const char *malloc_get_zone_name(malloc_zone_t *zone);
+
+
+size_t malloc_zone_pressure_relief(malloc_zone_t *zone, size_t goal) __attribute__((availability(ios,introduced=4.3)));
+
+
+
+
+
+
+
+typedef struct {
+    vm_address_t address;
+    vm_size_t size;
+} vm_range_t;
+
+typedef struct malloc_statistics_t {
+    unsigned blocks_in_use;
+    size_t size_in_use;
+    size_t max_size_in_use;
+    size_t size_allocated;
+} malloc_statistics_t;
+
+typedef kern_return_t memory_reader_t(task_t remote_task, vm_address_t remote_address, vm_size_t size, void **local_memory);
+typedef void vm_range_recorder_t(task_t, void *, unsigned type, vm_range_t *, unsigned);
+
+
+
+typedef void print_task_printer_t(const char *fmt, ...);
+
+typedef struct malloc_introspection_t {
+ kern_return_t (* enumerator)(task_t task, void *, unsigned type_mask, vm_address_t zone_address, memory_reader_t reader, vm_range_recorder_t recorder);
+ size_t (* good_size)(malloc_zone_t *zone, size_t size);
+ boolean_t (* check)(malloc_zone_t *zone);
+ void (* print)(malloc_zone_t *zone, boolean_t verbose);
+ void (* log)(malloc_zone_t *zone, void *address);
+ void (* force_lock)(malloc_zone_t *zone);
+ void (* force_unlock)(malloc_zone_t *zone);
+ void (* statistics)(malloc_zone_t *zone, malloc_statistics_t *stats);
+ boolean_t (* zone_locked)(malloc_zone_t *zone);
+
+
+ boolean_t (* enable_discharge_checking)(malloc_zone_t *zone);
+ void (* disable_discharge_checking)(malloc_zone_t *zone);
+ void (* discharge)(malloc_zone_t *zone, void *memory);
+
+ void (* enumerate_discharged_pointers)(malloc_zone_t *zone, void (^report_discharged)(void *memory, void *info));
+
+
+
+ void (* reinit_lock)(malloc_zone_t *zone);
+ void (* print_task)(task_t task, unsigned level, vm_address_t zone_address, memory_reader_t reader, print_task_printer_t printer);
+ void (* task_statistics)(task_t task, vm_address_t zone_address, memory_reader_t reader, malloc_statistics_t *stats);
+} malloc_introspection_t;
+
+
+
+
+
+extern void malloc_printf(const char *format, ...);
+
+
+
+
+
+
+
+extern kern_return_t malloc_get_all_zones(task_t task, memory_reader_t reader, vm_address_t **addresses, unsigned *count);
+
+
+
+
+
+extern void malloc_zone_print_ptr_info(void *ptr);
+
+
+extern boolean_t malloc_zone_check(malloc_zone_t *zone);
+
+
+extern void malloc_zone_print(malloc_zone_t *zone, boolean_t verbose);
+
+
+extern void malloc_zone_statistics(malloc_zone_t *zone, malloc_statistics_t *stats);
+
+
+extern void malloc_zone_log(malloc_zone_t *zone, void *address);
+
+
+
+
+
+struct mstats {
+    size_t bytes_total;
+    size_t chunks_used;
+    size_t bytes_used;
+    size_t chunks_free;
+    size_t bytes_free;
+};
+
+extern struct mstats mstats(void);
+
+extern boolean_t malloc_zone_enable_discharge_checking(malloc_zone_t *zone) __attribute__((availability(ios,introduced=4.3)));
+
+
+extern void malloc_zone_disable_discharge_checking(malloc_zone_t *zone) __attribute__((availability(ios,introduced=4.3)));
+
+
+extern void malloc_zone_discharge(malloc_zone_t *zone, void *memory) __attribute__((availability(ios,introduced=4.3)));
+
+
+
+
+
+extern void malloc_zone_enumerate_discharged_pointers(malloc_zone_t *zone, void (*report_discharged)(void *memory, void *info)) __attribute__((availability(ios,introduced=4.3)));
+
+
+
+
+
+
+
+}
+typedef struct objc_method *Method;
+
+
+typedef struct objc_ivar *Ivar;
+
+
+typedef struct objc_category *Category;
+
+
+typedef struct objc_property *objc_property_t;
+
+struct objc_class {
+    Class _Nonnull isa __attribute__((deprecated));
+} __attribute__((unavailable));
+
+
+
+
+
+// @class Protocol;
+#ifndef _REWRITER_typedef_Protocol
+#define _REWRITER_typedef_Protocol
+typedef struct objc_object Protocol;
+typedef struct {} _objc_exc_Protocol;
+#endif
+
+
+
+
+
+
+struct objc_method_description {
+    SEL _Nullable name;
+    char * _Nullable types;
+};
+
+
+typedef struct {
+    const char * _Nonnull name;
+    const char * _Nonnull value;
+} objc_property_attribute_t;
+extern "C" __attribute__((visibility("default"))) id _Nullable object_copy(id _Nullable obj, size_t size)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)))
+                        ;
+extern "C" __attribute__((visibility("default"))) id _Nullable
+object_dispose(id _Nullable obj)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)))
+                        ;
+extern "C" __attribute__((visibility("default"))) Class _Nullable
+object_getClass(id _Nullable obj)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Class _Nullable
+object_setClass(id _Nullable obj, Class _Nonnull cls)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) BOOL
+object_isClass(id _Nullable obj)
+    __attribute__((availability(macosx,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) id _Nullable
+object_getIvar(id _Nullable obj, Ivar _Nonnull ivar)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) void
+object_setIvar(id _Nullable obj, Ivar _Nonnull ivar, id _Nullable value)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) void
+object_setIvarWithStrongDefault(id _Nullable obj, Ivar _Nonnull ivar,
+                                id _Nullable value)
+    __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(tvos,introduced=10.0))) __attribute__((availability(watchos,introduced=3.0)));
+extern "C" __attribute__((visibility("default"))) Ivar _Nullable
+object_setInstanceVariable(id _Nullable obj, const char * _Nonnull name,
+                           void * _Nullable value)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)))
+                        ;
+extern "C" __attribute__((visibility("default"))) Ivar _Nullable
+object_setInstanceVariableWithStrongDefault(id _Nullable obj,
+                                            const char * _Nonnull name,
+                                            void * _Nullable value)
+    __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(tvos,introduced=10.0))) __attribute__((availability(watchos,introduced=3.0)))
+                        ;
+extern "C" __attribute__((visibility("default"))) Ivar _Nullable
+object_getInstanceVariable(id _Nullable obj, const char * _Nonnull name,
+                           void * _Nullable * _Nullable outValue)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)))
+                        ;
+extern "C" __attribute__((visibility("default"))) Class _Nullable
+objc_getClass(const char * _Nonnull name)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Class _Nullable
+objc_getMetaClass(const char * _Nonnull name)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Class _Nullable
+objc_lookUpClass(const char * _Nonnull name)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Class _Nonnull
+objc_getRequiredClass(const char * _Nonnull name)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) int
+objc_getClassList(Class _Nonnull * _Nullable buffer, int bufferCount)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Class _Nonnull * _Nullable
+objc_copyClassList(unsigned int * _Nullable outCount)
+    __attribute__((availability(macosx,introduced=10.7))) __attribute__((availability(ios,introduced=3.1))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) const char * _Nonnull
+class_getName(Class _Nullable cls)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) BOOL
+class_isMetaClass(Class _Nullable cls)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Class _Nullable
+class_getSuperclass(Class _Nullable cls)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Class _Nonnull
+class_setSuperclass(Class _Nonnull cls, Class _Nonnull newSuper)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(macosx,deprecated=10.5,message="not recommended")))
+    __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(ios,deprecated=2.0,message="not recommended")))
+    __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(tvos,deprecated=9.0,message="not recommended")))
+    __attribute__((availability(watchos,introduced=1.0))) __attribute__((availability(watchos,deprecated=1.0,message="not recommended")))
+
+;
+extern "C" __attribute__((visibility("default"))) int
+class_getVersion(Class _Nullable cls)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) void
+class_setVersion(Class _Nullable cls, int version)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) size_t
+class_getInstanceSize(Class _Nullable cls)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Ivar _Nullable
+class_getInstanceVariable(Class _Nullable cls, const char * _Nonnull name)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Ivar _Nullable
+class_getClassVariable(Class _Nullable cls, const char * _Nonnull name)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Ivar _Nonnull * _Nullable
+class_copyIvarList(Class _Nullable cls, unsigned int * _Nullable outCount)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Method _Nullable
+class_getInstanceMethod(Class _Nullable cls, SEL _Nonnull name)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Method _Nullable
+class_getClassMethod(Class _Nullable cls, SEL _Nonnull name)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) IMP _Nullable
+class_getMethodImplementation(Class _Nullable cls, SEL _Nonnull name)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) IMP _Nullable
+class_getMethodImplementation_stret(Class _Nullable cls, SEL _Nonnull name)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)))
+    __attribute__((unavailable("not available in arm64")));
+extern "C" __attribute__((visibility("default"))) BOOL
+class_respondsToSelector(Class _Nullable cls, SEL _Nonnull sel)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Method _Nonnull * _Nullable
+class_copyMethodList(Class _Nullable cls, unsigned int * _Nullable outCount)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) BOOL
+class_conformsToProtocol(Class _Nullable cls, Protocol * _Nullable protocol)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Protocol * __attribute__((objc_ownership(none))) _Nonnull * _Nullable
+class_copyProtocolList(Class _Nullable cls, unsigned int * _Nullable outCount)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) objc_property_t _Nullable
+class_getProperty(Class _Nullable cls, const char * _Nonnull name)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) objc_property_t _Nonnull * _Nullable
+class_copyPropertyList(Class _Nullable cls, unsigned int * _Nullable outCount)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) const uint8_t * _Nullable
+class_getIvarLayout(Class _Nullable cls)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) const uint8_t * _Nullable
+class_getWeakIvarLayout(Class _Nullable cls)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) BOOL
+class_addMethod(Class _Nullable cls, SEL _Nonnull name, IMP _Nonnull imp,
+                const char * _Nullable types)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) IMP _Nullable
+class_replaceMethod(Class _Nullable cls, SEL _Nonnull name, IMP _Nonnull imp,
+                    const char * _Nullable types)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) BOOL
+class_addIvar(Class _Nullable cls, const char * _Nonnull name, size_t size,
+              uint8_t alignment, const char * _Nullable types)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) BOOL
+class_addProtocol(Class _Nullable cls, Protocol * _Nonnull protocol)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) BOOL
+class_addProperty(Class _Nullable cls, const char * _Nonnull name,
+                  const objc_property_attribute_t * _Nullable attributes,
+                  unsigned int attributeCount)
+    __attribute__((availability(macosx,introduced=10.7))) __attribute__((availability(ios,introduced=4.3))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) void
+class_replaceProperty(Class _Nullable cls, const char * _Nonnull name,
+                      const objc_property_attribute_t * _Nullable attributes,
+                      unsigned int attributeCount)
+    __attribute__((availability(macosx,introduced=10.7))) __attribute__((availability(ios,introduced=4.3))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+
+
+
+
+
+
+
+extern "C" __attribute__((visibility("default"))) void
+class_setIvarLayout(Class _Nullable cls, const uint8_t * _Nullable layout)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+
+
+
+
+
+
+
+extern "C" __attribute__((visibility("default"))) void
+class_setWeakIvarLayout(Class _Nullable cls, const uint8_t * _Nullable layout)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Class _Nonnull
+objc_getFutureClass(const char * _Nonnull name)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)))
+                        ;
+extern "C" __attribute__((visibility("default"))) id _Nullable
+class_createInstance(Class _Nullable cls, size_t extraBytes)
+    __attribute__((ns_returns_retained))
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) id _Nullable
+objc_constructInstance(Class _Nullable cls, void * _Nullable bytes)
+    __attribute__((availability(macosx,introduced=10.6))) __attribute__((availability(ios,introduced=3.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)))
+                        ;
+extern "C" __attribute__((visibility("default"))) void * _Nullable objc_destructInstance(id _Nullable obj)
+    __attribute__((availability(macosx,introduced=10.6))) __attribute__((availability(ios,introduced=3.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)))
+                        ;
+extern "C" __attribute__((visibility("default"))) Class _Nullable
+objc_allocateClassPair(Class _Nullable superclass, const char * _Nonnull name,
+                       size_t extraBytes)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+
+
+
+
+
+
+extern "C" __attribute__((visibility("default"))) void
+objc_registerClassPair(Class _Nonnull cls)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+
+
+
+
+
+
+extern "C" __attribute__((visibility("default"))) Class _Nonnull
+objc_duplicateClass(Class _Nonnull original, const char * _Nonnull name,
+                    size_t extraBytes)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) void
+objc_disposeClassPair(Class _Nonnull cls)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) SEL _Nonnull
+method_getName(Method _Nonnull m)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) IMP _Nonnull
+method_getImplementation(Method _Nonnull m)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) const char * _Nullable
+method_getTypeEncoding(Method _Nonnull m)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) unsigned int
+method_getNumberOfArguments(Method _Nonnull m)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) char * _Nonnull
+method_copyReturnType(Method _Nonnull m)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) char * _Nullable
+method_copyArgumentType(Method _Nonnull m, unsigned int index)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) void
+method_getReturnType(Method _Nonnull m, char * _Nonnull dst, size_t dst_len)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) void
+method_getArgumentType(Method _Nonnull m, unsigned int index,
+                       char * _Nullable dst, size_t dst_len)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+
+extern "C" __attribute__((visibility("default"))) struct objc_method_description * _Nonnull
+method_getDescription(Method _Nonnull m)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) IMP _Nonnull
+method_setImplementation(Method _Nonnull m, IMP _Nonnull imp)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) void
+method_exchangeImplementations(Method _Nonnull m1, Method _Nonnull m2)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) const char * _Nullable
+ivar_getName(Ivar _Nonnull v)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) const char * _Nullable
+ivar_getTypeEncoding(Ivar _Nonnull v)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) ptrdiff_t
+ivar_getOffset(Ivar _Nonnull v)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) const char * _Nonnull
+property_getName(objc_property_t _Nonnull property)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) const char * _Nullable
+property_getAttributes(objc_property_t _Nonnull property)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) objc_property_attribute_t * _Nullable
+property_copyAttributeList(objc_property_t _Nonnull property,
+                           unsigned int * _Nullable outCount)
+    __attribute__((availability(macosx,introduced=10.7))) __attribute__((availability(ios,introduced=4.3))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) char * _Nullable
+property_copyAttributeValue(objc_property_t _Nonnull property,
+                            const char * _Nonnull attributeName)
+    __attribute__((availability(macosx,introduced=10.7))) __attribute__((availability(ios,introduced=4.3))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Protocol * _Nullable
+objc_getProtocol(const char * _Nonnull name)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Protocol * __attribute__((objc_ownership(none))) _Nonnull * _Nullable
+objc_copyProtocolList(unsigned int * _Nullable outCount)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) BOOL
+protocol_conformsToProtocol(Protocol * _Nullable proto,
+                            Protocol * _Nullable other)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) BOOL
+protocol_isEqual(Protocol * _Nullable proto, Protocol * _Nullable other)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) const char * _Nonnull
+protocol_getName(Protocol * _Nonnull proto)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) struct objc_method_description
+protocol_getMethodDescription(Protocol * _Nonnull proto, SEL _Nonnull aSel,
+                              BOOL isRequiredMethod, BOOL isInstanceMethod)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) struct objc_method_description * _Nullable
+protocol_copyMethodDescriptionList(Protocol * _Nonnull proto,
+                                   BOOL isRequiredMethod,
+                                   BOOL isInstanceMethod,
+                                   unsigned int * _Nullable outCount)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) objc_property_t _Nullable
+protocol_getProperty(Protocol * _Nonnull proto,
+                     const char * _Nonnull name,
+                     BOOL isRequiredProperty, BOOL isInstanceProperty)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) objc_property_t _Nonnull * _Nullable
+protocol_copyPropertyList(Protocol * _Nonnull proto,
+                          unsigned int * _Nullable outCount)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) objc_property_t _Nonnull * _Nullable
+protocol_copyPropertyList2(Protocol * _Nonnull proto,
+                           unsigned int * _Nullable outCount,
+                           BOOL isRequiredProperty, BOOL isInstanceProperty)
+    __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(tvos,introduced=10.0))) __attribute__((availability(watchos,introduced=3.0)));
+extern "C" __attribute__((visibility("default"))) Protocol * __attribute__((objc_ownership(none))) _Nonnull * _Nullable
+protocol_copyProtocolList(Protocol * _Nonnull proto,
+                          unsigned int * _Nullable outCount)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Protocol * _Nullable
+objc_allocateProtocol(const char * _Nonnull name)
+    __attribute__((availability(macosx,introduced=10.7))) __attribute__((availability(ios,introduced=4.3))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+
+
+
+
+
+
+
+extern "C" __attribute__((visibility("default"))) void
+objc_registerProtocol(Protocol * _Nonnull proto)
+    __attribute__((availability(macosx,introduced=10.7))) __attribute__((availability(ios,introduced=4.3))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) void
+protocol_addMethodDescription(Protocol * _Nonnull proto, SEL _Nonnull name,
+                              const char * _Nullable types,
+                              BOOL isRequiredMethod, BOOL isInstanceMethod)
+    __attribute__((availability(macosx,introduced=10.7))) __attribute__((availability(ios,introduced=4.3))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) void
+protocol_addProtocol(Protocol * _Nonnull proto, Protocol * _Nonnull addition)
+    __attribute__((availability(macosx,introduced=10.7))) __attribute__((availability(ios,introduced=4.3))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) void
+protocol_addProperty(Protocol * _Nonnull proto, const char * _Nonnull name,
+                     const objc_property_attribute_t * _Nullable attributes,
+                     unsigned int attributeCount,
+                     BOOL isRequiredProperty, BOOL isInstanceProperty)
+    __attribute__((availability(macosx,introduced=10.7))) __attribute__((availability(ios,introduced=4.3))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) const char * _Nonnull * _Nonnull
+objc_copyImageNames(unsigned int * _Nullable outCount)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) const char * _Nullable
+class_getImageName(Class _Nullable cls)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) const char * _Nonnull * _Nullable
+objc_copyClassNamesForImage(const char * _Nonnull image,
+                            unsigned int * _Nullable outCount)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) const char * _Nonnull
+sel_getName(SEL _Nonnull sel)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) SEL _Nonnull
+sel_registerName(const char * _Nonnull str)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) BOOL
+sel_isEqual(SEL _Nonnull lhs, SEL _Nonnull rhs)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) void
+objc_enumerationMutation(id _Nonnull obj)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+
+
+
+
+
+
+extern "C" __attribute__((visibility("default"))) void
+objc_setEnumerationMutationHandler(void (*_Nullable handler)(id _Nonnull ))
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) void
+objc_setForwardHandler(void * _Nonnull fwd, void * _Nonnull fwd_stret)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) IMP _Nonnull
+imp_implementationWithBlock(id _Nonnull block)
+    __attribute__((availability(macosx,introduced=10.7))) __attribute__((availability(ios,introduced=4.3))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) id _Nullable
+imp_getBlock(IMP _Nonnull anImp)
+    __attribute__((availability(macosx,introduced=10.7))) __attribute__((availability(ios,introduced=4.3))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) BOOL
+imp_removeBlock(IMP _Nonnull anImp)
+    __attribute__((availability(macosx,introduced=10.7))) __attribute__((availability(ios,introduced=4.3))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) id _Nullable
+objc_loadWeak(id _Nullable * _Nonnull location)
+    __attribute__((availability(macosx,introduced=10.7))) __attribute__((availability(ios,introduced=5.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) id _Nullable
+objc_storeWeak(id _Nullable * _Nonnull location, id _Nullable obj)
+    __attribute__((availability(macosx,introduced=10.7))) __attribute__((availability(ios,introduced=5.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+typedef uintptr_t objc_AssociationPolicy; enum {
+    OBJC_ASSOCIATION_ASSIGN = 0,
+    OBJC_ASSOCIATION_RETAIN_NONATOMIC = 1,
+
+    OBJC_ASSOCIATION_COPY_NONATOMIC = 3,
+
+    OBJC_ASSOCIATION_RETAIN = 01401,
+
+    OBJC_ASSOCIATION_COPY = 01403
+
+};
+extern "C" __attribute__((visibility("default"))) void
+objc_setAssociatedObject(id _Nonnull object, const void * _Nonnull key,
+                         id _Nullable value, objc_AssociationPolicy policy)
+    __attribute__((availability(macosx,introduced=10.6))) __attribute__((availability(ios,introduced=3.1))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) id _Nullable
+objc_getAssociatedObject(id _Nonnull object, const void * _Nonnull key)
+    __attribute__((availability(macosx,introduced=10.6))) __attribute__((availability(ios,introduced=3.1))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) void
+objc_removeAssociatedObjects(id _Nonnull object)
+    __attribute__((availability(macosx,introduced=10.6))) __attribute__((availability(ios,introduced=3.1))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+typedef BOOL (*objc_hook_getImageName)(Class _Nonnull cls, const char * _Nullable * _Nonnull outImageName);
+extern "C" __attribute__((visibility("default"))) void objc_setHook_getImageName(objc_hook_getImageName _Nonnull newValue,
+                                           objc_hook_getImageName _Nullable * _Nonnull outOldValue)
+    __attribute__((availability(macosx,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(tvos,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0)));
+typedef BOOL (*objc_hook_getClass)(const char * _Nonnull name, Class _Nullable * _Nonnull outClass);
+extern "C" __attribute__((visibility("default"))) void objc_setHook_getClass(objc_hook_getClass _Nonnull newValue,
+                                       objc_hook_getClass _Nullable * _Nonnull outOldValue)
+    __attribute__((availability(macosx,introduced=10.14.4))) __attribute__((availability(ios,introduced=12.2))) __attribute__((availability(tvos,introduced=12.2))) __attribute__((availability(watchos,introduced=5.2)));
+typedef void (*objc_hook_setAssociatedObject)(id _Nonnull object, const void * _Nonnull key,
+                                              id _Nullable value, objc_AssociationPolicy policy);
+extern "C" __attribute__((visibility("default"))) void objc_setHook_setAssociatedObject(objc_hook_setAssociatedObject _Nonnull newValue,
+                                       objc_hook_setAssociatedObject _Nullable * _Nonnull outOldValue)
+    __attribute__((availability(macosx,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(tvos,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0)));
+
+
+
+
+
+
+
+struct mach_header;
+typedef void (*objc_func_loadImage)(const struct mach_header * _Nonnull header);
+extern "C" __attribute__((visibility("default"))) void objc_addLoadImageFunc(objc_func_loadImage _Nonnull func)
+    __attribute__((availability(macosx,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(tvos,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0)));
+
+
+
+
+
+typedef Class _Nullable
+(*_objc_swiftMetadataInitializer)(Class _Nonnull cls, void * _Nullable arg);
+extern "C" __attribute__((visibility("default"))) Class _Nullable
+_objc_realizeClassFromSwift(Class _Nullable cls, void * _Nullable previously)
+    __attribute__((availability(macosx,introduced=10.14.4))) __attribute__((availability(ios,introduced=12.2))) __attribute__((availability(tvos,introduced=12.2))) __attribute__((availability(watchos,introduced=5.2)));
+struct objc_method_list;
+
+
+
+
+
+
+extern "C" __attribute__((visibility("default"))) IMP _Nullable
+class_lookupMethod(Class _Nullable cls, SEL _Nonnull sel)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(macosx,deprecated=10.5,message="use class_getMethodImplementation instead")))
+    __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(ios,deprecated=2.0,message="use class_getMethodImplementation instead")))
+    __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(tvos,deprecated=9.0,message="use class_getMethodImplementation instead")))
+    __attribute__((availability(watchos,introduced=1.0))) __attribute__((availability(watchos,deprecated=1.0,message="use class_getMethodImplementation instead")))
+
+;
+extern "C" __attribute__((visibility("default"))) BOOL
+class_respondsToMethod(Class _Nullable cls, SEL _Nonnull sel)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(macosx,deprecated=10.5,message="use class_respondsToSelector instead")))
+    __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(ios,deprecated=2.0,message="use class_respondsToSelector instead")))
+    __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(tvos,deprecated=9.0,message="use class_respondsToSelector instead")))
+    __attribute__((availability(watchos,introduced=1.0))) __attribute__((availability(watchos,deprecated=1.0,message="use class_respondsToSelector instead")))
+
+;
+
+extern "C" __attribute__((visibility("default"))) void
+_objc_flush_caches(Class _Nullable cls)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(macosx,deprecated=10.5,message="not recommended")))
+    __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(ios,deprecated=2.0,message="not recommended")))
+    __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(tvos,deprecated=9.0,message="not recommended")))
+    __attribute__((availability(watchos,introduced=1.0))) __attribute__((availability(watchos,deprecated=1.0,message="not recommended")))
+
+;
+
+extern "C" __attribute__((visibility("default"))) id _Nullable
+object_copyFromZone(id _Nullable anObject, size_t nBytes, void * _Nullable z)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(macosx,deprecated=10.5,message="use object_copy instead"))) __attribute__((availability(ios,unavailable))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(watchos,unavailable)));
+
+extern "C" __attribute__((visibility("default"))) id _Nullable
+object_realloc(id _Nullable anObject, size_t nBytes)
+    __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) id _Nullable
+object_reallocFromZone(id _Nullable anObject, size_t nBytes, void * _Nullable z)
+    __attribute__((unavailable));
+
+
+extern "C" __attribute__((visibility("default"))) void * _Nonnull
+objc_getClasses(void)
+    __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) void
+objc_addClass(Class _Nonnull myClass)
+    __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) void
+objc_setClassHandler(int (* _Nullable )(const char * _Nonnull))
+    __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) void
+objc_setMultithreaded(BOOL flag)
+    __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) id _Nullable
+class_createInstanceFromZone(Class _Nullable, size_t idxIvars,
+                             void * _Nullable z)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(macosx,deprecated=10.5,message="use class_createInstance instead"))) __attribute__((availability(ios,unavailable))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(watchos,unavailable)));
+
+extern "C" __attribute__((visibility("default"))) void
+class_addMethods(Class _Nullable, struct objc_method_list * _Nonnull)
+    __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) void
+class_removeMethods(Class _Nullable, struct objc_method_list * _Nonnull)
+    __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) void
+_objc_resolve_categories_for_class(Class _Nonnull cls)
+    __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) Class _Nonnull
+class_poseAs(Class _Nonnull imposter, Class _Nonnull original)
+    __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) unsigned int
+method_getSizeOfArguments(Method _Nonnull m)
+    __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) unsigned
+method_getArgumentInfo(struct objc_method * _Nonnull m, int arg,
+                       const char * _Nullable * _Nonnull type,
+                       int * _Nonnull offset)
+    __attribute__((unavailable))
+    __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) Class _Nullable
+objc_getOrigClass(const char * _Nonnull name)
+    __attribute__((unavailable));
+
+
+extern "C" __attribute__((visibility("default"))) struct objc_method_list * _Nullable
+class_nextMethodList(Class _Nullable, void * _Nullable * _Nullable)
+    __attribute__((unavailable));
+
+
+
+
+
+
+
+extern "C" __attribute__((visibility("default"))) id _Nullable
+(* _Nonnull _alloc)(Class _Nullable, size_t)
+    __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) id _Nullable
+(* _Nonnull _copy)(id _Nullable, size_t)
+     __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) id _Nullable
+(* _Nonnull _realloc)(id _Nullable, size_t)
+     __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) id _Nullable
+(* _Nonnull _dealloc)(id _Nullable)
+     __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) id _Nullable
+(* _Nonnull _zoneAlloc)(Class _Nullable, size_t, void * _Nullable)
+     __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) id _Nullable
+(* _Nonnull _zoneRealloc)(id _Nullable, size_t, void * _Nullable)
+     __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) id _Nullable
+(* _Nonnull _zoneCopy)(id _Nullable, size_t, void * _Nullable)
+     __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) void
+(* _Nonnull _error)(id _Nullable, const char * _Nonnull, va_list)
+     __attribute__((unavailable));
 
 #ifndef _REWRITER_typedef_Person
 #define _REWRITER_typedef_Person
@@ -32636,11 +36304,23 @@ struct Person_IMPL {
 
 /* @end */
 
-#pragma clang assume_nonnull end
+
+struct NSObject_IMPL {
+    Class isa;
+};
+
+struct Person_IMPL {
+    struct NSObject_IMPL NSObject_IVARS;
+    int _age;
+    int _height;
+    int _no;
+};
 
 int main(int argc, const char * argv[]) {
     /* @autoreleasepool */ { __AtAutoreleasePool __autoreleasepool; 
         Person *p = ((Person *(*)(id, SEL))(void *)objc_msgSend)((id)((Person *(*)(id, SEL))(void *)objc_msgSend)((id)objc_getClass("Person"), sel_registerName("alloc")), sel_registerName("init"));
+
+        Class personMetaClass = object_getClass(((Class (*)(id, SEL))(void *)objc_msgSend)((id)objc_getClass("Person"), sel_registerName("class")));
 
 
 

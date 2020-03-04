@@ -26,11 +26,13 @@ int main(int argc, const char * argv[]) {
     @autoreleasepool {
         Person *p = [[Person alloc] init];
         
-        NSLog(@"%zd", sizeof(struct Person_IMPL)); // 24
-
-        NSLog(@"%zd %zd",
-              class_getInstanceSize([Person class]), // 24
-              malloc_size((__bridge const void *)(p))); // 32
+        Class personMetaClass = object_getClass([Person class]);
+        
+//        NSLog(@"%zd", sizeof(struct Person_IMPL)); // 24
+//
+//        NSLog(@"%zd %zd",
+//              class_getInstanceSize([Person class]), // 24
+//              malloc_size((__bridge const void *)(p))); // 32
     }
     return 0;
 }
