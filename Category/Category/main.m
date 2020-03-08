@@ -14,6 +14,7 @@
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
         Person *person = [[Person alloc] init];
+//        person.name = @"jack";
         [person run];
 //        objc_msgSend(person, @selector(run));
         [person jump];

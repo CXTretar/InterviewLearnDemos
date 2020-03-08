@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CA55E0B62410EAE600FD4C5C /* Person+Test2.m in Sources */ = {isa = PBXBuildFile; fileRef = CA55E0B52410EAE600FD4C5C /* Person+Test2.m */; };
 		CAC6D87A2371DA2C00FF4BEC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = CAC6D8792371DA2C00FF4BEC /* main.m */; };
 		CAC6D8822371DA5E00FF4BEC /* Person.m in Sources */ = {isa = PBXBuildFile; fileRef = CAC6D8812371DA5E00FF4BEC /* Person.m */; };
 		CAC6D8852371DC6A00FF4BEC /* Person+Test.m in Sources */ = {isa = PBXBuildFile; fileRef = CAC6D8842371DC6A00FF4BEC /* Person+Test.m */; };
@@ -25,6 +26,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		CA55E0B42410EAE600FD4C5C /* Person+Test2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Person+Test2.h"; sourceTree = "<group>"; };
+		CA55E0B52410EAE600FD4C5C /* Person+Test2.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Person+Test2.m"; sourceTree = "<group>"; };
 		CAC6D8762371DA2C00FF4BEC /* 关联对象 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "关联对象"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CAC6D8792371DA2C00FF4BEC /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		CAC6D8802371DA5E00FF4BEC /* Person.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Person.h; sourceTree = "<group>"; };
@@ -68,6 +71,8 @@
 				CAC6D8812371DA5E00FF4BEC /* Person.m */,
 				CAC6D8832371DC6A00FF4BEC /* Person+Test.h */,
 				CAC6D8842371DC6A00FF4BEC /* Person+Test.m */,
+				CA55E0B42410EAE600FD4C5C /* Person+Test2.h */,
+				CA55E0B52410EAE600FD4C5C /* Person+Test2.m */,
 			);
 			path = "关联对象";
 			sourceTree = "<group>";
@@ -130,6 +135,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CAC6D8852371DC6A00FF4BEC /* Person+Test.m in Sources */,
+				CA55E0B62410EAE600FD4C5C /* Person+Test2.m in Sources */,
 				CAC6D8822371DA5E00FF4BEC /* Person.m in Sources */,
 				CAC6D87A2371DA2C00FF4BEC /* main.m in Sources */,
 			);

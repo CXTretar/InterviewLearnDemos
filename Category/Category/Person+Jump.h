@@ -10,6 +10,8 @@
 
 @interface Person (Jump)
 
+@property (nonatomic, copy) NSString *name;
+
 - (void)jump;
 
 @end
