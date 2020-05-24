@@ -16,5 +16,7 @@
     int _age;
 }
 
+@property(nonatomic, assign) int age;
+
 @end
 

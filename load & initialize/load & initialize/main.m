@@ -63,8 +63,10 @@ void printMethodNamesOfClass(Class cls) {
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
         NSLog(@" ------------------- ");
-        [Person test];
+//        [Person test];
+//        [Person test];
         [Student test];
+//        [Student test];
         [Teacher test];
         NSLog(@" ------------------- ");
         printMethodNamesOfClass(object_getClass([Person class]));

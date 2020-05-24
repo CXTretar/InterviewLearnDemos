@@ -17,6 +17,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		CA4171302459108A00C89869 /* NSKVONotifying_Person.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSKVONotifying_Person.h; sourceTree = "<group>"; };
+		CA4171312459108A00C89869 /* NSKVONotifying_Person.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSKVONotifying_Person.m; sourceTree = "<group>"; };
 		CAE29DDF23254DDF00AA06B9 /* KVO Demo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "KVO Demo.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CAE29DE223254DDF00AA06B9 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		CAE29DE323254DDF00AA06B9 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -67,6 +69,8 @@
 				CAE29DE623254DDF00AA06B9 /* ViewController.m */,
 				CAE29DFB23254F8300AA06B9 /* Person.h */,
 				CAE29DFC23254F8300AA06B9 /* Person.m */,
+				CA4171302459108A00C89869 /* NSKVONotifying_Person.h */,
+				CA4171312459108A00C89869 /* NSKVONotifying_Person.m */,
 				CAE29DE823254DDF00AA06B9 /* Main.storyboard */,
 				CAE29DEB23254DDF00AA06B9 /* Assets.xcassets */,
 				CAE29DED23254DDF00AA06B9 /* LaunchScreen.storyboard */,
